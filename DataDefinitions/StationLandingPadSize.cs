@@ -10,12 +10,12 @@ namespace EddiDataDefinitions
         {
             resourceManager = Properties.StationLargestPad.ResourceManager;
             resourceManager.IgnoreCase = true;
-            missingEDNameHandler = (edname) => new LandingPadSize(edname);
+            missingEDNameHandler = (edname) => new LandingPadSize(edname, 0);
 
-            None = new LandingPadSize("None");
-            Large = new LandingPadSize("Large");
-            Medium = new LandingPadSize("Medium");
-            Small = new LandingPadSize("Small");
+            None = new LandingPadSize( "None", 0 );
+            Small = new LandingPadSize( "Small", 1 );
+            Medium = new LandingPadSize( "Medium", 2 );
+            Large = new LandingPadSize( "Large", 3 );
         }
 
         public static readonly LandingPadSize None;
@@ -23,11 +23,13 @@ namespace EddiDataDefinitions
         public static readonly LandingPadSize Medium;
         public static readonly LandingPadSize Small;
 
+        public int index { get; private set; }
+
         // dummy used to ensure that the static constructor has run
-        public LandingPadSize() : this("")
+        public LandingPadSize() : this("", 0)
         { }
 
-        private LandingPadSize(string edname) : base(edname, edname)
+        private LandingPadSize(string edname, int index) : base(edname, edname)
         { }
     }
 }
