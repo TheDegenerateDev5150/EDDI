@@ -382,7 +382,8 @@ namespace UnitTests
                     ""Name_Localised"": ""Refinery"",
                     ""Proportion"": 0.200000
                 }],
-                ""DistFromStarLS"": 566.487976
+                ""DistFromStarLS"": 566.487976,
+                ""LandingPads"":{ ""Small"":13, ""Medium"":14, ""Large"":5 }
             }";
 
             var events = JournalMonitor.ParseJournalEntry(line);

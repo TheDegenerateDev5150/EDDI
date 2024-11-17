@@ -187,6 +187,9 @@ namespace EddiJournalMonitor
                                     Faction controllingfaction = GetFaction(data, "Station", systemName, systemAddress);
                                     decimal? distancefromstar = JsonParsing.getOptionalDecimal(data, "DistFromStarLS");
 
+                                    // Get station landing pads data
+                                    var landingPads = GetLandingPads(data);
+
                                     // Get station services data
                                     data.TryGetValue("StationServices", out object val);
                                     List<string> stationservices = (val as List<object>)?.Cast<string>()?.ToList() ?? new List<string>();
@@ -220,7 +223,7 @@ namespace EddiJournalMonitor
                                         ? StationState.NormalOperation
                                         : StationState.FromEDName( stationStateEdName );
 
-                                    events.Add(new DockedEvent(timestamp, systemName, systemAddress, marketId, stationName, stationState, stationModel, controllingfaction, Economies, distancefromstar, stationServices, cockpitBreach, wanted, activeFine) { raw = line, fromLoad = fromLogLoad });
+                                    events.Add(new DockedEvent(timestamp, systemName, systemAddress, marketId, stationName, stationState, stationModel, controllingfaction, Economies, distancefromstar, stationServices, cockpitBreach, wanted, activeFine, landingPads) { raw = line, fromLoad = fromLogLoad });
                                 }
                                 handled = true;
                                 break;
@@ -2119,7 +2122,11 @@ namespace EddiJournalMonitor
                                     string stationName = JsonParsing.getString(data, "StationName");
                                     string stationType = JsonParsing.getString(data, "StationType");
                                     long marketId = JsonParsing.getLong(data, "MarketID");
-                                    events.Add(new DockingRequestedEvent(timestamp, stationName, stationType, marketId) { raw = line, fromLoad = fromLogLoad });
+
+                                    // Get station landing pads data
+                                    var landingPads = GetLandingPads(data);
+
+                                    events.Add(new DockingRequestedEvent(timestamp, stationName, stationType, marketId, landingPads) { raw = line, fromLoad = fromLogLoad });
                                 }
                                 handled = true;
                                 break;
@@ -5177,6 +5184,25 @@ namespace EddiJournalMonitor
                 Logging.Error($"Exception whilst parsing journal line {line}", ex);
             }
             return events;
+        }
+
+        private static Dictionary<LandingPadSize, int> GetLandingPads(IDictionary<string, object> data)
+        {
+            var landingPads = new Dictionary<LandingPadSize, int>();
+            if ( data.TryGetValue( "LandingPads", out var landingPadsObj ) && landingPadsObj is Dictionary<string, object> landingPadsDict )
+            {
+                landingPads.Add( LandingPadSize.Small,
+                    landingPadsDict.TryGetValue( LandingPadSize.Small.invariantName, out var smallPads )
+                        ? Convert.ToInt32( smallPads ) : 0 );
+                landingPads.Add( LandingPadSize.Medium,
+                    landingPadsDict.TryGetValue( LandingPadSize.Medium.invariantName, out var mediumPads )
+                        ? Convert.ToInt32( mediumPads ) : 0 );
+                landingPads.Add( LandingPadSize.Large,
+                    landingPadsDict.TryGetValue( LandingPadSize.Large.invariantName, out var largePads )
+                        ? Convert.ToInt32( largePads ) : 0 );
+            }
+
+            return landingPads;
         }
 
         private static void GetThargoidWarData ( IDictionary<string, object> data, out ThargoidWar thargoidWar )

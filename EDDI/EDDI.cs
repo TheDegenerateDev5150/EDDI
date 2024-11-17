@@ -1617,7 +1617,12 @@ namespace EddiCore
                     CurrentStation.name = carrierCallsign;
                     CurrentStation.marketId = carrierID;
                     CurrentStation.Faction = @event.carrierFaction;
-                    CurrentStation.LargestPad = LandingPadSize.Large; // Carriers always include large pads
+                    CurrentStation.LandingPads = new Dictionary<LandingPadSize, int>
+                    {
+                        { LandingPadSize.Large, 8 },
+                        { LandingPadSize.Medium, 4 },
+                        { LandingPadSize.Small, 4 }
+                    };
                     CurrentStation.Model = @event.carrierType;
                     CurrentStation.economyShares = @event.carrierEconomies;
                     CurrentStation.stationServices = @event.carrierServices;
@@ -2106,9 +2111,9 @@ namespace EddiCore
 
         private bool eventDockingRequested(DockingRequestedEvent theEvent)
         {
-            bool passEvent = !string.IsNullOrEmpty(theEvent.station);
-            Station station = CurrentStarSystem?.stations.Find(s => s.name == theEvent.station);
-            if (station == null && CurrentStarSystem != null)
+            var passEvent = !string.IsNullOrEmpty(theEvent.station);
+            var station = CurrentStarSystem?.stations.Find(s => s.name == theEvent.station);
+            if (station is null && CurrentStarSystem != null)
             {
                 // This station is unknown to us, might not be in our data source or we might not have connectivity.  Use a placeholder
                 station = new Station
@@ -2124,6 +2129,7 @@ namespace EddiCore
             if ( station != null )
             {
                 station.Model = theEvent.stationDefinition;
+                station.LandingPads = theEvent.landingPads;
             }
 
             return passEvent;
@@ -2178,6 +2184,7 @@ namespace EddiCore
                     station.Model = theEvent.stationModel;
                     station.stationServices = theEvent.stationServices;
                     station.distancefromstar = theEvent.distancefromstar;
+                    station.LandingPads = theEvent.landingPads;
 
                     CurrentStation = station;
 

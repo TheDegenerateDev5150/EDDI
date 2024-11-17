@@ -11,7 +11,7 @@ namespace EddiEvents
     {
         public const string NAME = "Docked";
         public const string DESCRIPTION = "Triggered when your ship docks at a station or outpost";
-        public const string SAMPLE = @"{ ""timestamp"":""2018-11-19T01:14:18Z"", ""event"":""Docked"", ""StationName"":""Linnaeus Enterprise"", ""StationType"":""Coriolis"", ""StarSystem"":""BD+48 738"", ""SystemAddress"":908352033466, ""MarketID"":3226360576, ""StationFaction"":""Laniakea"", ""StationGovernment"":""$government_Cooperative;"", ""StationGovernment_Localised"":""Cooperative"", ""StationServices"":[ ""Dock"", ""Autodock"", ""BlackMarket"", ""Commodities"", ""Contacts"", ""Exploration"", ""Missions"", ""Outfitting"", ""CrewLounge"", ""Rearm"", ""Refuel"", ""Repair"", ""Shipyard"", ""Tuning"", ""Workshop"", ""MissionsGenerated"", ""FlightController"", ""StationOperations"", ""Powerplay"", ""SearchAndRescue"", ""MaterialTrader"", ""StationMenu"" ], ""StationEconomy"":""$economy_Extraction;"", ""StationEconomy_Localised"":""Extraction"", ""StationEconomies"":[ { ""Name"":""$economy_Extraction;"", ""Name_Localised"":""Extraction"", ""Proportion"":1.000000 } ], ""DistFromStarLS"":59.295441, ""ActiveFine"":true }";
+        public const string SAMPLE = @"{ ""timestamp"":""2018-11-19T01:14:18Z"", ""event"":""Docked"", ""StationName"":""Linnaeus Enterprise"", ""StationType"":""Coriolis"", ""StarSystem"":""BD+48 738"", ""SystemAddress"":908352033466, ""MarketID"":3226360576, ""StationFaction"":""Laniakea"", ""StationGovernment"":""$government_Cooperative;"", ""StationGovernment_Localised"":""Cooperative"", ""StationServices"":[ ""Dock"", ""Autodock"", ""BlackMarket"", ""Commodities"", ""Contacts"", ""Exploration"", ""Missions"", ""Outfitting"", ""CrewLounge"", ""Rearm"", ""Refuel"", ""Repair"", ""Shipyard"", ""Tuning"", ""Workshop"", ""MissionsGenerated"", ""FlightController"", ""StationOperations"", ""Powerplay"", ""SearchAndRescue"", ""MaterialTrader"", ""StationMenu"" ], ""StationEconomy"":""$economy_Extraction;"", ""StationEconomy_Localised"":""Extraction"", ""StationEconomies"":[ { ""Name"":""$economy_Extraction;"", ""Name_Localised"":""Extraction"", ""Proportion"":1.000000 } ], ""DistFromStarLS"":59.295441, ""ActiveFine"":true, ""LandingPads"": {""Large"": 6, ""Medium"": 13, ""Small"": 9 } }";
 
         [PublicAPI("The system at which the commander has docked")]
         public string system { get; private set; }
@@ -77,7 +77,9 @@ namespace EddiEvents
 
         public List<EconomyShare> economyShares { get; private set; }
 
-        public DockedEvent(DateTime timestamp, string system, ulong systemAddress, long? marketId, string station, StationState stationState, StationModel stationModel, Faction controllingfaction, List<EconomyShare> Economies, decimal? distancefromstar, List<StationService> stationServices, bool cockpitBreach, bool wanted, bool activeFine) : base(timestamp, NAME)
+        public Dictionary<LandingPadSize, int> landingPads { get; private set; }
+
+        public DockedEvent (DateTime timestamp, string system, ulong systemAddress, long? marketId, string station, StationState stationState, StationModel stationModel, Faction controllingfaction, List<EconomyShare> Economies, decimal? distancefromstar, List<StationService> stationServices, bool cockpitBreach, bool wanted, bool activeFine, Dictionary<LandingPadSize, int> landingPads ) : base( timestamp, NAME )
         {
             this.system = system;
             this.systemAddress = systemAddress;
@@ -86,12 +88,13 @@ namespace EddiEvents
             this.stationState = stationState;
             this.stationModel = stationModel ?? StationModel.None;
             this.controllingfaction = controllingfaction;
-            this.economyShares = Economies ?? new List<EconomyShare>() { new EconomyShare(Economy.None, 0M), new EconomyShare(Economy.None, 0M) };
+            this.economyShares = Economies ?? new List<EconomyShare>() { new EconomyShare( Economy.None, 0M ), new EconomyShare( Economy.None, 0M ) };
             this.distancefromstar = distancefromstar;
             this.stationServices = stationServices ?? new List<StationService>();
             this.cockpitbreach = cockpitBreach;
             this.wanted = wanted;
             this.activefine = activeFine;
+            this.landingPads = landingPads;
         }
     }
 }

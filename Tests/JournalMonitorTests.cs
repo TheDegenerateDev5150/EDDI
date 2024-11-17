@@ -391,7 +391,7 @@ namespace UnitTests
         [TestMethod]
         public void TestJournalDocked1()
         {
-            string line = @"{ ""timestamp"":""2017-04-14T19:34:32Z"", ""event"":""Docked"", ""StationName"":""Freeholm"", ""StationType"":""AsteroidBase"", ""StarSystem"":""Artemis"", ""StationFaction"":{ ""Name"":""Artemis Empire Assembly"", ""FactionState"":""Boom"" }, ""StationGovernment"":""$government_Patronage;"", ""StationGovernment_Localised"":""Patronage"", ""StationAllegiance"":""Empire"", ""StationEconomy"":""$economy_Industrial;"", ""StationEconomy_Localised"":""Industrial"", ""StationEconomies"": [ { ""Name"": ""$economy_Industrial;"", ""Proportion"": 0.7 }, { ""Name"": ""$economy_Extraction;"", ""Proportion"": 0.3 } ], ""DistFromStarLS"":2527.211914, ""StationServices"":[""Refuel""], ""MarketID"": 128169720, ""SystemAddress"": 3107509474002 }";
+            string line = @"{ ""timestamp"":""2017-04-14T19:34:32Z"", ""event"":""Docked"", ""StationName"":""Freeholm"", ""StationType"":""AsteroidBase"", ""StarSystem"":""Artemis"", ""StationFaction"":{ ""Name"":""Artemis Empire Assembly"", ""FactionState"":""Boom"" }, ""StationGovernment"":""$government_Patronage;"", ""StationGovernment_Localised"":""Patronage"", ""StationAllegiance"":""Empire"", ""StationEconomy"":""$economy_Industrial;"", ""StationEconomy_Localised"":""Industrial"", ""StationEconomies"": [ { ""Name"": ""$economy_Industrial;"", ""Proportion"": 0.7 }, { ""Name"": ""$economy_Extraction;"", ""Proportion"": 0.3 } ], ""DistFromStarLS"":2527.211914, ""StationServices"":[""Refuel""], ""MarketID"": 128169720, ""SystemAddress"": 3107509474002, ""LandingPads"": {""Large"": 7, ""Medium"": 8, ""Small"": 4 } }";
             List<Event> events = JournalMonitor.ParseJournalEntry(line);
             Assert.IsTrue(events.Count == 1);
 
@@ -409,12 +409,15 @@ namespace UnitTests
             Assert.AreEqual("Extraction", theEvent.economyShares[1].economy.invariantName);
             Assert.AreEqual(0.3M, theEvent.economyShares[1].proportion);
             Assert.AreEqual(StationState.NormalOperation, theEvent.stationState);
+            Assert.AreEqual( 7, theEvent.landingPads[ LandingPadSize.Large ] );
+            Assert.AreEqual( 8, theEvent.landingPads[ LandingPadSize.Medium ] );
+            Assert.AreEqual( 4, theEvent.landingPads[ LandingPadSize.Small ] );
         }
 
         [TestMethod]
         public void TestJournalDocked2()
         {
-            string line = @"{ ""timestamp"":""2018-04-01T05:21:24Z"", ""event"":""Docked"", ""StationName"":""Donaldson"", ""StationState"":""UnderRepairs"", ""StationType"":""Orbis"", ""StarSystem"":""Alioth"", ""SystemAddress"":1109989017963, ""MarketID"":128141048, ""StationFaction"":{ ""Name"":""Alioth Pro-Alliance Grou"", ""FactionState"":""Boom"" }, ""StationGovernment"":""$government_Democracy;"", ""StationGovernment_Localised"":""Democracy"", ""StationAllegiance"":""Alliance"", ""StationServices"":[ ""Dock"", ""Autodock"", ""BlackMarket"", ""Commodities"", ""Contacts"", ""Exploration"", ""Missions"", ""Outfitting"", ""CrewLounge"", ""Rearm"", ""Refuel"", ""Repair"", ""Shipyard"", ""Tuning"", ""Workshop"", ""MissionsGenerated"", ""FlightController"", ""StationOperations"", ""Powerplay"", ""SearchAndRescue"" ], ""StationEconomy"":""$economy_Service;"", ""StationEconomy_Localised"":""Service"", ""StationEconomies"":[ { ""Name"":""$economy_Service;"", ""Name_Localised"":""Service"", ""Proportion"":1.000000 } ], ""DistFromStarLS"":4632.417480 }";
+            string line = @"{ ""timestamp"":""2018-04-01T05:21:24Z"", ""event"":""Docked"", ""StationName"":""Donaldson"", ""StationState"":""UnderRepairs"", ""StationType"":""Orbis"", ""StarSystem"":""Alioth"", ""SystemAddress"":1109989017963, ""MarketID"":128141048, ""StationFaction"":{ ""Name"":""Alioth Pro-Alliance Grou"", ""FactionState"":""Boom"" }, ""StationGovernment"":""$government_Democracy;"", ""StationGovernment_Localised"":""Democracy"", ""StationAllegiance"":""Alliance"", ""StationServices"":[ ""Dock"", ""Autodock"", ""BlackMarket"", ""Commodities"", ""Contacts"", ""Exploration"", ""Missions"", ""Outfitting"", ""CrewLounge"", ""Rearm"", ""Refuel"", ""Repair"", ""Shipyard"", ""Tuning"", ""Workshop"", ""MissionsGenerated"", ""FlightController"", ""StationOperations"", ""Powerplay"", ""SearchAndRescue"" ], ""StationEconomy"":""$economy_Service;"", ""StationEconomy_Localised"":""Service"", ""StationEconomies"":[ { ""Name"":""$economy_Service;"", ""Name_Localised"":""Service"", ""Proportion"":1.000000 } ], ""DistFromStarLS"":4632.417480, ""LandingPads"": {""Large"": 6, ""Medium"": 11, ""Small"": 10 }  }";
             List<Event> events = JournalMonitor.ParseJournalEntry(line);
             Assert.IsTrue(events.Count == 1);
 
@@ -431,6 +434,9 @@ namespace UnitTests
             Assert.AreEqual("Service", theEvent.economyShares[0].economy.invariantName);
             Assert.AreEqual(1.0M, theEvent.economyShares[0].proportion);
             Assert.AreEqual(StationState.UnderRepairs, theEvent.stationState);
+            Assert.AreEqual( 6, theEvent.landingPads[ LandingPadSize.Large ] );
+            Assert.AreEqual( 11, theEvent.landingPads[ LandingPadSize.Medium ] );
+            Assert.AreEqual( 10, theEvent.landingPads[ LandingPadSize.Small ] );
         }
 
         [TestMethod]
@@ -482,9 +488,7 @@ namespace UnitTests
             string line = @"{ ""timestamp"":""2018-06-04T01:53:29Z"", ""event"":""DockingDenied"", ""Reason"":""Offences"", ""MarketID"":3223343616, ""StationName"":""Ray Gateway"", ""StationType"":""Coriolis"" }";
             List<Event> events = JournalMonitor.ParseJournalEntry(line);
             Assert.IsTrue(events.Count == 1);
-
             DockingDeniedEvent theEvent = (DockingDeniedEvent)events[0];
-
             Assert.AreEqual("Coriolis", theEvent.stationDefinition.basename);
             Assert.AreEqual("Ray Gateway", theEvent.station);
             Assert.AreEqual(3223343616, theEvent.marketId);
@@ -493,15 +497,16 @@ namespace UnitTests
         [TestMethod]
         public void TestJournalDockingRequested()
         {
-            string line = @"{ ""timestamp"":""2018-06-04T07:34:07Z"", ""event"":""DockingRequested"", ""MarketID"":3222020352, ""StationName"":""Morris Enterprise"", ""StationType"":""Bernal"" }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
+            var line = @"{ ""timestamp"":""2018-06-04T07:34:07Z"", ""event"":""DockingRequested"", ""MarketID"":3222020352, ""StationName"":""Morris Enterprise"", ""StationType"":""Bernal"", ""LandingPads"": {""Large"": 9, ""Medium"": 18, ""Small"": 17 }, }";
+            var events = JournalMonitor.ParseJournalEntry(line);
             Assert.IsTrue(events.Count == 1);
-
-            DockingRequestedEvent theEvent = (DockingRequestedEvent)events[0];
-
-            Assert.AreEqual("Bernal", theEvent.stationDefinition.basename);
-            Assert.AreEqual("Morris Enterprise", theEvent.station);
-            Assert.AreEqual(3222020352, theEvent.marketId);
+            var theEvent = (DockingRequestedEvent)events[0];
+            Assert.AreEqual( "Bernal", theEvent.stationDefinition.basename );
+            Assert.AreEqual( "Morris Enterprise", theEvent.station );
+            Assert.AreEqual( 3222020352, theEvent.marketId );
+            Assert.AreEqual( 9, theEvent.landingPads[ LandingPadSize.Large ] );
+            Assert.AreEqual( 18, theEvent.landingPads[ LandingPadSize.Medium ] );
+            Assert.AreEqual( 17, theEvent.landingPads[ LandingPadSize.Small ] );
         }
 
         [TestMethod]
@@ -510,9 +515,7 @@ namespace UnitTests
             string line = @"{ ""timestamp"":""2018-06-04T07:53:34Z"", ""event"":""DockingGranted"", ""LandingPad"":17, ""MarketID"":128850247, ""StationName"":""Simbad's Refuge"", ""StationType"":""AsteroidBase"" }";
             List<Event> events = JournalMonitor.ParseJournalEntry(line);
             Assert.IsTrue(events.Count == 1);
-
             DockingGrantedEvent theEvent = (DockingGrantedEvent)events[0];
-
             Assert.AreEqual("AsteroidBase", theEvent.stationDefinition.basename);
             Assert.AreEqual(17, theEvent.landingpad);
             Assert.AreEqual("Simbad's Refuge", theEvent.station);

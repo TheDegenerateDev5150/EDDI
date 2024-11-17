@@ -164,42 +164,19 @@ namespace EddiDataDefinitions
         /// <summary>What is the largest ship that can land here?</summary>
         [PublicAPI, JsonIgnore, Obsolete("Please use LargestPad instead")]
         public string largestpad => LargestPad.localizedName;
-        
-        // This field isn't always provided, so we derive it from the station model when it's not explicitly set.
-        public LandingPadSize LargestPad
-        {
-            get
-            {
-                if (_LargestPad != null)
-                {
-                    return _LargestPad ?? LandingPadSize.None;
-                }
-                if (Model?.edname == "None")
-                {
-                    return LandingPadSize.None;
-                }
-                if (Model?.edname == "Outpost")
-                {
-                    return LandingPadSize.Medium;
-                }
-                return LandingPadSize.Large;
-            }
-            set
-            {
-                _LargestPad = value ?? LandingPadSize.None;
-            }
-        }
-        private LandingPadSize _LargestPad;
+
+        [JsonIgnore]
+        public LandingPadSize LargestPad => LandingPads
+            .Where( kv => kv.Value > 0 )
+            .Select( kv => kv.Key )
+            .OrderByDescending( p => p.sizeIndex )
+            .FirstOrDefault() ?? LandingPadSize.None;
+
+        public Dictionary<LandingPadSize, int> LandingPads { get; set; } = new Dictionary<LandingPadSize, int>();
 
         public bool LandingPadCheck(LandingPadSize shipSize)
         {
-            if (LargestPad == LandingPadSize.Large) { return true; }
-            else if (LargestPad == LandingPadSize.Medium)
-            {
-                if (shipSize == LandingPadSize.Large) { return false; } else { return true; }
-            }
-            if (shipSize == LandingPadSize.Small) { return true; }
-            return false;
+            return LargestPad.sizeIndex >= shipSize.sizeIndex;
         }
 
         /// <summary>What are the economies at the station, with proportions for each</summary>

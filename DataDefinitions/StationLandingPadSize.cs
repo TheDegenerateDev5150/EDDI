@@ -23,7 +23,7 @@ namespace EddiDataDefinitions
         public static readonly LandingPadSize Medium;
         public static readonly LandingPadSize Small;
 
-        public int index { get; private set; }
+        public int sizeIndex { get; private set; }
 
         // dummy used to ensure that the static constructor has run
         public LandingPadSize() : this("", 0)
