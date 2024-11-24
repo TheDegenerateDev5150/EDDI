@@ -15,24 +15,26 @@ namespace Utilities
 
         public static DateTime getDateTime(string key, IDictionary<string, object> data)
         {
-            data.TryGetValue(key, out object val);
-            return getDateTime(key, val);
+            if ( data.TryGetValue( key, out object val ) )
+            {
+                return getDateTime( val );
+            }
+            throw new ArgumentException( "Unparseable value for " + key );
         }
 
-        public static DateTime getDateTime(string key, JObject data)
+        public static DateTime getDateTime(string key, JToken data)
         {
-            data.TryGetValue(key, out JToken val);
-            return getDateTime(key, val);
+            if ( data is JObject jObject && jObject.TryGetValue( key, out var jToken ) )
+            {
+                return getDateTime( jToken.ToObject<object>() );
+            }
+            throw new ArgumentException( "Unparseable value for " + key );
         }
 
-        public static DateTime getDateTime(string key, object val)
+        private static DateTime getDateTime( object val )
         {
             // DateTime.Parse(timestamp, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal)
             // and (DateTime.Parse(timestamp).ToUniversalTime() are equivalent and both return a TimeStamp in UTC.
-            if (val == null)
-            {
-                throw new ArgumentNullException("Expected value for " + key + " not present");
-            }
             if (val is DateTime dtime)
             {
                 if (dtime.Kind is DateTimeKind.Utc)
@@ -40,10 +42,6 @@ namespace Utilities
                     return dtime;
                 }
                 return dtime.ToUniversalTime();
-            }
-            if (val is JToken jToken)
-            {
-                return getDateTime(key, jToken.ToString());
             }
             if (val is string str)
             {
@@ -59,7 +57,7 @@ namespace Utilities
                 }
                 return DateTime.Parse(str, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal);
             }
-            throw new ArgumentException("Unparseable value for " + key);
+            throw new ArgumentException( "Unparseable DateTime value: " + val );
         }
 
         public static decimal getDecimal(IDictionary<string, object> data, string key)
