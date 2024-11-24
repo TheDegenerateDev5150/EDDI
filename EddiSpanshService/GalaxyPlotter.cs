@@ -19,7 +19,7 @@ namespace EddiSpanshService
             if (!fromUIquery)
             {
                 // The Spansh Galaxy Plotter uses case sensitive system names. Use the TypeAhead API to normalize casing.
-                targetSystem = GetTypeAheadStarSystems(targetSystem).FirstOrDefault();
+                targetSystem = GetTypeAheadStarSystems(targetSystem).Values.FirstOrDefault();
                 if (string.IsNullOrEmpty(targetSystem))
                 {
                     Logging.Warn("Neutron route plotting is not available, requested star system is unknown.");

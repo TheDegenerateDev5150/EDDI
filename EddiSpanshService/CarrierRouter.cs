@@ -18,10 +18,10 @@ namespace EddiSpanshService
             if (!fromUIquery)
             {
                 // The Spansh Carrier Plotter uses case sensitive system names. Use the TypeAhead API to normalize casing.
-                currentSystem = GetTypeAheadStarSystems(currentSystem).FirstOrDefault();
+                currentSystem = GetTypeAheadStarSystems(currentSystem).Values.FirstOrDefault();
                 for (int i = 0; i < targetSystems.Length; i++)
                 {
-                    targetSystems[i] = GetTypeAheadStarSystems(targetSystems[i]).FirstOrDefault();
+                    targetSystems[i] = GetTypeAheadStarSystems(targetSystems[i]).Values.FirstOrDefault();
                 }                
             }
 

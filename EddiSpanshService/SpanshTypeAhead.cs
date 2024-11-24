@@ -10,9 +10,9 @@ namespace EddiSpanshService
     public partial class SpanshService
     {
         /// <summary> Partial of system name is required. </summary>
-        public List<string> GetTypeAheadStarSystems(string partialSystemName)
+        public Dictionary<ulong, string> GetTypeAheadStarSystems (string partialSystemName)
         {
-            if (string.IsNullOrEmpty(partialSystemName)) { return new List<string>(); }
+            if (string.IsNullOrEmpty(partialSystemName)) { return new Dictionary<ulong, string>(); }
 
             var request = TypeAheadRequest(partialSystemName);
             var clientResponse = spanshRestClient.Get(request);
@@ -28,21 +28,20 @@ namespace EddiSpanshService
                 Logging.Debug("Spansh responded with " + clientResponse.Content);
                 var response = JToken.Parse(clientResponse.Content);
                 if (response is JObject responses && 
-                    responses.ContainsKey("values") && 
-                    responses["values"] is JArray systemList)
+                    responses.ContainsKey("values"))
                 {
-                    List<string> starSystems = ParseTypeAheadSystems(systemList);
+                    var starSystems = ParseTypeAheadSystems(responses);
                     return starSystems
-                        .OrderByDescending(s => s.StartsWith(partialSystemName, StringComparison.InvariantCultureIgnoreCase))
-                        .ThenBy(s => s)
-                        .ToList();
+                        .OrderByDescending(s => s.Value.StartsWith(partialSystemName, StringComparison.InvariantCultureIgnoreCase))
+                        .ThenBy(s => s.Value)
+                        .ToDictionary(k => k.Key, v => v.Value);
                 }
             }
             else
             {
                 Logging.Debug("Spansh responded with " + clientResponse.ErrorMessage, clientResponse.ErrorException);
             }
-            return new List<string>();
+            return new Dictionary<ulong, string>();
         }
 
         private IRestRequest TypeAheadRequest(string partialSystemName)
@@ -52,13 +51,11 @@ namespace EddiSpanshService
             return request;
         }
 
-        private List<string> ParseTypeAheadSystems(JToken responses)
+        private Dictionary<ulong, string> ParseTypeAheadSystems ( JToken responses )
         {
-            return responses
+            return responses[ "min_max" ]?
                 .AsParallel()
-                .Where(s => s != null)
-                .Select(s => s.ToString())
-                .ToList();
+                .ToDictionary( k => k["id64"].ToObject<ulong>(), v => v["name"].ToString() );
         }
     }
 }

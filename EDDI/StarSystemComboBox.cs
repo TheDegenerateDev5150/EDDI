@@ -36,7 +36,7 @@ namespace Eddi
             if (!systemListCache.ContainsKey(partialSystemName))
             {
                 // Request a new list
-                systemListCache[partialSystemName] = spanshService.GetTypeAheadStarSystems(partialSystemName) ?? new List<string>();
+                systemListCache[partialSystemName] = spanshService.GetTypeAheadStarSystems(partialSystemName).Values.ToList();
             }
 
             return systemListCache[partialSystemName];

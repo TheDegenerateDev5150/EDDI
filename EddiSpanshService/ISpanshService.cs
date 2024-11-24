@@ -12,6 +12,6 @@ namespace EddiSpanshService
             int? cargoCarriedTons = null, bool isSupercharged = false, bool useSupercharge = true,
             bool useInjections = false, bool excludeSecondary = false, bool fromUIquery = false);
 
-        List<string> GetTypeAheadStarSystems(string partialSystemName);
+        Dictionary<ulong, string> GetTypeAheadStarSystems(string partialSystemName);
     }
 }
