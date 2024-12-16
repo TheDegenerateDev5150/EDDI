@@ -1135,6 +1135,11 @@ namespace EddiDataDefinitions
         public static readonly Module mandalay_armour_mirrored = new Module( "mandalay_armour_mirrored", "MirroredSurfaceComposite", 1, "I", 37518621 );
         public static readonly Module mandalay_armour_reactive = new Module( "mandalay_armour_reactive", "ReactiveSurfaceComposite", 1, "I", 41575642 );
         public static readonly Module hpt_cannon_gimbal_medium_burst = new Module( "hpt_cannon_gimbal_medium_burst", "ConcordCannon", 2, "D", 337600 ); // Concord Cannon powerplay module
+        public static readonly Module cobramkv_armour_grade1 = new Module( "cobramkv_armour_grade1", "LightweightAlloy", 1, "I", 0 );
+        public static readonly Module cobramkv_armour_grade2 = new Module( "cobramkv_armour_grade2", "ReinforcedAlloy", 1, "I", 395785 );
+        public static readonly Module cobramkv_armour_grade3 = new Module( "cobramkv_armour_grade3", "MilitaryGradeComposite", 1, "I", 890515 );
+        public static readonly Module cobramkv_armour_mirrored = new Module( "cobramkv_armour_mirrored", "MirroredSurfaceComposite", 1, "I", 2077867 );
+        public static readonly Module cobramkv_armour_reactive = new Module( "cobramkv_armour_reactive", "ReactiveSurfaceComposite", 1, "I", 2332158 );
 
         // Various free modules that show up in SRVs, fighters and training; not used anywhere but note them here so that they do not throw errors when encountered
         public static readonly Module Hpt_PulseLaser_Fixed_SmallFree = new Module( "Hpt_PulseLaser_Fixed_SmallFree", "PulseLaser", 1, "F", 0, ModuleMount.Fixed);
@@ -1202,6 +1207,7 @@ namespace EddiDataDefinitions
         public static readonly Module Python_NX_Cockpit = new Module( "Python_NX_Cockpit", "CockpitCanopy", 1, "I", 0);
         public static readonly Module Type8_Cockpit = new Module( "Type8_Cockpit", "CockpitCanopy", 1, "I", 0);
         public static readonly Module Mandalay_Cockpit = new Module( "Mandalay_Cockpit", "CockpitCanopy", 1, "I", 0);
+        public static readonly Module CobraMkv_Cockpit = new Module( "CobraMkv_Cockpit", "CockpitCanopy", 1, "I", 0);
 
         // Fighter modules
         public static readonly Module Empire_Fighter_Cockpit = new Module( "Empire_Fighter_Cockpit", "CockpitCanopy", 1, "I", 0);
