@@ -775,7 +775,11 @@ namespace Eddi
                 // Update squadron faction options for new system
                 ConfigureSquadronFactionOptions(eddiConfiguration);
             }
-            squadronSystemDropDown.SelectionDidChange(changeHandler);
+
+            if ( sender is StarSystemComboBox comboBox && comboBox.IsLoaded )
+            {
+                squadronSystemDropDown.SelectionDidChange( changeHandler );
+            }
         }
 
         private void SquadronSystemDropDown_LostFocus(object sender, RoutedEventArgs e)
