@@ -2,7 +2,6 @@
 using EddiCore;
 using EddiDataDefinitions;
 using EddiEvents;
-using EddiSpanshService;
 using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
@@ -15,68 +14,41 @@ namespace EddiNavigationService.QueryResolvers
     internal class NearestScoopSystemResolver : IQueryResolver
     {
         public QueryType Type => QueryType.scoop;
-        public RouteDetailsEvent Resolve ( Query query, StarSystem startSystem ) => GetNearestScoopSystem(startSystem, query.NumericArg);
+        public Dictionary<string, object> SpanshQueryFilter =>
+            new Dictionary<string, object>
+            {
+                { "type", new { value = new[] { "Star" } } },
+                { "subtype", new { value = new[] {
+                    "A (Blue-White super giant) Star",
+                    "A (Blue-White) Star",
+                    "B (Blue-White super giant) Star",
+                    "B (Blue-White) Star",
+                    "F (White super giant) Star",
+                    "F (White) Star",
+                    "G (White-Yellow super giant) Star",
+                    "G (White-Yellow) Star",
+                    "K (Yellow-Orange giant) Star",
+                    "K (Yellow-Orange) Star",
+                    "M (Red dwarf) Star",
+                    "M (Red giant) Star",
+                    "M (Red super giant) Star",
+                    "O (Blue-White) Star"
+                } } }
+            };
+        public RouteDetailsEvent Resolve ( Query query, StarSystem startSystem ) => GetNearestScoopSystem(startSystem, SpanshQueryFilter);
 
         /// <summary> Route to the nearest star system that is eligible for fuel scoop refueling </summary>
         /// <returns> The query result </returns>
-        private RouteDetailsEvent GetNearestScoopSystem ( [NotNull] StarSystem startSystem, decimal? searchRadius = null )
+        private RouteDetailsEvent GetNearestScoopSystem ( [ NotNull ] StarSystem startSystem, [ NotNull ] Dictionary<string, object> searchFilter )
         {
-            if ( searchRadius is null )
-            {
-                searchRadius = EDDI.Instance.CurrentShip?.JumpDetails ( "total" )?.distance ?? 100;
-            }
-
-            // We'll search in progressive spherical shells out to a maximum radius of 100 ly
-            // (the maximum from EDSM for a spherical system search)
-            string searchSystem = null;
-            var searchCount = 0;
-            var searchIncrement = (int)Math.Ceiling(Math.Min((decimal)searchRadius, 100) / 4);
             var navRouteList = new NavWaypointCollection(Convert.ToDecimal(startSystem.x), Convert.ToDecimal(startSystem.y), Convert.ToDecimal(startSystem.z));
-
-            if ( startSystem.scoopable )
+            navRouteList.Waypoints.Add( new NavWaypoint( startSystem ) { visited = true } );
+            if ( !startSystem.scoopable )
             {
-                searchSystem = startSystem.systemname;
-                navRouteList.Waypoints.Add ( new NavWaypoint ( startSystem ) { visited = true } );
-                searchCount = 1;
+                var searchSystem = EDDI.Instance.DataProvider.GetBodyWaypoint( startSystem.systemAddress, searchFilter );
+                navRouteList.Waypoints.Add( searchSystem );
             }
-            else
-            {
-                for ( var i = 0; i < 4; i++ )
-                {
-                    var startRadius = i * searchIncrement;
-                    var endRadius = (i + 1) * searchIncrement;
-                    var sphereSystems =
-                        NavigationService.Instance.EdsmService.GetStarMapSystemsSphere( startSystem.systemname, startRadius, endRadius ) ?? 
-                        new List<Dictionary<string, object>>();
-                    sphereSystems = sphereSystems.Where ( kvp => ( kvp[ "system" ] as StarSystem )?.scoopable ?? false ).ToList ();
-                    searchCount = sphereSystems.Count;
-                    if ( searchCount > 0 )
-                    {
-                        var nearestList = new SortedList<decimal, StarSystem>();
-                        foreach ( var system in sphereSystems )
-                        {
-                            decimal distance = (decimal)system["distance"];
-                            if ( !nearestList.ContainsKey ( distance ) )
-                            {
-                                nearestList.Add ( distance, system[ "system" ] as StarSystem );
-                            }
-                        }
-
-                        // Nearest 'scoopable' system
-                        searchSystem = nearestList.Values.FirstOrDefault ()?.systemname;
-
-                        // Update the navRouteList
-                        navRouteList.Waypoints.Add ( new NavWaypoint ( startSystem ) { visited = true } );
-                        if ( startSystem.systemAddress != nearestList.Values.FirstOrDefault ()?.systemAddress )
-                        {
-                            navRouteList.Waypoints.Add ( new NavWaypoint ( nearestList.Values.FirstOrDefault () ) { visited = nearestList.Values.FirstOrDefault ()?.systemAddress == startSystem.systemAddress } );
-                        }
-
-                        break;
-                    }
-                }
-            }
-            return new RouteDetailsEvent ( DateTime.UtcNow, QueryType.scoop.ToString (), searchSystem, null, navRouteList, searchCount, null );
+            return new RouteDetailsEvent ( DateTime.UtcNow, QueryType.scoop.ToString (), navRouteList.NextWaypoint.systemName, null, navRouteList, navRouteList.Waypoints.Count, null );
         }
     }
 
@@ -84,7 +56,7 @@ namespace EddiNavigationService.QueryResolvers
     internal class NeutronRouteResolver : IQueryResolver
     {
         public QueryType Type => QueryType.neutron;
-
+        public Dictionary<string, object> SpanshQueryFilter => null;
         public RouteDetailsEvent Resolve ( Query query, StarSystem startSystem ) => GetNeutronRoute( query.StringArg0, startSystem );
 
         /// <summary> Obtains a neutron star route between the current star system and a named star system </summary>
@@ -105,7 +77,7 @@ namespace EddiNavigationService.QueryResolvers
             var cargoCarriedTons = ConfigService.Instance.cargoMonitorConfiguration.cargocarried;
             var shipId = ConfigService.Instance.shipMonitorConfiguration.currentshipid;
             var ship = ConfigService.Instance.shipMonitorConfiguration.shipyard.FirstOrDefault(s => s.LocalId == shipId);
-            var plottedRouteList = new SpanshService().GetGalaxyRoute ( startSystem.systemname, targetSystemName, ship, cargoCarriedTons,
+            var plottedRouteList = EDDI.Instance.DataProvider.GetGalaxyRoute ( startSystem.systemname, targetSystemName, ship, cargoCarriedTons,
                 isSupercharged, useSupercharge, useInjections, excludeSecondary, fromUIquery );
             if ( plottedRouteList == null || plottedRouteList.Waypoints.Count <= 1 ) { return null; }
             plottedRouteList.UpdateLocationData( startSystem.systemAddress, startSystem.x, startSystem.y, startSystem.z );
@@ -132,6 +104,7 @@ namespace EddiNavigationService.QueryResolvers
     internal class CarrierRouteResolver : IQueryResolver
     {
         public QueryType Type => QueryType.carrier;
+        public Dictionary<string, object> SpanshQueryFilter => null;
         public RouteDetailsEvent Resolve ( Query query, StarSystem startSystem ) => GetCarrierRoute( query.StringArg0, startSystem, (long)Math.Round ( query.NumericArg ?? 0, 0 ) );
 
         /// <summary> Obtains a carrier route between the current carrier star system and a named star system </summary>
@@ -141,7 +114,7 @@ namespace EddiNavigationService.QueryResolvers
             usedCarrierCapacity = usedCarrierCapacity ?? EDDI.Instance.FleetCarrier?.usedCapacity;
             if ( usedCarrierCapacity is null ) { return null; }
 
-            var plottedRouteList = new SpanshService().GetCarrierRoute(startSystem.systemname, new[] { targetSystemName }, Convert.ToInt64(usedCarrierCapacity), false, refuelDestinations, fromUIquery);
+            var plottedRouteList = EDDI.Instance.DataProvider.GetCarrierRoute(startSystem.systemname, new[] { targetSystemName }, Convert.ToInt64(usedCarrierCapacity), false, refuelDestinations, fromUIquery);
             if ( plottedRouteList == null || plottedRouteList.Waypoints.Count <= 1 ) { return null; }
             plottedRouteList.UpdateLocationData( startSystem.systemAddress, startSystem.x, startSystem.y, startSystem.z );
 

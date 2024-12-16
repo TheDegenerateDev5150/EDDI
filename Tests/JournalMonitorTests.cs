@@ -409,9 +409,9 @@ namespace UnitTests
             Assert.AreEqual("Extraction", theEvent.economyShares[1].economy.invariantName);
             Assert.AreEqual(0.3M, theEvent.economyShares[1].proportion);
             Assert.AreEqual(StationState.NormalOperation, theEvent.stationState);
-            Assert.AreEqual( 7, theEvent.landingPads[ LandingPadSize.Large ] );
-            Assert.AreEqual( 8, theEvent.landingPads[ LandingPadSize.Medium ] );
-            Assert.AreEqual( 4, theEvent.landingPads[ LandingPadSize.Small ] );
+            Assert.AreEqual( 7, theEvent.landingPads.Large );
+            Assert.AreEqual( 8, theEvent.landingPads.Medium );
+            Assert.AreEqual( 4, theEvent.landingPads.Small );
         }
 
         [TestMethod]
@@ -434,9 +434,9 @@ namespace UnitTests
             Assert.AreEqual("Service", theEvent.economyShares[0].economy.invariantName);
             Assert.AreEqual(1.0M, theEvent.economyShares[0].proportion);
             Assert.AreEqual(StationState.UnderRepairs, theEvent.stationState);
-            Assert.AreEqual( 6, theEvent.landingPads[ LandingPadSize.Large ] );
-            Assert.AreEqual( 11, theEvent.landingPads[ LandingPadSize.Medium ] );
-            Assert.AreEqual( 10, theEvent.landingPads[ LandingPadSize.Small ] );
+            Assert.AreEqual( 6, theEvent.landingPads.Large );
+            Assert.AreEqual( 11, theEvent.landingPads.Medium );
+            Assert.AreEqual( 10, theEvent.landingPads.Small );
         }
 
         [TestMethod]
@@ -504,9 +504,9 @@ namespace UnitTests
             Assert.AreEqual( "Bernal", theEvent.stationDefinition.basename );
             Assert.AreEqual( "Morris Enterprise", theEvent.station );
             Assert.AreEqual( 3222020352, theEvent.marketId );
-            Assert.AreEqual( 9, theEvent.landingPads[ LandingPadSize.Large ] );
-            Assert.AreEqual( 18, theEvent.landingPads[ LandingPadSize.Medium ] );
-            Assert.AreEqual( 17, theEvent.landingPads[ LandingPadSize.Small ] );
+            Assert.AreEqual( 9, theEvent.landingPads.Large );
+            Assert.AreEqual( 18, theEvent.landingPads.Medium );
+            Assert.AreEqual( 17, theEvent.landingPads.Small );
         }
 
         [TestMethod]

@@ -1,7 +1,6 @@
 ﻿using EddiCompanionAppService;
 using EddiCore;
 using EddiDataDefinitions;
-using EddiDataProviderService;
 using EddiEddnResponder.Properties;
 using EddiEddnResponder.Sender;
 using EddiEvents;
@@ -24,7 +23,7 @@ namespace EddiEddnResponder
     {
         // Schema reference: https://github.com/EDCD/EDDN/tree/master/schemas
 
-        public readonly EDDNState eddnState;
+        public readonly EDDNState eddnState = new EDDNState();
         public readonly List<ISchema> schemas = new List<ISchema>();
         public readonly List<ICapiSchema> capiSchemas = new List<ICapiSchema>();
 
@@ -44,15 +43,12 @@ namespace EddiEddnResponder
         }
 
         [UsedImplicitly]
-        public EDDNResponder() : this(StarSystemSqLiteRepository.Instance)
+        public EDDNResponder()
         { }
 
-        public EDDNResponder(IStarSystemRepository starSystemRepository, bool unitTesting = false)
+        public EDDNResponder(bool unitTesting = false)
         {
             EDDNSender.unitTesting = unitTesting;
-
-            // Configure our state tracking toolkit
-            eddnState = new EDDNState(starSystemRepository);
 
             // Populate our schemas list
             GetSchemas();

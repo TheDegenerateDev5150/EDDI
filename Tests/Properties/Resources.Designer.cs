@@ -229,19 +229,17 @@ namespace Tests.Properties {
                 return ((byte[])(obj));
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        public static byte[] loadout_python_nx
-        {
-            get
-            {
+        public static byte[] loadout_python_nx {
+            get {
                 object obj = ResourceManager.GetObject("loadout_python_nx", resourceCulture);
-                return ( (byte[])( obj ) );
+                return ((byte[])(obj));
             }
         }
-
+        
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
@@ -348,6 +346,86 @@ namespace Tests.Properties {
         public static byte[] SpanshGalaxyResult {
             get {
                 object obj = ResourceManager.GetObject("SpanshGalaxyResult", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] SpanshQuickStarSystemAchenar {
+            get {
+                object obj = ResourceManager.GetObject("SpanshQuickStarSystemAchenar", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] SpanshQuickStarSystemAlioth {
+            get {
+                object obj = ResourceManager.GetObject("SpanshQuickStarSystemAlioth", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] SpanshQuickStarSystemHyadesSector_DL_X_b1_2 {
+            get {
+                object obj = ResourceManager.GetObject("SpanshQuickStarSystemHyadesSector_DL_X_b1_2", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] SpanshQuickStarSystemOmegaSector_DM_M_b7_16 {
+            get {
+                object obj = ResourceManager.GetObject("SpanshQuickStarSystemOmegaSector_DM_M_b7_16", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] SpanshQuickStarSystemPleiadesSector_GW_W_c1_4 {
+            get {
+                object obj = ResourceManager.GetObject("SpanshQuickStarSystemPleiadesSector_GW_W_c1_4", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] SpanshQuickStarSystemPleiadesSector_HR_W_d1_79 {
+            get {
+                object obj = ResourceManager.GetObject("SpanshQuickStarSystemPleiadesSector_HR_W_d1_79", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] SpanshQuickStarSystemSol {
+            get {
+                object obj = ResourceManager.GetObject("SpanshQuickStarSystemSol", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] SpanshStarSystemDumpSol {
+            get {
+                object obj = ResourceManager.GetObject("SpanshStarSystemDumpSol", resourceCulture);
                 return ((byte[])(obj));
             }
         }

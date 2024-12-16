@@ -1,9 +1,7 @@
 ﻿using EddiConfigService;
 using EddiCore;
 using EddiDataDefinitions;
-using EddiDataProviderService;
 using EddiEvents;
-using EddiStarMapService;
 using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
@@ -17,8 +15,6 @@ namespace EddiNavigationService
 {
     public sealed class NavigationService : INotifyPropertyChanged
     {
-        internal readonly IEdsmService EdsmService;
-        internal readonly DataProviderService DataProviderService;
         private static NavigationService _instance;
         private static readonly object InstanceLock = new object();
 
@@ -85,11 +81,8 @@ namespace EddiNavigationService
         }
         private bool _isWorking;
 
-        public NavigationService(IEdsmService edsmService)
+        public NavigationService()
         {
-            this.EdsmService = edsmService;
-            DataProviderService = new DataProviderService(edsmService);
-
             // Populate our query resolvers list
             GetQueryResolvers();
 
@@ -144,7 +137,7 @@ namespace EddiNavigationService
                         if (_instance == null)
                         {
                             Logging.Debug("No Navigation instance: creating one");
-                            _instance = new NavigationService(new StarMapService());
+                            _instance = new NavigationService();
                         }
                     }
                 }
@@ -193,7 +186,7 @@ namespace EddiNavigationService
                             }
                             else
                             {
-                                var carrierLocation = StarSystemSqLiteRepository.Instance.GetOrFetchStarSystem( fleetCarrier.currentStarSystem );
+                                var carrierLocation = EDDI.Instance.DataProvider.GetOrFetchStarSystem( fleetCarrier.currentStarSystem );
                                 if ( carrierLocation is null )
                                 {
                                     Logging.Warn("Invalid query: unable to find fleet carrier location.");
@@ -295,7 +288,7 @@ namespace EddiNavigationService
             // Update search system data
             if (!string.IsNullOrEmpty(searchSystem))
             {
-                StarSystem system = StarSystemSqLiteRepository.Instance.GetOrFetchStarSystem(searchSystem);
+                var system = EDDI.Instance.DataProvider.GetOrFetchStarSystem(searchSystem);
 
                 //Ignore null & empty systems
                 if (system != null)

@@ -29,7 +29,7 @@ namespace UnitTests
             Utilities.Files.unitTesting = true;
             ConfigService.unitTesting = true;
             CompanionAppService.unitTesting = true;
-            StarSystemSqLiteRepository.unitTesting = true;
+            DataProviderService.unitTesting = true;
 
             // Set ourselves as in a beta game session to stop automatic sending of data to remote systems
             EDDI.Instance.gameIsBeta = true;

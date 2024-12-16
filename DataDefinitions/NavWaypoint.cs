@@ -85,9 +85,10 @@ namespace EddiDataDefinitions
 
         // Default constructor
         [JsonConstructor]
-        public NavWaypoint(string systemName, decimal x, decimal y, decimal z)
+        public NavWaypoint ( string systemName, ulong systemAddress, decimal x, decimal y, decimal z )
         {
             this.systemName = systemName;
+            this.systemAddress = systemAddress;
             this.x = x;
             this.y = y;
             this.z = z;

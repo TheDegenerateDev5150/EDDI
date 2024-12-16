@@ -4,7 +4,6 @@ using EddiConfigService.Configurations;
 using EddiCore;
 using EddiCore.Upgrader;
 using EddiDataDefinitions;
-using EddiDataProviderService;
 using EddiSpeechService;
 using System;
 using System.Collections.Generic;
@@ -532,7 +531,7 @@ namespace Eddi
 
             if (system != null)
             {
-                StarSystem HomeSystem = StarSystemSqLiteRepository.Instance.GetOrFetchStarSystem(system, true, true, false, true, false);
+                var HomeSystem = EDDI.Instance.HomeStarSystem;
                 if (HomeSystem?.stations != null)
                 {
                     foreach (Station station in HomeSystem.stations)
@@ -801,7 +800,7 @@ namespace Eddi
                 
                 if (squadronFaction != Power.None.localizedName)
                 {
-                    StarSystem system = StarSystemSqLiteRepository.Instance.GetOrFetchStarSystem(eddiConfiguration.SquadronSystem, true);
+                    var system = EDDI.Instance.SquadronStarSystem;
                     Faction faction = system?.factions.Find(f => f.name == squadronFaction);
 
                     if (faction != null && eddiConfiguration.SquadronAllegiance != faction.Allegiance)
@@ -877,8 +876,8 @@ namespace Eddi
 
             if (configuration.SquadronSystem != null)
             {
-                var system = StarSystemSqLiteRepository.Instance.GetOrFetchStarSystem(configuration.SquadronSystem, true, true, false, false, true );
-                if (system?.factions != null)
+                var system = EDDI.Instance.SquadronStarSystem;
+                if ( system?.factions != null)
                 {
                     foreach (Faction faction in system.factions)
                     {

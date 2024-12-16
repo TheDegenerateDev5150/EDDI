@@ -14,7 +14,7 @@ namespace EddiSpanshService
         IRestResponse Get(IRestRequest request);
     }
 
-    public partial class SpanshService : ISpanshService
+    public partial class SpanshService
     {
         private const string baseUrl = "https://spansh.co.uk/api/";
         private readonly ISpanshRestClient spanshRestClient;

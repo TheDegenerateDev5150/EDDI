@@ -1,5 +1,6 @@
 ﻿using EddiDataDefinitions;
 using System;
+using System.Collections.Generic;
 using System.Runtime.Caching;
 
 namespace EddiDataProviderService
@@ -16,19 +17,40 @@ namespace EddiDataProviderService
             cacheItemPolicy.SlidingExpiration = TimeSpan.FromSeconds( expirationSeconds );
         }
 
-        public void Add ( StarSystem starSystem )
+        public void AddOrUpdate ( StarSystem starSystem )
         {
-            starSystemCache.Add( starSystem.systemAddress.ToString(), starSystem, cacheItemPolicy );
+            var systemAddress = starSystem.systemAddress.ToString();
+            if ( starSystemCache.Contains( systemAddress ) )
+            {
+                starSystemCache.Remove( systemAddress );
+            }
+            starSystemCache.Add( systemAddress, starSystem, cacheItemPolicy );
         }
 
-        public bool Contains ( ulong systemAddress )
+        public bool TryGet ( ulong systemAddress, out StarSystem result )
         {
-            return starSystemCache.Contains( systemAddress.ToString() );
+            if ( starSystemCache.Contains(systemAddress.ToString()) )
+            {
+                result = starSystemCache.Get( systemAddress.ToString() ) as StarSystem;
+                return true;
+            }
+
+            result = null;
+            return false;
         }
 
-        public StarSystem Get ( ulong systemAddress )
+        public List<StarSystem> GetRange ( ulong[] systemAddresses )
         {
-            return starSystemCache.Get( systemAddress.ToString() ) as StarSystem;
+            var results = new List<StarSystem>();
+            foreach ( var systemAddress in systemAddresses )
+            {
+                if ( TryGet( systemAddress, out var cachedStarSystem ) )
+                {
+                    results.Add( cachedStarSystem );
+                }
+            }
+
+            return results;
         }
 
         public void Remove ( ulong systemAddress )

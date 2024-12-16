@@ -1,11 +1,13 @@
 ﻿using EddiDataDefinitions;
 using EddiDataProviderService;
+using EddiSpanshService;
 using EddiStarMapService;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Tests.Properties;
@@ -16,33 +18,37 @@ namespace UnitTests
     [TestClass]
     public class DataProviderTests : TestBase
     {
-        FakeEdsmRestClient fakeEdsmRestClient;
-        StarMapService fakeEdsmService;
+        private FakeEdsmRestClient fakeEdsmRestClient;
+        private FakeSpanshRestClient fakeSpanshRestClient;
+        private StarMapService fakeEdsmService;
+        private SpanshService fakeSpanshService;
         private DataProviderService dataProviderService;
 
         [TestInitialize]
         public void start()
         {
             fakeEdsmRestClient = new FakeEdsmRestClient();
-            fakeEdsmService = new StarMapService(fakeEdsmRestClient);
-            dataProviderService = new DataProviderService(fakeEdsmService);
+            fakeSpanshRestClient = new FakeSpanshRestClient();
+            fakeEdsmService = new StarMapService( fakeEdsmRestClient );
+            fakeSpanshService = new SpanshService( fakeSpanshRestClient );
+            dataProviderService = new DataProviderService(fakeEdsmService, fakeSpanshService);
             MakeSafe();
         }
         
         [TestMethod]
         public void TestSqlRepositoryPresent()
         {
-            IStarSystemRepository starSystemRepository = StarSystemSqLiteRepository.Instance;
-            StarSystem DBData = starSystemRepository.GetOrFetchStarSystem("Sol", true);
+            var starSystemRepository = StarSystemSqLiteRepository.Instance;
+            var DBData = starSystemRepository.GetSqlStarSystem( 10477373803 );
             Assert.IsNotNull(DBData);
-            Assert.AreEqual("Sol", DBData.systemname);
+            Assert.AreEqual("Sol", DBData.systemName);
         }
 
         [TestMethod]
         public void TestSqlRepositoryMissing()
         {
-            IStarSystemRepository starSystemRepository = StarSystemSqLiteRepository.Instance;
-            StarSystem DBData = starSystemRepository.GetStarSystem("Not here");
+            var starSystemRepository = StarSystemSqLiteRepository.Instance;
+            var DBData = starSystemRepository.GetSqlStarSystem(0);
             Assert.IsNull(DBData);
         }
 
@@ -192,6 +198,9 @@ namespace UnitTests
         [TestMethod]
         public void TestStarSystemData()
         {
+            var timer = new Stopwatch();
+            timer.Start();
+
             // Setup
             string solJson = Encoding.UTF8.GetString(Resources.Sol);
             fakeEdsmRestClient.Expect("api-v1/systems", solJson, new List<JObject>());
@@ -206,7 +215,7 @@ namespace UnitTests
             fakeEdsmRestClient.Expect("api-system-v1/stations", solStationsJson, new JObject());
 
             // Test system & body data in a complete star system
-            StarSystem starSystem = dataProviderService.GetSystemData("Sol");
+            var starSystem = dataProviderService.GetSystemData("Sol");
 
             Assert.AreEqual("Sol", starSystem.systemname);
             Assert.AreEqual(0M, starSystem.x);
@@ -225,6 +234,8 @@ namespace UnitTests
             Assert.IsNotNull(starSystem);
             Assert.IsNotNull(starSystem.bodies);
             Assert.AreNotEqual(0, starSystem.bodies.Count);
+
+            timer.Stop();
         }
 
         [TestMethod]
@@ -251,7 +262,6 @@ namespace UnitTests
             Assert.AreEqual(3, result.scannedbodies);
             Assert.AreEqual(1, result.mappedbodies);
             Assert.AreEqual(20, result.totalbodies);
-            Assert.AreEqual(8557, result.bodies?.FirstOrDefault(b => b?.bodyId == 0)?.EDSMID);
             Assert.AreEqual(17, result.visits);
             Assert.AreEqual("2017-12-11T06:17:06Z", Dates.FromDateTimeToString(result.lastvisit));
 

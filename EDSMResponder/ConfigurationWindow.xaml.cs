@@ -76,14 +76,14 @@ namespace EddiEdsmResponder
             edsmFetchLogsButton.Content = Properties.EDSMResources.log_button_fetching;
 
             var progress = new Progress<string>(s => edsmFetchLogsButton.Content = s);
-            IEdsmService edsmService = new StarMapService(null, true);
+            var edsmService = new StarMapService(null, true);
             await Task.Factory.StartNew(() => obtainEdsmLogs(edsmService, progress), TaskCreationOptions.LongRunning);
 
             starMapConfiguration.lastFlightLogSync = DateTime.UtcNow;
             ConfigService.Instance.edsmConfiguration = starMapConfiguration;
         }
 
-        public static void obtainEdsmLogs(IEdsmService edsmService, IProgress<string> progress)
+        public static void obtainEdsmLogs(StarMapService edsmService, IProgress<string> progress)
         {
             if (edsmService != null)
             {

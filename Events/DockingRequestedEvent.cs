@@ -1,6 +1,5 @@
 ﻿using EddiDataDefinitions;
 using System;
-using System.Collections.Generic;
 using Utilities;
 
 namespace EddiEvents
@@ -24,9 +23,9 @@ namespace EddiEvents
 
         public StationModel stationDefinition { get; private set; }
 
-        public Dictionary<LandingPadSize, int> landingPads { get; private set; }
+        public StationLandingPads landingPads { get; private set; }
 
-        public DockingRequestedEvent(DateTime timestamp, string station, string stationType, long marketId, Dictionary<LandingPadSize, int> landingPads ) : base(timestamp, NAME)
+        public DockingRequestedEvent(DateTime timestamp, string station, string stationType, long marketId, StationLandingPads landingPads ) : base(timestamp, NAME)
         {
             this.station = station;
             this.stationDefinition = StationModel.FromEDName(stationType);

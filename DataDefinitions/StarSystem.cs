@@ -20,8 +20,6 @@ namespace EddiDataDefinitions
         [Utilities.PublicAPI, JsonProperty("name"), JsonRequired]
         public string systemname { get; set; }
 
-        public long? EDSMID { get; set; } // The ID in EDSM
-
         /// <summary>X co-ordinate for this system</summary>
         [Utilities.PublicAPI]
         public decimal? x { get; set; }
@@ -231,7 +229,7 @@ namespace EddiDataDefinitions
 
         /// <summary> The powerplay power exerting influence within the system (null if contested)</summary>
         [JsonIgnore]
-        public Power Power => Powers.Count > 1 ? null : Powers.FirstOrDefault();
+        public Power Power { get; set; }
 
         /// <summary> The powerplay powers exerting influence within the system (may include multiple when the system is contested) </summary>
         public List<Power> Powers { get; set; } = new List<Power>();

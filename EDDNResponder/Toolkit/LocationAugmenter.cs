@@ -1,6 +1,5 @@
 ﻿using EddiCore;
 using EddiDataDefinitions;
-using EddiDataProviderService;
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
@@ -14,7 +13,7 @@ namespace EddiEddnResponder.Toolkit
 
         // Star System
         public string systemName { get; internal set; }
-        public ulong? systemAddress { get; internal set; }
+        public ulong systemAddress { get; internal set; }
         public decimal? systemX { get; internal set; }
         public decimal? systemY { get; internal set; }
         public decimal? systemZ { get; internal set; }
@@ -27,13 +26,6 @@ namespace EddiEddnResponder.Toolkit
         public string journalBodyName { get; private set; }
         public int? journalBodyId { get; private set; }
         public string statusBodyName { get; private set; }
-
-        public LocationAugmenter(IStarSystemRepository starSystemRepository)
-        {
-            StarSystemRepository = starSystemRepository;
-        }
-
-        internal IStarSystemRepository StarSystemRepository;
 
         public bool invalidState { get; private set; } // Are we in an invalid state?
 
@@ -180,7 +172,7 @@ namespace EddiEddnResponder.Toolkit
         private void ClearLocation()
         {
             systemName = null;
-            systemAddress = null;
+            systemAddress = 0;
             systemX = null;
             systemY = null;
             systemZ = null;
@@ -191,7 +183,7 @@ namespace EddiEddnResponder.Toolkit
         internal bool StarSystemLocationIsSet()
         {
             return systemName != null &&
-                   systemAddress != null &&
+                   systemAddress != 0 &&
                    systemX != null &&
                    systemY != null &&
                    systemZ != null;
@@ -260,11 +252,11 @@ namespace EddiEddnResponder.Toolkit
                     // Apply heuristics to weed out mismatched systems and bodies
                     ConfirmScan(JsonParsing.getString(data, "BodyName"));
                 }
-                if (!data.ContainsKey("SystemAddress") || !data.ContainsKey("StarPos"))
+                if (!data.ContainsKey("SystemName") || !data.ContainsKey("StarPos"))
                 {
                     // Out of an overabundance of caution, we do not use data from our saved star systems to enrich the data we send to EDDN, 
-                    // but we do use it as an independent check to make sure our system address and coordinates are accurate
-                    ConfirmAddressAndCoordinates();
+                    // but we do use it as an independent check to make sure our system name and coordinates are accurate
+                    ConfirmNameAndCoordinates();
                 }
 
                 if (StarSystemLocationIsSet())
@@ -283,24 +275,24 @@ namespace EddiEddnResponder.Toolkit
             return false;
         }
 
-        internal bool ConfirmAddressAndCoordinates()
+        internal bool ConfirmNameAndCoordinates()
         {
             if (systemName != null)
             {
                 StarSystem system;
-                if (systemName == EDDI.Instance.CurrentStarSystem?.systemname)
+                if (systemAddress == EDDI.Instance.CurrentStarSystem?.systemAddress)
                 {
                     system = EDDI.Instance.CurrentStarSystem;
                 }
                 else
                 {
-                    system = StarSystemRepository.GetOrFetchStarSystem( systemName, true, true, false, false, false );
+                    system = EDDI.Instance.DataProvider.GetOrFetchQuickStarSystem( systemAddress );
                 }
                 if (system != null)
                 {
-                    if (systemAddress != system.systemAddress)
+                    if (systemName != system.systemname)
                     {
-                        systemAddress = null;
+                        systemName = null;
                     }
                     if (systemX != system.x || systemY != system.y || systemZ != system.z)
                     {
@@ -314,7 +306,7 @@ namespace EddiEddnResponder.Toolkit
                     ClearLocation();
                 }
             }
-            return systemAddress != null && systemX != null && systemY != null && systemZ != null;
+            return systemName != null && systemX != null && systemY != null && systemZ != null;
         }
 
         internal bool ConfirmScan(string scannedBodyName)

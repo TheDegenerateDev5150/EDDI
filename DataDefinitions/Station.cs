@@ -12,9 +12,6 @@ namespace EddiDataDefinitions
     /// </summary>
     public class Station : INotifyPropertyChanged
     {
-        /// <summary>The ID of this station in EDSM</summary>
-        public long? EDSMID { get; set; }
-
         /// <summary>The name</summary>
         [PublicAPI]
         public string name { get; set; }
@@ -158,26 +155,28 @@ namespace EddiDataDefinitions
         [PublicAPI, JsonIgnore, Obsolete("Please use Model instead")]
         public string model => (Model ?? StationModel.None).localizedName;
 
-        [PublicAPI]
-        public StationModel Model { get; set; } = StationModel.None;
+        [ PublicAPI ]
+        public StationModel Model
+        {
+            get => _model;
+            set
+            {
+                if ( value == StationModel.FleetCarrier )
+                {
+                    // Fleet carriers always have the same landing pad configuration
+                    landingPads = new StationLandingPads( 4, 4, 8 );
+                }
+                _model = value;
+            }
+        }
+
+        private StationModel _model = StationModel.None;
 
         /// <summary>What is the largest ship that can land here?</summary>
         [PublicAPI, JsonIgnore, Obsolete("Please use LargestPad instead")]
-        public string largestpad => LargestPad.localizedName;
+        public string largestpad => landingPads.LargestPad().localizedName;
 
-        [JsonIgnore]
-        public LandingPadSize LargestPad => LandingPads
-            .Where( kv => kv.Value > 0 )
-            .Select( kv => kv.Key )
-            .OrderByDescending( p => p.sizeIndex )
-            .FirstOrDefault() ?? LandingPadSize.None;
-
-        public Dictionary<LandingPadSize, int> LandingPads { get; set; } = new Dictionary<LandingPadSize, int>();
-
-        public bool LandingPadCheck(LandingPadSize shipSize)
-        {
-            return LargestPad.sizeIndex >= shipSize.sizeIndex;
-        }
+        public StationLandingPads landingPads { get; set; } = new StationLandingPads();
 
         /// <summary>What are the economies at the station, with proportions for each</summary>
         [JsonIgnore, JetBrains.Annotations.NotNull, JetBrains.Annotations.ItemNotNull]

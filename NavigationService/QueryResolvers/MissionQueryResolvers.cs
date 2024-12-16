@@ -1,6 +1,6 @@
 ﻿using EddiConfigService;
+using EddiCore;
 using EddiDataDefinitions;
-using EddiDataProviderService;
 using EddiEvents;
 using JetBrains.Annotations;
 using System;
@@ -14,6 +14,7 @@ namespace EddiNavigationService.QueryResolvers
     internal class CargoSourceMissionResolver : IQueryResolver
     {
         public QueryType Type => QueryType.source;
+        public Dictionary<string, object> SpanshQueryFilter => null;
         public RouteDetailsEvent Resolve ( Query query, StarSystem startSystem ) => GetMissionCargoSourceRoute ( startSystem, query.StringArg0 );
 
         /// <summary> Route to the nearest star system that can be used to source active mission cargo </summary>
@@ -39,7 +40,7 @@ namespace EddiNavigationService.QueryResolvers
                     break;
                 }
 
-                var dest = StarSystemSqLiteRepository.Instance.GetOrFetchStarSystem(mission.sourcesystem, true, false, true, false, false);
+                var dest = EDDI.Instance.DataProvider.GetQuickSystemData( mission.sourcesystem );
                 var distance = (long)(Functions.StellarDistanceLy(currentSystem.x, currentSystem.y, currentSystem.z, dest.x, dest.y, dest.z) ?? (0 * 100));
                 if ( !sortedSourceSystems.TryGetValue( distance, out _ ) )
                 {
@@ -64,6 +65,7 @@ namespace EddiNavigationService.QueryResolvers
     internal class ExpiringMissionResolver : IQueryResolver
     {
         public QueryType Type => QueryType.expiring;
+        public Dictionary<string, object> SpanshQueryFilter => null;
         public RouteDetailsEvent Resolve ( Query query, StarSystem startSystem ) => GetExpiringMissionRoute ( startSystem );
 
         /// <summary> Route to the star system where missions shall expire first </summary>
@@ -89,7 +91,7 @@ namespace EddiNavigationService.QueryResolvers
 
             if ( !string.IsNullOrEmpty ( searchSystem ) )
             {
-                var dest = StarSystemSqLiteRepository.Instance.GetOrFetchStarSystem(searchSystem, true, false, true, false, false); // Destination star system
+                var dest = EDDI.Instance.DataProvider.GetOrFetchQuickStarSystem( searchSystem ); // Destination star system
                 navRouteList.Waypoints.Add ( new NavWaypoint ( startSystem ) { visited = true } );
                 if ( startSystem.systemAddress != dest?.systemAddress )
                 {
@@ -107,6 +109,7 @@ namespace EddiNavigationService.QueryResolvers
     internal class FarthestMissionResolver : IQueryResolver
     {
         public QueryType Type => QueryType.farthest;
+        public Dictionary<string, object> SpanshQueryFilter => null;
         public RouteDetailsEvent Resolve ( Query query, StarSystem startSystem ) => GetFarthestMissionRoute ( startSystem );
 
         /// <summary> Route to the star system furthest from the current star system with active missions </summary>
@@ -123,13 +126,13 @@ namespace EddiNavigationService.QueryResolvers
                 {
                     foreach ( var system in mission.destinationsystems )
                     {
-                        var dest = StarSystemSqLiteRepository.Instance.GetOrFetchStarSystem( system.systemName, true, false, true, false, false ); // Destination star system
+                        var dest = EDDI.Instance.DataProvider.GetOrFetchQuickStarSystem( system.systemAddress ); // Destination star system
                         SortSystemByDistance( dest, system );
                     }
                 }
                 else if ( !string.IsNullOrEmpty( mission.destinationsystem ) )
                 {
-                    var dest = StarSystemSqLiteRepository.Instance.GetOrFetchStarSystem( mission.destinationsystem, true, false, true, false, false ); // Destination star system
+                    var dest = EDDI.Instance.DataProvider.GetOrFetchQuickStarSystem( mission.destinationsystem ); // Destination star system
                     SortSystemByDistance( dest, new NavWaypoint( dest ) { visited = dest.systemAddress == startSystem.systemAddress } );
                 }
                 continue;
@@ -163,6 +166,7 @@ namespace EddiNavigationService.QueryResolvers
     internal class MostMissionsResolver : IQueryResolver
     {
         public QueryType Type => QueryType.most;
+        public Dictionary<string, object> SpanshQueryFilter => null;
         public RouteDetailsEvent Resolve ( Query query, StarSystem startSystem ) => GetMostMissionRoute( query.StringArg0, startSystem );
 
         /// <summary> Route to the star system that provides the most active missions </summary>
@@ -214,13 +218,13 @@ namespace EddiNavigationService.QueryResolvers
             var mostList = new SortedList<decimal, StarSystem>();   // List of 'most' systems, sorted by distance
             long mostCount = systemsCount.Max ();
             var curr = !string.IsNullOrEmpty(targetSystemName)
-                ? StarSystemSqLiteRepository.Instance.GetOrFetchStarSystem(targetSystemName, true, false, true, false, false)
+                ? EDDI.Instance.DataProvider.GetOrFetchQuickStarSystem( targetSystemName )                
                 : startSystem;
             for ( var i = 0; i < systems.Count; i++ )
             {
                 if ( systemsCount[ i ] == mostCount )
                 {
-                    var dest = StarSystemSqLiteRepository.Instance.GetOrFetchStarSystem(systems[i], true, false, true, false, false); // Destination star system
+                    var dest = EDDI.Instance.DataProvider.GetOrFetchQuickStarSystem( systems[i] ); // Destination star system
                     if ( dest?.x != null )
                     {
                         mostList.Add ( NavigationService.CalculateDistance( curr, dest ), dest );
@@ -247,6 +251,7 @@ namespace EddiNavigationService.QueryResolvers
     internal class NearestMissionResolver : IQueryResolver
     {
         public QueryType Type => QueryType.nearest;
+        public Dictionary<string, object> SpanshQueryFilter => null;
         public RouteDetailsEvent Resolve ( Query query, StarSystem startSystem ) => GetNearestMissionRoute ( startSystem );
 
         /// <summary> Route to the nearest star system with active missions </summary>
@@ -263,7 +268,7 @@ namespace EddiNavigationService.QueryResolvers
                 {
                     foreach ( var system in mission.destinationsystems )
                     {
-                        var dest = StarSystemSqLiteRepository.Instance.GetOrFetchStarSystem(system.systemName, true, false, true, false, false); // Destination star system
+                        var dest = EDDI.Instance.DataProvider.GetOrFetchQuickStarSystem( mission.destinationsystem ); // Destination star system
                         var distance = NavigationService.CalculateDistance(startSystem, dest);
                         if ( !nearestList.ContainsKey ( distance ) )
                         {
@@ -274,7 +279,7 @@ namespace EddiNavigationService.QueryResolvers
                 }
                 else if ( !string.IsNullOrEmpty ( mission.destinationsystem ) )
                 {
-                    var dest = StarSystemSqLiteRepository.Instance.GetOrFetchStarSystem(mission.destinationsystem, true, false, true, false, false); // Destination star system
+                    var dest = EDDI.Instance.DataProvider.GetOrFetchQuickStarSystem( mission.destinationsystem ); // Destination star system
                     var distance = NavigationService.CalculateDistance(startSystem, dest);
                     if ( !nearestList.ContainsKey ( distance ) )
                     {
@@ -302,6 +307,7 @@ namespace EddiNavigationService.QueryResolvers
     internal class RepetiveNearestNeighborMissionResolver : IQueryResolver
     {
         public QueryType Type => QueryType.route;
+        public Dictionary<string, object> SpanshQueryFilter => null;
         public RouteDetailsEvent Resolve ( Query query, StarSystem startSystem ) => GetRepetiveNearestNeighborMissionRoute ( startSystem, query.StringArg0 );
 
         /// <summary> Route that provides the shortest total travel path to complete all missions using the 'Repetitive Nearest Neighbor' Algorithm (RNNA) </summary>
@@ -354,8 +360,8 @@ namespace EddiNavigationService.QueryResolvers
             }
 
             // Calculate the missions route using the 'Repetitive Nearest Neighbor' Algorithm (RNNA)
-            var navWaypoints = NavigationService.Instance.DataProviderService.GetSystemsData(systems.ToArray(), true, false, false, false).Select(s => new NavWaypoint(s)).ToList();
-            var homeStarSystem = NavigationService.Instance.DataProviderService.GetSystemData( homeSystem, showCoordinates: false, showBodies: false, showStations: false, showFactions: false );
+            var navWaypoints = EDDI.Instance.DataProvider.GetOrFetchQuickStarSystems(systems.ToArray() ).Select(s => new NavWaypoint(s)).ToList();
+            var homeStarSystem = EDDI.Instance.DataProvider.GetOrFetchQuickStarSystem( homeSystem );
             var homeSystemWaypoint = homeStarSystem is null ? null : new NavWaypoint( homeStarSystem );
             if ( CalculateRepetiveNearestNeighbor ( navWaypoints, missions, out var sortedRoute, homeSystemWaypoint ) )
             {

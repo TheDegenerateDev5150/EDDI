@@ -21,7 +21,7 @@ namespace EddiStarMapService
     }
 
     /// <summary> Talk to the Elite: Dangerous Star Map service </summary>
-    public partial class StarMapService : IEdsmService
+    public partial class StarMapService
     {
         // The maximum batch size we will use for syncing flight logs before we write systems to our sql database
         public const int syncBatchSize = 50;
@@ -315,17 +315,17 @@ namespace EddiStarMapService
             }
         }
 
-        public void sendStarMapComment(string systemName, string comment)
+        public void sendStarMapComment(ulong systemAddress, string comment)
         {
             if (!EdsmCredentialsSet()) { return; }
 
             var request = new RestRequest("api-logs-v1/set-comment", Method.POST);
-            request.AddParameter("apiKey", apiKey);
-            request.AddParameter("commanderName", commanderName);
-            request.AddParameter("systemName", systemName);
-            request.AddParameter("comment", comment);
+            request.AddParameter( "apiKey", apiKey );
+            request.AddParameter( "commanderName", commanderName );
+            request.AddParameter( "systemId64", systemAddress );
+            request.AddParameter( "comment", comment );
 
-            Thread thread = new Thread(() =>
+            var thread = new Thread(() =>
             {
                 try
                 {

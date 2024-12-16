@@ -35,9 +35,6 @@ namespace EddiDataDefinitions
 
         // Not intended to be user facing
 
-        /// <summary> The faction's EDSM ID </summary>
-        public long? EDSMID { get; set; }
-
         /// <summary> The faction's allegiance </summary>
         public Superpower Allegiance { get; set; }
 

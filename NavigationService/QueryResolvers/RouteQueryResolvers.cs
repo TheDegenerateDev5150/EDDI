@@ -13,6 +13,7 @@ namespace EddiNavigationService.QueryResolvers
     internal class SetQueryResolver : IQueryResolver
     {
         public QueryType Type => QueryType.set;
+        public Dictionary<string, object> SpanshQueryFilter => null;
         public RouteDetailsEvent Resolve ( Query query, StarSystem startSystem ) => SetRoute ( startSystem, query.StringArg0, query.StringArg1 );
 
         private static RouteDetailsEvent SetRoute ( StarSystem startSystem, string system, string station = null )
@@ -53,6 +54,7 @@ namespace EddiNavigationService.QueryResolvers
     internal class CancelQueryResolver : IQueryResolver
     {
         public QueryType Type => QueryType.cancel;
+        public Dictionary<string, object> SpanshQueryFilter => null;
         public RouteDetailsEvent Resolve ( Query query, StarSystem startSystem ) => CancelRoute ();
 
         private static RouteDetailsEvent CancelRoute ()
@@ -76,6 +78,7 @@ namespace EddiNavigationService.QueryResolvers
     public class UpdateQueryResolver : IQueryResolver
     {
         public QueryType Type => QueryType.update;
+        public Dictionary<string, object> SpanshQueryFilter => null;
         public RouteDetailsEvent Resolve ( Query query, StarSystem currentSystem ) => RefreshLastNavigationQuery ( currentSystem );
 
         /// <summary> Repeat the last mission query and return an updated result if different from the prior result, either relative to your current location or to a named system </summary>

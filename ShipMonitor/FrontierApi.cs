@@ -1,5 +1,5 @@
-﻿using EddiDataDefinitions;
-using EddiDataProviderService;
+﻿using EddiCore;
+using EddiDataDefinitions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -41,7 +41,7 @@ namespace EddiShipMonitor
                                 ship.station = (string)shipObj["station"]?["name"];
 
                                 // Get the ship's coordinates for distance calculations
-                                var StoredShipStarSystem = StarSystemSqLiteRepository.Instance.GetOrFetchStarSystem(ship.starsystem, true, false, false, false, false);
+                                var StoredShipStarSystem = EDDI.Instance.DataProvider.GetOrFetchQuickStarSystem(ship.starsystem);
                                 ship.x = StoredShipStarSystem.x;
                                 ship.y = StoredShipStarSystem.y;
                                 ship.z = StoredShipStarSystem.z;

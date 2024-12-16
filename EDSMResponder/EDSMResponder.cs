@@ -17,7 +17,7 @@ namespace EddiEdsmResponder
     {
         private Thread updateThread;
         private List<string> ignoredEvents = new List<string>();
-        private readonly IEdsmService edsmService;
+        private readonly StarMapService edsmService;
         private readonly DataProviderService dataProviderService;
 
         // This responder currently requires game version 4.0 or later.
@@ -41,7 +41,7 @@ namespace EddiEdsmResponder
         public EDSMResponder() : this(new StarMapService(null, true))
         { }
 
-        public EDSMResponder(IEdsmService edsmService)
+        public EDSMResponder(StarMapService edsmService)
         {
             this.edsmService = edsmService;
             dataProviderService = new DataProviderService(edsmService);

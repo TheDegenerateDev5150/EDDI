@@ -1,4 +1,4 @@
-﻿using EddiSpanshService;
+﻿using EddiCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +15,6 @@ namespace Eddi
         private List<string> systemList = new List<string>();
         private readonly Dictionary<string, List<string>> systemListCache = new Dictionary<string, List<string>>();
         private const int systemDisplayListSize = 10;
-        private readonly ISpanshService spanshService = new SpanshService();
 
         public StarSystemComboBox()
         {
@@ -36,7 +35,7 @@ namespace Eddi
             if (!systemListCache.ContainsKey(partialSystemName))
             {
                 // Request a new list
-                systemListCache[partialSystemName] = spanshService.GetTypeAheadStarSystems(partialSystemName).Values.ToList();
+                systemListCache[partialSystemName] = EDDI.Instance.DataProvider.GetTypeAheadSystems(partialSystemName).Values.ToList();
             }
 
             return systemListCache[partialSystemName];

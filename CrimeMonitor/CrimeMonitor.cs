@@ -3,7 +3,6 @@ using EddiConfigService;
 using EddiConfigService.Configurations;
 using EddiCore;
 using EddiDataDefinitions;
-using EddiDataProviderService;
 using EddiEvents;
 using Newtonsoft.Json.Linq;
 using System;
@@ -998,17 +997,16 @@ namespace EddiCrimeMonitor
             record.Allegiance = faction.Allegiance;
 
             // Check faction with archived home systems
-            if (homeSystems.TryGetValue(record.faction, out string result))
+            if (homeSystems.TryGetValue(record.faction, out string factionHomeSystem))
             {
-                record.system = result;
-                record.station = GetFactionStation(result);
+                record.system = factionHomeSystem;
+                record.station = GetFactionStation(factionHomeSystem);
                 return;
             }
 
             if (faction.presences.Any())
             {
-                List<string> factionSystems = faction.presences.Select(p => p.systemName).ToList();
-                factionSystems = faction.presences
+                var factionSystems = faction.presences
                     .OrderByDescending(p => p.influence)
                     .Select(p => p.systemName).ToList();
                 record.factionSystems = factionSystems;
@@ -1062,7 +1060,7 @@ namespace EddiCrimeMonitor
         public string GetFactionStation(string factionSystem)
         {
             if (factionSystem == null) { return null; }
-            StarSystem factionStarSystem = StarSystemSqLiteRepository.Instance.GetOrFetchStarSystem(factionSystem, true, true, false, true, false);
+            var factionStarSystem = EDDI.Instance.DataProvider.GetOrFetchStarSystem(factionSystem, true, false);
 
             if (factionStarSystem != null)
             {
@@ -1076,7 +1074,7 @@ namespace EddiCrimeMonitor
                     .Where(s => s.Model != StationModel.FleetCarrier)
                     .Where(s => s.stationservices.Count > 0)
                     .Where(s => s.distancefromstar <= ConfigService.Instance.navigationMonitorConfiguration.maxSearchDistanceFromStarLs)
-                    .Where(s => s.LandingPadCheck(padSize))
+                    .Where(s => s.landingPads.LandingPadCheck(padSize))
                     .ToList();
 
                 // Build list to find the faction station nearest to the main star

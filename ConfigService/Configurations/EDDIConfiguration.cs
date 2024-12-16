@@ -12,11 +12,20 @@ namespace EddiConfigService.Configurations
         [JsonProperty("homeSystem")]
         public string HomeSystem { get; set; }
 
+        [JsonProperty( "homeSystemAddress" )]
+        public ulong? HomeSystemAddress { get; set; }
+
         [JsonProperty("homeStation")]
         public string HomeStation { get; set; }
 
+        [JsonProperty( "homeStationMarketID" )]
+        public long? HomeStationMarketID { get; set; }
+
         [JsonProperty("destinationSystem")]
         public string DestinationSystem { get; set; }
+
+        [JsonProperty( "destinationSystemAddress" )]
+        public ulong? DestinationSystemAddress { get; set; }
 
         [JsonProperty("squadronName")]
         public string SquadronName { get; set; }
@@ -70,6 +79,9 @@ namespace EddiConfigService.Configurations
 
         [JsonProperty("squadronSystem")]
         public string SquadronSystem { get; set; }
+
+        [JsonProperty( "squadronSystemAddress" )]
+        public ulong? SquadronSystemAddress { get; set; }
 
         [JsonProperty("squadronFaction")]
         public string SquadronFaction { get; set; }

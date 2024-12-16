@@ -1,0 +1,79 @@
+{
+  "count": 2,
+  "query": "5068463809865",
+  "results": [
+    {
+      "record": {
+        "bodies": [],
+        "body_count": 23,
+        "estimated_mapping_value": 1022506,
+        "estimated_scan_value": 279928,
+        "government": "None",
+        "id64": 5068463809865,
+        "known_permit": false,
+        "landmark_value": 0,
+        "name": "Hyades Sector DL-X b1-2",
+        "needs_permit": false,
+        "population": 0,
+        "primary_economy": "None",
+        "region": "Inner Orion Spur",
+        "secondary_economy": "None",
+        "security": "Anarchy",
+        "thargoid_war_failure_state": "None",
+        "thargoid_war_state": "None",
+        "thargoid_war_success_state": "None",
+        "updated_at": "2024-12-08 13:36:45+00",
+        "x": -43.6875,
+        "y": -99.21875,
+        "z": -237.8125
+      },
+      "type": "system"
+    },
+    {
+      "record": {
+        "age": 586,
+        "atmosphere": "No atmosphere",
+        "axis_tilt": 0,
+        "belts": [
+          {
+            "inner_radius": 717270000,
+            "mass": 54671000000000,
+            "name": "Hyades Sector DL-X b1-2 A Belt",
+            "outer_radius": 1728000000,
+            "type": "Metal Rich"
+          },
+          {
+            "inner_radius": 63166000000,
+            "mass": 878220000000000,
+            "name": "Hyades Sector DL-X b1-2 B Belt",
+            "outer_radius": 159170000000,
+            "type": "Icy"
+          }
+        ],
+        "body_id": 0,
+        "distance_to_arrival": 0,
+        "estimated_mapping_value": 4574,
+        "estimated_scan_value": 1206,
+        "id64": 5068463809865,
+        "is_main_star": true,
+        "luminosity_class": "Va",
+        "name": "Hyades Sector DL-X b1-2",
+        "rotational_period": 1.93991731960648,
+        "solar_masses": 0.367188,
+        "solar_radius": 0.53295891876348,
+        "spectral_class": "M4",
+        "subtype": "M (Red dwarf) Star",
+        "surface_temperature": 2993,
+        "system_id64": 5068463809865,
+        "system_name": "Hyades Sector DL-X b1-2",
+        "system_region": "Inner Orion Spur",
+        "system_x": -43.6875,
+        "system_y": -99.21875,
+        "system_z": -237.8125,
+        "type": "Star",
+        "updated_at": "2024-12-08 13:36:51+00"
+      },
+      "type": "body"
+    }
+  ]
+}

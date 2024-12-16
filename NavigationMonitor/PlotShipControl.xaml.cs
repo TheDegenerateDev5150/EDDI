@@ -2,7 +2,6 @@
 using EddiConfigService;
 using EddiCore;
 using EddiDataDefinitions;
-using EddiDataProviderService;
 using EddiNavigationService;
 using System;
 using System.Collections.Generic;
@@ -414,7 +413,7 @@ namespace EddiNavigationMonitor
 
             if (searchStationDropDown.Visibility == Visibility.Visible && !string.IsNullOrEmpty(system))
             {
-                StarSystem SearchSystem = StarSystemSqLiteRepository.Instance.GetOrFetchStarSystem(system, true, true, false, true, false);
+                var SearchSystem = EDDI.Instance.DataProvider.GetOrFetchQuickStarSystem(system);
                 if (SearchSystem?.stations != null)
                 {
                     foreach (Station station in SearchSystem.stations.Where(s => !s.IsCarrier() && !s.IsMegaShip()))

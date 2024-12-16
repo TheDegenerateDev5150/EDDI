@@ -1,7 +1,6 @@
 ﻿using Cottle;
 using EddiCore;
 using EddiDataDefinitions;
-using EddiDataProviderService;
 using EddiSpeechResponder.ScriptResolverService;
 using JetBrains.Annotations;
 using System;
@@ -23,7 +22,7 @@ namespace EddiSpeechResponder.CustomFunctions
             {
                 var result = values.Count == 0 
                     ? EDDI.Instance.CurrentStarSystem 
-                    : StarSystemSqLiteRepository.Instance.GetOrFetchStarSystem(values[0].AsString, true);
+                    : EDDI.Instance.DataProvider.GetOrFetchStarSystem( values[0].AsString );
 
                 var distanceFromHome = result?.DistanceFromStarSystem(EDDI.Instance.HomeStarSystem);
                 if (distanceFromHome != null)

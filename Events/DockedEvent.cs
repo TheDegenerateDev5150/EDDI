@@ -77,9 +77,9 @@ namespace EddiEvents
 
         public List<EconomyShare> economyShares { get; private set; }
 
-        public Dictionary<LandingPadSize, int> landingPads { get; private set; }
+        public StationLandingPads landingPads { get; private set; }
 
-        public DockedEvent (DateTime timestamp, string system, ulong systemAddress, long? marketId, string station, StationState stationState, StationModel stationModel, Faction controllingfaction, List<EconomyShare> Economies, decimal? distancefromstar, List<StationService> stationServices, bool cockpitBreach, bool wanted, bool activeFine, Dictionary<LandingPadSize, int> landingPads ) : base( timestamp, NAME )
+        public DockedEvent (DateTime timestamp, string system, ulong systemAddress, long? marketId, string station, StationState stationState, StationModel stationModel, Faction controllingfaction, List<EconomyShare> Economies, decimal? distancefromstar, List<StationService> stationServices, bool cockpitBreach, bool wanted, bool activeFine, StationLandingPads landingPads ) : base( timestamp, NAME )
         {
             this.system = system;
             this.systemAddress = systemAddress;

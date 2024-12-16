@@ -1,6 +1,8 @@
 ﻿using EddiCore;
 using EddiDataDefinitions;
+using EddiDataProviderService;
 using EddiNavigationService;
+using EddiSpanshService;
 using EddiStarMapService;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
@@ -16,27 +18,32 @@ namespace IntegrationTests
     public class NavigationServiceTests : TestBase
     {
         private FakeEdsmRestClient fakeEdsmRestClient;
+        private FakeSpanshRestClient fakeSpanshRestClient;
         private StarMapService fakeEdsmService;
+        private SpanshService fakeSpanshService;
         private NavigationService navigationService;
 
         [TestInitialize]
         public void Start()
         {
             fakeEdsmRestClient = new FakeEdsmRestClient();
-            fakeEdsmService = new StarMapService(fakeEdsmRestClient);
-            navigationService = new NavigationService(fakeEdsmService);
+            fakeSpanshRestClient = new FakeSpanshRestClient();
+            fakeEdsmService = new StarMapService( fakeEdsmRestClient );
+            fakeSpanshService = new SpanshService( fakeSpanshRestClient );
+            EDDI.Instance.DataProvider = new DataProviderService( fakeEdsmService, fakeSpanshService );
+            navigationService = new NavigationService();
             MakeSafe();
 
             // Use a standard cube search around Sol for our service queries 
-            string resource = "api-v1/cube-systems";
-            string json = Encoding.UTF8.GetString(Resources.cubeSystemsAroundSol);
-            List<JObject> data = new List<JObject>();
+            var resource = "api-v1/cube-systems";
+            var json = Encoding.UTF8.GetString(Resources.cubeSystemsAroundSol);
+            var data = new List<JObject>();
             fakeEdsmRestClient.Expect(resource, json, data);
 
             // Use a standard cube search around Sol for our service queries 
-            string resource2 = "api-v1/sphere-systems";
-            string json2 = Encoding.UTF8.GetString(Resources.sphereAroundSol);
-            List<JObject> data2 = new List<JObject>();
+            var resource2 = "api-v1/sphere-systems";
+            var json2 = Encoding.UTF8.GetString(Resources.sphereAroundSol);
+            var data2 = new List<JObject>();
             fakeEdsmRestClient.Expect(resource2, json2, data2);
         }
 

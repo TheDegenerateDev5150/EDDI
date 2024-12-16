@@ -22,7 +22,7 @@ namespace EddiSpanshService
                 if ( string.IsNullOrEmpty( clientResponse.Content ) )
                 {
                     Logging.Warn( "Unable to handle server response." );
-                    return null;
+                    return new Dictionary<ulong, string>();
                 }
 
                 Logging.Debug("Spansh responded with " + clientResponse.Content);

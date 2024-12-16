@@ -16,9 +16,6 @@ namespace EddiDataDefinitions
         /// <summary>The ID of this body in the star system</summary>
         public long? bodyId { get; set; }
 
-        /// <summary>The ID of this body in EDSM</summary>
-        public long? EDSMID { get; set; }
-
         /// <summary>The localized type of the body </summary>
         [PublicAPI, JsonIgnore, Obsolete("For use with Cottle. Please use bodyType instead.")]
         public string bodytype => (bodyType ?? BodyType.None).localizedName;

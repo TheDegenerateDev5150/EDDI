@@ -1,10 +1,8 @@
 ﻿using EddiConfigService;
 using EddiCore;
 using EddiDataDefinitions;
-using EddiDataProviderService;
 using EddiEvents;
 using EddiNavigationService;
-using EddiStarMapService;
 using JetBrains.Annotations;
 using Newtonsoft.Json.Linq;
 using System;
@@ -280,7 +278,7 @@ namespace EddiNavigationMonitor
 
         private void UpdateCarrierRouteLocationData(DateTime timestamp, string systemName, ulong systemAddress, bool fromLoad)
         {
-            var system = StarSystemSqLiteRepository.Instance.GetOrFetchStarSystem(systemName, true, false, false, false, false);
+            var system = EDDI.Instance.DataProvider.GetOrFetchQuickStarSystem(systemName);
             if (systemAddress == system.systemAddress)
             {
                 CarrierPlottedRoute.UpdateLocationData(system.systemAddress, system.x, system.y, system.z);
@@ -713,7 +711,7 @@ namespace EddiNavigationMonitor
                 return;
             }
 
-            EDDI.Instance.updateDestinationSystem( routeDestination.systemName );
+            EDDI.Instance.updateDestinationSystem( routeDestination.systemAddress, routeDestination.systemName );
             var distance = Functions.StellarDistanceLy(
                 routeStart?.x, routeStart?.y, routeStart?.z, 
                 routeDestination.x, routeDestination.y, routeDestination.z) ?? 0;
@@ -820,7 +818,7 @@ namespace EddiNavigationMonitor
             }).ToList();
             var visitedBookmarkSystems = await Task.Run(() =>
             {
-                return new DataProviderService(new StarMapService(null, true))
+                return EDDI.Instance.DataProvider
                     .syncFromStarMapService(bookmarkSystems)
                     .Where(s => s.visits > 0);
             }).ConfigureAwait(false);
