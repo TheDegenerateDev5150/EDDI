@@ -2442,7 +2442,6 @@ namespace EddiCore
 
                 // We have changed system so update the old one as to when we left
                 DataProvider.LeaveStarSystem( CurrentStarSystem );
-            
             }
 
             // Update the CurrentStarSystem to the one we are entering

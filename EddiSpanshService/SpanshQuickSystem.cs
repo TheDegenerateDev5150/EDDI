@@ -141,6 +141,16 @@ namespace EddiSpanshService
                     return null;
                 }
 
+                starSystem.stations = data[ "stations" ]?.Where( s => !string.IsNullOrEmpty( s[ "type" ].ToString() ) )
+                    .Select( s => new Station
+                    {
+                        name = s[ "name" ]?.ToString(),
+                        marketId = s[ "market_id" ]?.ToObject<long?>(),
+                        Model = FromSpanshStationModel( s[ "type" ]?.ToString() ),
+                        systemname = starSystem.systemname,
+                        systemAddress = starSystem.systemAddress
+                    } ).ToList();
+
                 starSystem.requirespermit = data[ "needs_permit" ]?.ToObject<bool?>() ?? false;
                 var thargoidWarStateStr =  data[ "thargoid_war_state" ]?.ToString();
                 if ( !string.IsNullOrEmpty( thargoidWarStateStr ) && thargoidWarStateStr != "None" )

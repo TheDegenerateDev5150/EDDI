@@ -42,11 +42,14 @@ namespace EddiShipMonitor
 
                                 // Get the ship's coordinates for distance calculations
                                 var StoredShipStarSystem = EDDI.Instance.DataProvider.GetOrFetchQuickStarSystem(ship.starsystem);
-                                ship.x = StoredShipStarSystem.x;
-                                ship.y = StoredShipStarSystem.y;
-                                ship.z = StoredShipStarSystem.z;
+                                if ( StoredShipStarSystem != null )
+                                {
+                                    ship.x = StoredShipStarSystem.x;
+                                    ship.y = StoredShipStarSystem.y;
+                                    ship.z = StoredShipStarSystem.z;
+                                    shipyard.Add( ship );
+                                }
                             }
-                            shipyard.Add(ship);
                         }
                     }
                 }

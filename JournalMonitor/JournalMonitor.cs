@@ -1314,23 +1314,6 @@ namespace EddiJournalMonitor
 
                                                     var systemName = JsonParsing.getString(shipData, "StarSystem");
                                                     ship.starsystem = systemName ?? system;
-                                                    if (systemName != null)
-                                                    {
-                                                        var systemData = EDDI.Instance.DataProvider.GetOrFetchQuickStarSystem( systemName );
-                                                        ship.station = systemData?.stations?.FirstOrDefault(s => s.marketId == ship.marketid)?.name;
-                                                        ship.x = systemData?.x;
-                                                        ship.y = systemData?.y;
-                                                        ship.z = systemData?.z;
-                                                        ship.distance = ship.Distance(EDDI.Instance?.CurrentStarSystem?.x, EDDI.Instance?.CurrentStarSystem?.y, EDDI.Instance?.CurrentStarSystem?.z);
-                                                    }
-                                                    else
-                                                    {
-                                                        ship.station = station;
-                                                        ship.x = EDDI.Instance?.CurrentStarSystem?.x;
-                                                        ship.y = EDDI.Instance?.CurrentStarSystem?.y;
-                                                        ship.z = EDDI.Instance?.CurrentStarSystem?.z;
-                                                        ship.distance = 0;
-                                                    }
                                                     shipyard.Add(ship);
                                                 }
                                             }
@@ -1377,24 +1360,6 @@ namespace EddiJournalMonitor
                                                 transfertime = JsonParsing.getOptionalLong(item, "TransferTime")
                                             };
                                             storedModules.Add(storedModule);
-                                        }
-
-                                        var systemNames = storedModules.Where(s => !string.IsNullOrEmpty(s.system)).Select(s => s.system).Distinct().ToArray();
-                                        var systemsData = EDDI.Instance.DataProvider.GetOrFetchStarSystems(systemNames, true, false);
-                                        if (systemsData?.Any() ?? false)
-                                        {
-                                            var storedModulesHolder = new List<StoredModule>();
-                                            foreach (var storedModule in storedModules)
-                                            {
-                                                if (!storedModule.intransit)
-                                                {
-                                                    var systemData = systemsData.FirstOrDefault(s => s.systemname == storedModule.system);
-                                                    var stationData = systemData?.stations?.FirstOrDefault(s => s.marketId == storedModule.marketid);
-                                                    storedModule.station = stationData?.name;
-                                                }
-                                                storedModulesHolder.Add(storedModule);
-                                            }
-                                            storedModules = storedModulesHolder;
                                         }
                                     }
                                     events.Add(new StoredModulesEvent(timestamp, marketId, station, system, storedModules) { raw = line, fromLoad = fromLogLoad });
@@ -4699,15 +4664,14 @@ namespace EddiJournalMonitor
                                         if (edType == "Backpack")
                                         {
                                             events.Add(new BackpackEvent(timestamp, inventory) { raw = line, fromLoad = fromLogLoad });
-                                            handled = true;
                                         }
                                         else if (edType == "ShipLocker")
                                         {
                                             events.Add(new ShipLockerEvent(timestamp, inventory) { raw = line, fromLoad = fromLogLoad });
-                                            handled = true;
                                         }
                                     }
                                 }
+                                handled = true;
                                 break;
                             case "BackpackChange":
                                 {

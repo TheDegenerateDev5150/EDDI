@@ -105,11 +105,11 @@ namespace EddiDataProviderService
                     // Save changes to our star systems
                     starSystemRepository.SaveStarSystems( fetchedSystems );
                 }
-            }
 
-            if ( missingSystems().Any() )
-            {
-                Logging.Warn( "Unable to retrieve data on all requested star systems.", missingSystems() );
+                if ( missingSystems().Any() )
+                {
+                    Logging.Warn( "Unable to retrieve data on all requested star systems.", missingSystems() );
+                }
             }
 
             return results;
@@ -157,7 +157,7 @@ namespace EddiDataProviderService
             results.AddRange( starSystemCache.GetRange( missingSystems() ) );
 
             // Fetch from the local database
-            results.AddRange( GetSqlStarSystems( systemAddresses.ToArray(), out _, false ) );
+            results.AddRange( GetSqlStarSystems( missingSystems(), out _, false ) );
 
             // Fetch from external data providers (when so instructed)
             if ( missingSystems().Any() && fetchIfMissing )

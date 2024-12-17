@@ -48,7 +48,7 @@ namespace EddiNavigationService.QueryResolvers
                 var searchSystem = EDDI.Instance.DataProvider.GetBodyWaypoint( startSystem.systemAddress, searchFilter );
                 navRouteList.Waypoints.Add( searchSystem );
             }
-            return new RouteDetailsEvent ( DateTime.UtcNow, QueryType.scoop.ToString (), navRouteList.NextWaypoint.systemName, null, navRouteList, navRouteList.Waypoints.Count, null );
+            return new RouteDetailsEvent ( DateTime.UtcNow, QueryType.scoop.ToString (), navRouteList.Waypoints.LastOrDefault()?.systemName, null, navRouteList, navRouteList.Waypoints.Count, null );
         }
     }
 
