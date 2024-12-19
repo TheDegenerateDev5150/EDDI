@@ -234,7 +234,8 @@ namespace EddiEddnResponder.Schemas
                 handledC["stockBracket"] = c["stockBracket"];
                 if (c["statusFlags"] is IEnumerable<object> statusFlags && statusFlags.Any())
                 {
-                    handledC["statusFlags"] = c["statusFlags"];
+                    // Commodities may have more than one "powerplay" statusFlag.
+                    handledC["statusFlags"] = JToken.FromObject( c["statusFlags"].Distinct() );
                 }
             }
             return handledC;
