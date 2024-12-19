@@ -12,6 +12,7 @@ namespace EddiCompanionAppService
 
         protected JObject GetEndpoint(string endpointURL)
         {
+            if ( CompanionAppService.unitTesting ) { return null; }
             JObject newJson = null;
             try
             {
