@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Utilities;
 
 namespace EddiDataDefinitions
 {
@@ -118,6 +119,12 @@ namespace EddiDataDefinitions
             stellarclass = navRouteItem.stellarclass;
             isScoopable = !string.IsNullOrEmpty(navRouteItem.stellarclass) && "KGBFOAM".Contains(navRouteItem.stellarclass);
             hasNeutronStar = !string.IsNullOrEmpty(navRouteItem.stellarclass) && "N".Contains(navRouteItem.stellarclass);
+        }
+
+        public decimal? DistanceFromStarSystem ( NavWaypoint other )
+        {
+            if ( other is null ) { return null; }
+            return Functions.StellarDistanceLy( x, y, z, other.x, other.y, other.z );
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
