@@ -506,13 +506,14 @@ namespace EddiCore
                 // Otherwise, run them in separate threads.
                 void ActionUpdateHomeSystemStation()
                 {
-                    updateHomeSystemStation(configuration);
+                    setHomeSystem( configuration.HomeSystemAddress, configuration.HomeSystem );
+                    setHomeStation( configuration );
                 }
                 void ActionUpdateSquadronSystem()
                 {
-                    updateSquadronSystem(configuration);
+                    setSquadronSystem( configuration.SquadronSystemAddress, configuration.SquadronSystem );
                 }
-                if (configuration.HomeSystem == configuration.SquadronSystem)
+                if (configuration.HomeSystemAddress == configuration.SquadronSystemAddress)
                 {
                     // Run both actions on the same thread
                     Task.Run((Action)ActionUpdateHomeSystemStation + ActionUpdateSquadronSystem, eventHandlerTS.Token ).ConfigureAwait(false);
@@ -3535,39 +3536,42 @@ namespace EddiCore
             ConfigService.Instance.eddiConfiguration = configuration;
         }
 
-        public void updateHomeSystemStation(EDDIConfiguration configuration)
+        public void setHomeSystem ( ulong? newSystemAddress, string newSystemName )
         {
-            updateHomeSystem(configuration);
-            updateHomeStation(configuration);
-            ConfigService.Instance.eddiConfiguration = configuration;
-        }
-
-        public EDDIConfiguration updateHomeSystem(EDDIConfiguration configuration)
-        {
-            if ( !string.IsNullOrEmpty(configuration.HomeSystem) )
+            StarSystem newSystem = null;
+            if ( newSystemAddress != null )
             {
-                var newSystem = DataProvider.GetOrFetchStarSystem(configuration.HomeSystem);
+                newSystem = DataProvider.GetOrFetchStarSystem( (ulong)newSystemAddress, newSystemName );
+            }
+            if ( newSystem is null && !string.IsNullOrEmpty( newSystemName ) )
+            {
+                newSystem = DataProvider.GetOrFetchStarSystem( newSystemName );
+            }
 
-                //Ignore null & empty systems
-                if (newSystem?.bodies?.Count > 0)
+            //Ignore null & empty systems
+            if ( newSystem?.bodies?.Count > 0 )
+            {
+                if ( newSystem.systemAddress != HomeStarSystem?.systemAddress )
                 {
-                    if (newSystem.systemAddress != HomeStarSystem?.systemAddress )
-                    {
-                        HomeStarSystem = newSystem;
-                        Logging.Debug("Home star system is " + HomeStarSystem.systemname);
-                        configuration.HomeSystem = newSystem.systemname;
-                        configuration.HomeSystemAddress = newSystem.systemAddress;
-                    }
+                    HomeStarSystem = newSystem;
+                    Logging.Debug( "Home star system is " + HomeStarSystem.systemname );
+
+                    var eddiConfiguration = ConfigService.Instance.eddiConfiguration;
+                    eddiConfiguration.HomeSystem = newSystem.systemname;
+                    eddiConfiguration.HomeSystemAddress = newSystem.systemAddress;
+                    eddiConfiguration.HomeStation = null;
+                    eddiConfiguration.HomeStationMarketID = null;
+                    ConfigService.Instance.eddiConfiguration = eddiConfiguration;
+                    return;
                 }
             }
             else
             {
                 HomeStarSystem = null;
             }
-            return configuration;
         }
 
-        public EDDIConfiguration updateHomeStation(EDDIConfiguration configuration)
+        public EDDIConfiguration setHomeStation(EDDIConfiguration configuration)
         {
             if (!string.IsNullOrEmpty(configuration.HomeStation) && HomeStarSystem?.stations != null)
             {
@@ -3587,32 +3591,36 @@ namespace EddiCore
             return configuration;
         }
 
-        public EDDIConfiguration updateSquadronSystem(EDDIConfiguration configuration)
+        public void setSquadronSystem ( ulong? newSystemAddress, string newSystemName )
         {
-            if (!string.IsNullOrEmpty(configuration.SquadronSystem))
+            StarSystem newSystem = null;
+            if ( newSystemAddress != null )
             {
-                var system = DataProvider.GetOrFetchStarSystem(configuration.SquadronSystem.Trim());
+                newSystem = DataProvider.GetOrFetchStarSystem( (ulong)newSystemAddress, newSystemName );
+            }
+            if ( newSystem is null && !string.IsNullOrEmpty(newSystemName) )
+            {
+                newSystem = DataProvider.GetOrFetchStarSystem( newSystemName );
+            }
 
-                //Ignore null & empty systems
-                if (system != null && system?.bodies.Count > 0)
+            //Ignore null & empty systems
+            if ( newSystem?.bodies.Count > 0 )
+            {
+                if ( newSystem.systemAddress != SquadronStarSystem?.systemAddress )
                 {
-                    if (system.systemAddress != SquadronStarSystem?.systemAddress )
-                    {
-                        SquadronStarSystem = system;
-                        if (SquadronStarSystem?.factions != null)
-                        {
-                            Logging.Debug("Squadron star system is " + SquadronStarSystem.systemname);
-                            configuration.SquadronSystem = system.systemname;
-                            configuration.SquadronSystemAddress = system.systemAddress;
-                        }
-                    }
+                    SquadronStarSystem = newSystem;
+                    Logging.Debug( "Squadron star system is " + SquadronStarSystem.systemname );
+
+                    var eddiConfiguration = ConfigService.Instance.eddiConfiguration;
+                    eddiConfiguration.SquadronSystem = newSystem.systemname;
+                    eddiConfiguration.SquadronSystemAddress = newSystem.systemAddress;
+                    ConfigService.Instance.eddiConfiguration = eddiConfiguration;
                 }
             }
             else
             {
                 SquadronStarSystem = null;
             }
-            return configuration;
         }
 
         public void updateSquadronData(Faction faction, ulong systemAddress )
@@ -3650,17 +3658,16 @@ namespace EddiCore
                         configuration.SquadronSystem = system;
                         configuration.SquadronSystemAddress = CurrentStarSystem?.systemAddress;
 
-                        var configurationCopy = configuration;
                         Application.Current?.Dispatcher?.InvokeAsync( () =>
                         {
                             if (Application.Current?.MainWindow != null)
                             {
                                 ((MainWindow)Application.Current.MainWindow).squadronSystemDropDown.Text = system;
-                                ((MainWindow)Application.Current.MainWindow).ConfigureSquadronFactionOptions(configurationCopy);
+                                ((MainWindow)Application.Current.MainWindow).ConfigureSquadronFactionOptions();
                             }
                         });
 
-                        configuration = updateSquadronSystem(configuration);
+                        setSquadronSystem( configuration.SquadronSystemAddress, configuration.SquadronSystem );
                     }
 
                     //Update the squadron allegiance, if changed

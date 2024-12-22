@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using RestSharp;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Utilities;
@@ -9,9 +10,10 @@ namespace EddiSpanshService
 {
     public interface ISpanshRestClient
     {
-        Uri BuildUri(IRestRequest request);
-        IRestResponse<T> Execute<T>(IRestRequest request);
-        IRestResponse Get(IRestRequest request);
+        Uri BuildUri ( IRestRequest request );
+        IRestResponse<T> Execute<T> ( IRestRequest request );
+        IRestResponse Get ( IRestRequest request );
+        IRestResponse Post ( IRestRequest request );
     }
 
     public partial class SpanshService
@@ -34,18 +36,106 @@ namespace EddiSpanshService
                 };
             }
 
-            public Uri BuildUri(IRestRequest request) => restClient.BuildUri(request);
+            public Uri BuildUri ( IRestRequest request ) => restClient.BuildUri( request );
 
-            public IRestResponse<T> Execute<T>(IRestRequest request)
+            public IRestResponse<T> Execute<T> ( IRestRequest request )
             {
-                var response = restClient.Execute<T>(request);
+                var response = restClient.Execute<T>( request );
                 return response;
             }
 
-            public IRestResponse Get(IRestRequest request)
+            public IRestResponse Get ( IRestRequest request )
             {
-                var response = Execute<object>(request);
+                var response = Execute<object>( request );
                 return response;
+            }
+
+            /// <summary>
+            /// Post a search request with a json payload
+            /// </summary>
+            /// <param name="request"></param>
+            /// <returns></returns>
+            public IRestResponse Post ( IRestRequest request )
+            {
+                var initialResponse = Execute<object>( request );
+
+                if ( !IsResponseOk( initialResponse, out var initialData ) )
+                {
+                    return null;
+                }
+
+                var searchReferenceId = initialData[ "search_reference" ]?.ToString();
+                if ( string.IsNullOrEmpty( searchReferenceId ) )
+                {
+                    Logging.Warn( "Spansh API failed to provide a search_reference.", initialResponse );
+                    return null;
+                }
+
+                var response = SearchResponseAsync( request, searchReferenceId ).Result;
+
+                if ( !IsResponseOk( response, out _ ) )
+                {
+                    return null;
+                }
+
+                return response;
+            }
+
+            private static bool IsResponseOk ( IRestResponse response, out JToken data )
+            {
+                data = null;
+                if ( response is null )
+                {
+                    Logging.Warn( "Spansh API is not responding" );
+                    return false;
+                }
+
+                if ( string.IsNullOrEmpty( response.Content ) )
+                {
+                    Logging.Warn( "Spansh API responded without providing any data", response );
+                    return false;
+                }
+                data = JToken.Parse( response.Content );
+                if ( data[ "error" ] != null )
+                {
+                    Logging.Debug( "Spansh API responded with: " + data[ "error" ], response );
+                    return false;
+                }
+
+                return true;
+            }
+
+            private async Task<IRestResponse> SearchResponseAsync ( IRestRequest initialRequest, string searchReferenceId )
+            {
+                return await Task.Run( () =>
+                {
+                    var requestGroup = initialRequest.Resource.Split( '/' ).FirstOrDefault();
+                    var searchRequest = new RestRequest(requestGroup + "/search/recall/" + searchReferenceId);
+                    IRestResponse response = null;
+                    while ( response is null )
+                    {
+                        Thread.Sleep( 500 );
+                        response = Execute<object>( searchRequest );
+
+                        if ( response is null )
+                        {
+                            return null;
+                        }
+
+                        if ( response.ResponseStatus == ResponseStatus.TimedOut )
+                        {
+                            Logging.Warn( response.ErrorMessage, searchRequest );
+                            return null;
+                        }
+
+                        if ( JToken.Parse( response.Content )[ "status" ]?.ToString() != "queued" )
+                        {
+                            return response;
+                        }
+                    }
+
+                    return null;
+                } ).ConfigureAwait( false );
             }
         }
 

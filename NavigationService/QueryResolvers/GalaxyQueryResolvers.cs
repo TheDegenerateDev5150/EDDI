@@ -45,7 +45,7 @@ namespace EddiNavigationService.QueryResolvers
             navRouteList.Waypoints.Add( new NavWaypoint( startSystem ) { visited = true } );
             if ( !startSystem.scoopable )
             {
-                var searchSystem = EDDI.Instance.DataProvider.GetBodyWaypoint( startSystem.systemAddress, searchFilter );
+                var searchSystem = EDDI.Instance.DataProvider.FetchBodyWaypoint( startSystem.systemAddress, searchFilter );
                 navRouteList.Waypoints.Add( searchSystem );
             }
             return new RouteDetailsEvent ( DateTime.UtcNow, QueryType.scoop.ToString (), navRouteList.Waypoints.LastOrDefault()?.systemName, null, navRouteList, navRouteList.Waypoints.Count, null );
@@ -77,7 +77,7 @@ namespace EddiNavigationService.QueryResolvers
             var cargoCarriedTons = ConfigService.Instance.cargoMonitorConfiguration.cargocarried;
             var shipId = ConfigService.Instance.shipMonitorConfiguration.currentshipid;
             var ship = ConfigService.Instance.shipMonitorConfiguration.shipyard.FirstOrDefault(s => s.LocalId == shipId);
-            var plottedRouteList = EDDI.Instance.DataProvider.GetGalaxyRoute ( startSystem.systemname, targetSystemName, ship, cargoCarriedTons,
+            var plottedRouteList = EDDI.Instance.DataProvider.FetchGalaxyRoute ( startSystem.systemname, targetSystemName, ship, cargoCarriedTons,
                 isSupercharged, useSupercharge, useInjections, excludeSecondary, fromUIquery );
             if ( plottedRouteList == null || plottedRouteList.Waypoints.Count <= 1 ) { return null; }
             plottedRouteList.UpdateLocationData( startSystem.systemAddress, startSystem.x, startSystem.y, startSystem.z );
@@ -114,7 +114,7 @@ namespace EddiNavigationService.QueryResolvers
             usedCarrierCapacity = usedCarrierCapacity ?? EDDI.Instance.FleetCarrier?.usedCapacity;
             if ( usedCarrierCapacity is null ) { return null; }
 
-            var plottedRouteList = EDDI.Instance.DataProvider.GetCarrierRoute(startSystem.systemname, new[] { targetSystemName }, Convert.ToInt64(usedCarrierCapacity), false, refuelDestinations, fromUIquery);
+            var plottedRouteList = EDDI.Instance.DataProvider.FetchCarrierRoute(startSystem.systemname, new[] { targetSystemName }, Convert.ToInt64(usedCarrierCapacity), false, refuelDestinations, fromUIquery);
             if ( plottedRouteList == null || plottedRouteList.Waypoints.Count <= 1 ) { return null; }
             plottedRouteList.UpdateLocationData( startSystem.systemAddress, startSystem.x, startSystem.y, startSystem.z );
 

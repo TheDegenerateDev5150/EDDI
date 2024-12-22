@@ -278,8 +278,8 @@ namespace EddiNavigationMonitor
 
         private void UpdateCarrierRouteLocationData(DateTime timestamp, string systemName, ulong systemAddress, bool fromLoad)
         {
-            var system = EDDI.Instance.DataProvider.GetOrFetchQuickStarSystem(systemName);
-            if (systemAddress == system.systemAddress)
+            var system = EDDI.Instance.DataProvider.GetOrFetchSystemWaypoint( systemName );
+            if (systemAddress == system?.systemAddress)
             {
                 CarrierPlottedRoute.UpdateLocationData(system.systemAddress, system.x, system.y, system.z);
                 if (!fromLoad && timestamp >= updateDat)

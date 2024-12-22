@@ -1,15 +1,10 @@
 ﻿using EddiDataDefinitions;
 using EddiDataProviderService;
-using EddiSpanshService;
-using EddiStarMapService;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using Tests.Properties;
 using Utilities;
 
@@ -18,20 +13,9 @@ namespace UnitTests
     [TestClass]
     public class DataProviderTests : TestBase
     {
-        private FakeEdsmRestClient fakeEdsmRestClient;
-        private FakeSpanshRestClient fakeSpanshRestClient;
-        private StarMapService fakeEdsmService;
-        private SpanshService fakeSpanshService;
-        private DataProviderService dataProviderService;
-
         [TestInitialize]
         public void start()
         {
-            fakeEdsmRestClient = new FakeEdsmRestClient();
-            fakeSpanshRestClient = new FakeSpanshRestClient();
-            fakeEdsmService = new StarMapService( fakeEdsmRestClient );
-            fakeSpanshService = new SpanshService( fakeSpanshRestClient );
-            dataProviderService = new DataProviderService(fakeEdsmService, fakeSpanshService);
             MakeSafe();
         }
         
@@ -98,45 +82,6 @@ namespace UnitTests
         }
 
         [TestMethod]
-        public void TestDataProviderEmptySystem()
-        {
-            // Setup
-            string resource = "api-v1/systems";
-            string json = "{}";
-            List<JObject> data = new List<JObject>();
-            fakeEdsmRestClient.Expect(resource, json, data);
-
-            StarSystem starSystem = dataProviderService.GetSystemData("Lagoon Sector GW-V b2-6");
-            Assert.IsNotNull(starSystem.population);
-        }
-
-        [TestMethod]
-        public void TestDataProviderMalformedSystem()
-        {
-            // Setup
-            string resource = "api-v1/systems";
-            string json = "{}";
-            List<JObject> data = new List<JObject>();
-            fakeEdsmRestClient.Expect(resource, json, data);
-
-            StarSystem starSystem = dataProviderService.GetSystemData("Malformed with quote\" and backslash\\. So evil");
-            Assert.IsNotNull(starSystem);
-        }
-
-        [TestMethod]
-        public void TestDataProviderUnknown()
-        {
-            // Setup
-            string resource = "api-v1/systems";
-            string json = "{}";
-            List<JObject> data = new List<JObject>();
-            fakeEdsmRestClient.Expect(resource, json, data);
-
-            StarSystem starSystem = dataProviderService.GetSystemData("Not appearing in this galaxy");
-            Assert.IsNotNull(starSystem);
-        }
-
-        [TestMethod]
         public void TestLegacySystem1()
         {
             // Test legacy data that may be stored in user's local sql databases.
@@ -193,49 +138,6 @@ namespace UnitTests
             StarSystem system = DeserializeJsonResource<StarSystem>(Resources.sqlStarSystem1);
             Assert.AreEqual("Nijland Terminal", system.stations[0].name);
             Assert.AreEqual("Pinzon Hub", system.stations[1].name);
-        }
-
-        [TestMethod]
-        public void TestStarSystemData()
-        {
-            var timer = new Stopwatch();
-            timer.Start();
-
-            // Setup
-            string solJson = Encoding.UTF8.GetString(Resources.Sol);
-            fakeEdsmRestClient.Expect("api-v1/systems", solJson, new List<JObject>());
-
-            string solBodiesJson = Encoding.UTF8.GetString(Resources.SolBodies);
-            fakeEdsmRestClient.Expect("api-system-v1/bodies", solBodiesJson, new Dictionary<string, object>());
-
-            string solFactionsJson = Encoding.UTF8.GetString(Resources.SolFactions);
-            fakeEdsmRestClient.Expect("api-system-v1/factions", solFactionsJson, new JObject());
-
-            string solStationsJson = Encoding.UTF8.GetString(Resources.SolStations);
-            fakeEdsmRestClient.Expect("api-system-v1/stations", solStationsJson, new JObject());
-
-            // Test system & body data in a complete star system
-            var starSystem = dataProviderService.GetSystemData("Sol");
-
-            Assert.AreEqual("Sol", starSystem.systemname);
-            Assert.AreEqual(0M, starSystem.x);
-            Assert.AreEqual(0M, starSystem.y);
-            Assert.AreEqual(0M, starSystem.z);
-            Assert.IsNotNull(starSystem.population);
-            Assert.IsNotNull(starSystem.Faction);
-            Assert.IsNotNull(starSystem.Faction.Allegiance.invariantName);
-            Assert.IsNotNull(starSystem.Faction.Government.invariantName);
-            Assert.IsNotNull(starSystem.Faction.presences.FirstOrDefault(p => p.systemAddress == starSystem.systemAddress)?.FactionState?.invariantName);
-            Assert.IsNotNull(starSystem.Faction.name);
-            Assert.IsNotNull(starSystem.securityLevel.invariantName);
-            Assert.IsNotNull(starSystem.primaryeconomy);
-            Assert.AreEqual("Common", starSystem.Reserve.invariantName);
-            Assert.IsNotNull(starSystem.stations.Count);
-            Assert.IsNotNull(starSystem);
-            Assert.IsNotNull(starSystem.bodies);
-            Assert.AreNotEqual(0, starSystem.bodies.Count);
-
-            timer.Stop();
         }
 
         [TestMethod]

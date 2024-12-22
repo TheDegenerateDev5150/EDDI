@@ -25,19 +25,6 @@ namespace EddiSpanshService
             return null;
         }
 
-        public StarSystem GetQuickStarSystem ( string systemName )
-        {
-            if ( systemName == null || string.IsNullOrEmpty( systemName ) ) { return null; }
-            var typeAheadStarSystem = GetTypeAheadStarSystems( systemName ).FirstOrDefault();
-            if ( typeAheadStarSystem.Value != null && typeAheadStarSystem.Value.Equals(systemName, StringComparison.InvariantCultureIgnoreCase) )
-            {
-                var systemAddress = typeAheadStarSystem.Key;
-                return GetQuickStarSystem( systemAddress );
-            }
-
-            return null;
-        }
-
         public IList<StarSystem> GetQuickStarSystems ( ulong[] systemAddresses )
         {
             var starSystems = new ConcurrentBag<StarSystem>();
@@ -49,29 +36,6 @@ namespace EddiSpanshService
                     if ( starSystem != null )
                     {
                         starSystems.Add( starSystem );
-                    }
-                }
-            } );
-            return starSystems.ToList();
-        }
-
-        public IList<StarSystem> GetQuickStarSystems ( string[] systemNames )
-        {
-            var starSystems = new ConcurrentBag<StarSystem>();
-            Parallel.ForEach( systemNames, systemName =>
-            {
-                if ( !string.IsNullOrEmpty( systemName ) )
-                {
-                    var typeAheadStarSystem = GetTypeAheadStarSystems( systemName ).FirstOrDefault();
-                    if ( typeAheadStarSystem.Value != null &&
-                         typeAheadStarSystem.Value.Equals( systemName, StringComparison.InvariantCultureIgnoreCase ) )
-                    {
-                        var systemAddress = typeAheadStarSystem.Key;
-                        var starSystem = GetQuickStarSystem( systemAddress );
-                        if ( starSystem != null )
-                        {
-                            starSystems.Add( starSystem );
-                        }
                     }
                 }
             } );
@@ -141,12 +105,12 @@ namespace EddiSpanshService
                     return null;
                 }
 
-                starSystem.stations = data[ "stations" ]?.Where( s => !string.IsNullOrEmpty( s[ "type" ].ToString() ) )
-                    .Select( s => new Station
+                // Spansh does not assign on-foot surface settlements a station type so we have to assign these ourselves.
+                starSystem.stations = data[ "stations" ]?.Select( s => new Station
                     {
                         name = s[ "name" ]?.ToString(),
                         marketId = s[ "market_id" ]?.ToObject<long?>(),
-                        Model = FromSpanshStationModel( s[ "type" ]?.ToString() ),
+                        Model = FromSpanshStationModel( s[ "type" ]?.ToString() ) ?? StationModel.OnFootSettlement,
                         systemname = starSystem.systemname,
                         systemAddress = starSystem.systemAddress
                     } ).ToList();

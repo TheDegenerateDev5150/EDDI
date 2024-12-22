@@ -1,0 +1,432 @@
+{
+  "count": 1,
+  "query": "2869977949641",
+  "results": [
+    {
+      "record": {
+        "allegiance": "Independent",
+        "bodies": [
+          {
+            "distance_to_arrival": 0,
+            "estimated_mapping_value": 4574,
+            "estimated_scan_value": 1206,
+            "id": 36031666996913610,
+            "id64": 36031666996913610,
+            "is_main_star": true,
+            "name": "Tachmetae A",
+            "subtype": "M (Red dwarf) Star",
+            "type": "Star"
+          },
+          {
+            "distance_to_arrival": 438.072509,
+            "estimated_mapping_value": 4558,
+            "estimated_scan_value": 1201,
+            "id": 72060464015877580,
+            "id64": 72060464015877580,
+            "is_main_star": false,
+            "name": "Tachmetae B",
+            "subtype": "L (Brown dwarf) Star",
+            "type": "Star"
+          },
+          {
+            "distance_to_arrival": 11.345933,
+            "estimated_mapping_value": 39540,
+            "estimated_scan_value": 10883,
+            "id": 360290840167589300,
+            "id64": 360290840167589300,
+            "is_main_star": null,
+            "landmark_value": 0,
+            "landmarks": [
+              {
+                "count": 1,
+                "subtype": "Sulphur Dioxide Gas Vent",
+                "type": "Gas Vent",
+                "value": 0
+              },
+              {
+                "count": 1,
+                "subtype": "Silicate Magma Lava Spout",
+                "type": "Lava Spout",
+                "value": 0
+              },
+              {
+                "count": 1,
+                "subtype": "Crater Outpost",
+                "type": "Surface Station",
+                "value": 0
+              }
+            ],
+            "name": "Tachmetae A 1",
+            "subtype": "High metal content world",
+            "terraforming_state": "Not terraformable",
+            "type": "Planet"
+          },
+          {
+            "distance_to_arrival": 14.23521,
+            "estimated_mapping_value": 39467,
+            "estimated_scan_value": 10863,
+            "id": 396319637186553300,
+            "id64": 396319637186553300,
+            "is_main_star": null,
+            "name": "Tachmetae A 2",
+            "subtype": "High metal content world",
+            "terraforming_state": "Not terraformable",
+            "type": "Planet"
+          },
+          {
+            "distance_to_arrival": 18.833158,
+            "estimated_mapping_value": 39130,
+            "estimated_scan_value": 10770,
+            "id": 468377231224481200,
+            "id64": 468377231224481200,
+            "is_main_star": null,
+            "name": "Tachmetae A 3",
+            "subtype": "High metal content world",
+            "terraforming_state": "Not terraformable",
+            "type": "Planet"
+          },
+          {
+            "distance_to_arrival": 18.828261,
+            "estimated_mapping_value": 38720,
+            "estimated_scan_value": 10657,
+            "id": 504406028243445200,
+            "id64": 504406028243445200,
+            "is_main_star": null,
+            "name": "Tachmetae A 4",
+            "subtype": "High metal content world",
+            "terraforming_state": "Not terraformable",
+            "type": "Planet"
+          },
+          {
+            "distance_to_arrival": 33.901909,
+            "estimated_mapping_value": 39530,
+            "estimated_scan_value": 10880,
+            "id": 540434825262409150,
+            "id64": 540434825262409150,
+            "is_main_star": null,
+            "name": "Tachmetae A 5",
+            "subtype": "High metal content world",
+            "terraforming_state": "Not terraformable",
+            "type": "Planet"
+          },
+          {
+            "distance_to_arrival": 47.282125,
+            "estimated_mapping_value": 39576,
+            "estimated_scan_value": 10893,
+            "id": 576463622281373200,
+            "id64": 576463622281373200,
+            "is_main_star": null,
+            "name": "Tachmetae A 6",
+            "subtype": "High metal content world",
+            "terraforming_state": "Not terraformable",
+            "type": "Planet"
+          },
+          {
+            "distance_to_arrival": 431.672536,
+            "estimated_mapping_value": 39352,
+            "estimated_scan_value": 10831,
+            "id": 792636404395157000,
+            "id64": 792636404395157000,
+            "is_main_star": null,
+            "name": "Tachmetae B 1",
+            "subtype": "High metal content world",
+            "terraforming_state": "Not terraformable",
+            "type": "Planet"
+          },
+          {
+            "distance_to_arrival": 421.694475,
+            "estimated_mapping_value": 38785,
+            "estimated_scan_value": 10675,
+            "id": 828665201414121000,
+            "id64": 828665201414121000,
+            "is_main_star": null,
+            "name": "Tachmetae B 2",
+            "subtype": "High metal content world",
+            "terraforming_state": "Not terraformable",
+            "type": "Planet"
+          },
+          {
+            "distance_to_arrival": 462.044733,
+            "estimated_mapping_value": 38737,
+            "estimated_scan_value": 10662,
+            "id": 864693998433084900,
+            "id64": 864693998433084900,
+            "is_main_star": null,
+            "name": "Tachmetae B 3",
+            "subtype": "High metal content world",
+            "terraforming_state": "Not terraformable",
+            "type": "Planet"
+          },
+          {
+            "distance_to_arrival": 620.56831,
+            "estimated_mapping_value": 2221,
+            "estimated_scan_value": 500,
+            "id": 936751592471012900,
+            "id64": 936751592471012900,
+            "is_main_star": null,
+            "name": "Tachmetae AB 1",
+            "subtype": "Icy body",
+            "terraforming_state": "Not terraformable",
+            "type": "Planet"
+          },
+          {
+            "distance_to_arrival": 618.634799,
+            "estimated_mapping_value": 2221,
+            "estimated_scan_value": 500,
+            "id": 972780389489976800,
+            "id64": 972780389489976800,
+            "is_main_star": null,
+            "name": "Tachmetae AB 2",
+            "subtype": "Icy body",
+            "terraforming_state": "Not terraformable",
+            "type": "Planet"
+          },
+          {
+            "distance_to_arrival": 904.543526,
+            "estimated_mapping_value": 2221,
+            "estimated_scan_value": 500,
+            "id": 1.0088091865089408e+18,
+            "id64": 1.0088091865089408e+18,
+            "is_main_star": null,
+            "name": "Tachmetae AB 3",
+            "subtype": "Icy body",
+            "terraforming_state": "Not terraformable",
+            "type": "Planet"
+          },
+          {
+            "distance_to_arrival": 1221.636199,
+            "estimated_mapping_value": 2221,
+            "estimated_scan_value": 500,
+            "id": 1.0448379835279048e+18,
+            "id64": 1.0448379835279048e+18,
+            "is_main_star": null,
+            "name": "Tachmetae AB 4",
+            "subtype": "Icy body",
+            "terraforming_state": "Not terraformable",
+            "type": "Planet"
+          },
+          {
+            "distance_to_arrival": 1969.989987,
+            "estimated_mapping_value": 2221,
+            "estimated_scan_value": 500,
+            "id": 1.0808667805468687e+18,
+            "id64": 1.0808667805468687e+18,
+            "is_main_star": null,
+            "name": "Tachmetae AB 5",
+            "subtype": "Icy body",
+            "terraforming_state": "Not terraformable",
+            "type": "Planet"
+          }
+        ],
+        "body_count": 16,
+        "controlling_minor_faction": "Radio Sidewinder Crew",
+        "controlling_minor_faction_state": "None",
+        "controlling_power": "Edmund Mahon",
+        "estimated_mapping_value": 373074,
+        "estimated_scan_value": 102021,
+        "government": "Democracy",
+        "id64": 2869977949641,
+        "known_permit": false,
+        "landmark_value": 0,
+        "minor_faction_presences": [
+          {
+            "influence": 0.04,
+            "name": "Autocracy of StKM 1-1341",
+            "state": "None"
+          },
+          {
+            "influence": 0.037,
+            "name": "Law Party of Tachmetae",
+            "state": "None"
+          },
+          {
+            "influence": 0.799,
+            "name": "Radio Sidewinder Crew",
+            "state": "None"
+          },
+          {
+            "influence": 0.01,
+            "name": "Tachmetae Exchange",
+            "state": "None"
+          },
+          {
+            "influence": 0.061,
+            "name": "Tachmetae Future",
+            "state": "None"
+          },
+          {
+            "influence": 0.053,
+            "name": "Tachmetae Order",
+            "state": "None"
+          }
+        ],
+        "name": "Tachmetae",
+        "needs_permit": false,
+        "population": 37906591,
+        "power": [
+          "Edmund Mahon"
+        ],
+        "power_state": "Exploited",
+        "primary_economy": "Industrial",
+        "region": "Inner Orion Spur",
+        "secondary_economy": "Refinery",
+        "security": "High",
+        "stations": [
+          {
+            "distance_to_arrival": 18.900226,
+            "has_large_pad": false,
+            "has_market": true,
+            "market_id": 3889013504,
+            "name": "Nnadi Nutrition Base",
+            "type": "Settlement"
+          },
+          {
+            "distance_to_arrival": 935.97123,
+            "has_large_pad": false,
+            "has_market": true,
+            "large_pads": 0,
+            "market_id": 3926963968,
+            "medium_pads": 1,
+            "name": "Kato Industrial Silo",
+            "small_pads": 0,
+            "type": "Settlement"
+          },
+          {
+            "distance_to_arrival": 0,
+            "has_large_pad": true,
+            "has_market": true,
+            "has_shipyard": true,
+            "large_pads": 8,
+            "market_id": 3705193728,
+            "medium_pads": 4,
+            "name": "XNW-8VN",
+            "small_pads": 4,
+            "type": "Drake-Class Carrier"
+          },
+          {
+            "distance_to_arrival": 33.90388,
+            "has_large_pad": false,
+            "has_market": true,
+            "large_pads": 0,
+            "market_id": 3926964480,
+            "medium_pads": 0,
+            "name": "Mancini Agricultural Collection",
+            "small_pads": 1,
+            "type": "Settlement"
+          },
+          {
+            "distance_to_arrival": 33.908552,
+            "has_large_pad": false,
+            "has_market": true,
+            "has_outfitting": true,
+            "large_pads": 0,
+            "market_id": 3231181312,
+            "medium_pads": 1,
+            "name": "Bosch Enterprise",
+            "small_pads": 4,
+            "type": "Outpost"
+          },
+          {
+            "distance_to_arrival": 11.351139,
+            "has_large_pad": true,
+            "has_market": true,
+            "has_outfitting": true,
+            "has_shipyard": true,
+            "large_pads": 9,
+            "market_id": 3231180800,
+            "medium_pads": 18,
+            "name": "Bresnik Station",
+            "small_pads": 17,
+            "type": "Coriolis Starport"
+          },
+          {
+            "distance_to_arrival": 14.233438,
+            "has_large_pad": false,
+            "has_market": true,
+            "has_outfitting": true,
+            "large_pads": 0,
+            "market_id": 3231181056,
+            "medium_pads": 1,
+            "name": "Brandenstein Ring",
+            "small_pads": 4,
+            "type": "Outpost"
+          },
+          {
+            "distance_to_arrival": 11.316102,
+            "has_large_pad": true,
+            "has_market": true,
+            "has_outfitting": true,
+            "large_pads": 4,
+            "market_id": 3544873472,
+            "medium_pads": 4,
+            "name": "Mills Beacon",
+            "small_pads": 4,
+            "type": "Planetary Outpost"
+          },
+          {
+            "distance_to_arrival": 14.23521,
+            "has_large_pad": false,
+            "market_id": 3544873216,
+            "name": "Bulleid Settlement"
+          },
+          {
+            "distance_to_arrival": 18.833158,
+            "has_large_pad": false,
+            "market_id": 3889013248,
+            "name": "Rossi's Dream"
+          },
+          {
+            "distance_to_arrival": 18.900762,
+            "has_large_pad": false,
+            "has_market": true,
+            "market_id": 3889013760,
+            "name": "Harland Botanical Farm",
+            "type": "Settlement"
+          },
+          {
+            "distance_to_arrival": 33.901909,
+            "has_large_pad": false,
+            "market_id": 3544873728,
+            "name": "Clauss' Folly"
+          },
+          {
+            "distance_to_arrival": 1011.518864,
+            "has_large_pad": true,
+            "has_market": true,
+            "large_pads": 1,
+            "market_id": 3926963712,
+            "medium_pads": 0,
+            "name": "Schunmann Manufacturing Complex",
+            "small_pads": 0,
+            "type": "Settlement"
+          },
+          {
+            "distance_to_arrival": 904.543526,
+            "has_large_pad": false,
+            "market_id": 3926963456,
+            "name": "Lehmann Chemical"
+          },
+          {
+            "distance_to_arrival": 1771.064205,
+            "has_large_pad": true,
+            "has_market": true,
+            "large_pads": 2,
+            "market_id": 3926965504,
+            "medium_pads": 0,
+            "name": "Bengrina Hospitality Site",
+            "small_pads": 2,
+            "type": "Settlement"
+          }
+        ],
+        "thargoid_war_failure_state": "None",
+        "thargoid_war_state": "None",
+        "thargoid_war_success_state": "None",
+        "updated_at": "2024-12-21 21:15:49+00",
+        "x": -0.59375,
+        "y": 60.6875,
+        "z": 84.71875
+      },
+      "type": "system"
+    }
+  ]
+}

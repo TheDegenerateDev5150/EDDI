@@ -1,11 +1,8 @@
 ﻿using EddiCore;
-using EddiDataProviderService;
 using EddiEddnResponder;
 using EddiEddnResponder.Schemas;
 using EddiEvents;
 using EddiJournalMonitor;
-using EddiSpanshService;
-using EddiStarMapService;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 using System;
@@ -26,24 +23,15 @@ namespace UnitTests
             MakeSafe();
         }
 
-        private FakeEdsmRestClient fakeEdsmRestClient;
-        private FakeSpanshRestClient fakeSpanshRestClient;
-        private StarMapService fakeEdsmService;
-        private SpanshService fakeSpanshService;
-
         private EDDNResponder makeTestEDDNResponder()
         {
-            fakeEdsmRestClient = new FakeEdsmRestClient();
-            fakeSpanshRestClient = new FakeSpanshRestClient();
-            fakeEdsmService = new StarMapService( fakeEdsmRestClient );
-            fakeSpanshService = new SpanshService( fakeSpanshRestClient );
-            EDDI.Instance.DataProvider = new DataProviderService( fakeEdsmService, fakeSpanshService );
-
-            fakeSpanshRestClient.Expect( @"search?q=2724879894859", Encoding.UTF8.GetString( Resources.SpanshQuickStarSystemPleiadesSector_HR_W_d1_79 ) );
-            fakeSpanshRestClient.Expect( @"search?q=1183229809290", Encoding.UTF8.GetString( Resources.SpanshQuickStarSystemPleiadesSector_GW_W_c1_4 ) );
-            fakeSpanshRestClient.Expect( @"search?q=10477373803", Encoding.UTF8.GetString( Resources.SpanshQuickStarSystemSol ) );
-            fakeSpanshRestClient.Expect( @"search?q=5068463809865", Encoding.UTF8.GetString( Resources.SpanshQuickStarSystemHyadesSector_DL_X_b1_2 ) );
-            fakeSpanshRestClient.Expect( @"search?q=35835461971465", Encoding.UTF8.GetString( Resources.SpanshQuickStarSystemOmegaSector_DM_M_b7_16 ) );
+            EDDI.Instance.DataProvider = ConfigureTestDataProvider();
+            fakeSpanshRestClient.Expect( "search?q=2724879894859", Encoding.UTF8.GetString( Resources.SpanshQuickStarSystemPleiadesSector_HR_W_d1_79 ) );
+            fakeSpanshRestClient.Expect( "search?q=1183229809290", Encoding.UTF8.GetString( Resources.SpanshQuickStarSystemPleiadesSector_GW_W_c1_4 ) );
+            fakeSpanshRestClient.Expect( "search?q=10477373803", Encoding.UTF8.GetString( Resources.SpanshQuickStarSystemSol ) );
+            fakeSpanshRestClient.Expect( "search?q=5068463809865", Encoding.UTF8.GetString( Resources.SpanshQuickStarSystemHyadesSector_DL_X_b1_2 ) );
+            fakeSpanshRestClient.Expect( "search?q=35835461971465", Encoding.UTF8.GetString( Resources.SpanshQuickStarSystemOmegaSector_DM_M_b7_16 ) );
+            fakeSpanshRestClient.Expect( "search?q=3107509474002", Encoding.UTF8.GetString( Resources.SpanshQuickStarSystemArtemis ) );
 
             var responder = new EDDNResponder(true);
             return responder;
@@ -476,7 +464,7 @@ namespace UnitTests
             };
 
             var responder = makeTestEDDNResponder();
-            data = responder.eddnState.PersonalData.Strip( data, null );
+            data = responder.eddnState.PersonalData.Strip( data );
 
             void testKeyValuePair(KeyValuePair<string, object> kvp)
             {
@@ -592,9 +580,9 @@ namespace UnitTests
             // using the system name from our Location event and other data from our FSDJump event
             responder.eddnState.Location.systemName = "Pleiades Sector GW-W c1-4";
 
-            // Deliberately scan a body while our system name is in a bad state
+            // Verify that a scan corrects our bad system name
             responder.eddnState.Location.GetLocationInfo( "Scan", unhandledScan );
-            Assert.IsFalse( responder.eddnState.Location.CheckLocationData( "Scan", unhandledScan ) );
+            Assert.IsTrue( responder.eddnState.Location.CheckLocationData( "Scan", unhandledScan ) );
             Assert.AreEqual( "Pleiades Sector HR-W d1-79", responder.eddnState.Location.systemName );
 
             // Set ourselves to a new position using another `FSDJump` event
@@ -916,7 +904,7 @@ namespace UnitTests
             Assert.AreEqual(767, (outfittingData["modules"] as IEnumerable<object>)?.Count());
             if (outfittingData["modules"] is List<string> modules)
             {
-                Assert.AreEqual("hpt_cannon_gimbal_huge", modules[0].ToString());
+                Assert.AreEqual( "hpt_cannon_gimbal_huge", modules[ 0 ] );
             }
             else
             {
@@ -968,7 +956,7 @@ namespace UnitTests
             Assert.AreEqual(164, (outfittingData["modules"] as IEnumerable<object>)?.Count());
             if (outfittingData["modules"] is List<string> modules)
             {
-                Assert.AreEqual("Hpt_ATDumbfireMissile_Fixed_Large", modules[0].ToString());
+                Assert.AreEqual( "Hpt_ATDumbfireMissile_Fixed_Large", modules[ 0 ] );
             }
             else
             {
@@ -1020,7 +1008,7 @@ namespace UnitTests
             Assert.AreEqual(18, (shipyardData["ships"] as IEnumerable<object>)?.Count());
             if (shipyardData["ships"] is List<string> ships)
             {
-                Assert.AreEqual("sidewinder", ships[0].ToString());
+                Assert.AreEqual( "sidewinder", ships[ 0 ] );
             }
             else
             {
@@ -1073,7 +1061,7 @@ namespace UnitTests
             Assert.AreEqual(8, (shipyardData["ships"] as IEnumerable<object>)?.Count());
             if (shipyardData["ships"] is List<string> ships)
             {
-                Assert.AreEqual("Eagle", ships[0].ToString());
+                Assert.AreEqual( "Eagle", ships[ 0 ] );
             }
             else
             {

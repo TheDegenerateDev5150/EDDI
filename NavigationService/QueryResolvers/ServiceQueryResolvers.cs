@@ -133,9 +133,8 @@ namespace EddiNavigationService.QueryResolvers
                 spanshQueryFilter.Add( "has_large_pad", new { value = true } );
             }
             spanshQueryFilter.Add( "distance_to_arrival", new { comparison = "<=>", value = new[] { 0, maxStationDistance } } );
-
-
-            var searchResult = EDDI.Instance.DataProvider.GetStationWaypoint( startSystem.systemAddress, spanshQueryFilter );
+            
+            var searchResult = EDDI.Instance.DataProvider.FetchStationWaypoint( startSystem.systemAddress, spanshQueryFilter );
             if ( searchResult != null )
             {
                 searchResult.visited = searchResult.systemAddress == startSystem.systemAddress;

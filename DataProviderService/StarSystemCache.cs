@@ -9,6 +9,7 @@ namespace EddiDataProviderService
     {
         private readonly CacheItemPolicy cacheItemPolicy = new CacheItemPolicy();
         private readonly ObjectCache starSystemCache = new MemoryCache( "StarSystemCache" );
+        private readonly ObjectCache starSystemNameCache = new MemoryCache( "StarSystemNameCache" );
 
         // Store deserialized star systems in short term memory for this amount of time.
         // Storage time is reset whenever the cached value is accessed.
@@ -25,6 +26,7 @@ namespace EddiDataProviderService
                 starSystemCache.Remove( systemAddress );
             }
             starSystemCache.Add( systemAddress, starSystem, cacheItemPolicy );
+            starSystemNameCache.Add( starSystem.systemname, starSystem.systemAddress, cacheItemPolicy );
         }
 
         public bool TryGet ( ulong systemAddress, out StarSystem result )
@@ -39,12 +41,40 @@ namespace EddiDataProviderService
             return false;
         }
 
+        public bool TryGet ( string systemName, out StarSystem result )
+        {
+            if ( !string.IsNullOrEmpty( systemName ) && starSystemNameCache.Contains( systemName ) )
+            {
+                if ( starSystemCache.Get( systemName ) is ulong systemAddress )
+                {
+                    return TryGet( systemAddress, out result );
+                }
+            }
+
+            result = null;
+            return false;
+        }
+
         public List<StarSystem> GetRange ( ulong[] systemAddresses )
         {
             var results = new List<StarSystem>();
             foreach ( var systemAddress in systemAddresses )
             {
                 if ( TryGet( systemAddress, out var cachedStarSystem ) )
+                {
+                    results.Add( cachedStarSystem );
+                }
+            }
+
+            return results;
+        }
+
+        public List<StarSystem> GetRange ( string[] systemNames )
+        {
+            var results = new List<StarSystem>();
+            foreach ( var systemName in systemNames )
+            {
+                if ( TryGet( systemName, out var cachedStarSystem ) )
                 {
                     results.Add( cachedStarSystem );
                 }

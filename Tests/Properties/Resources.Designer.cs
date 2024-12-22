@@ -103,6 +103,16 @@ namespace Tests.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        public static byte[] capi_profile {
+            get {
+                object obj = ResourceManager.GetObject("capi_profile", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         public static byte[] capi_shipyard_Abasheli_Barracks {
             get {
                 object obj = ResourceManager.GetObject("capi_shipyard_Abasheli_Barracks", resourceCulture);
@@ -123,59 +133,9 @@ namespace Tests.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        public static byte[] cubeSystemsAroundSol {
-            get {
-                object obj = ResourceManager.GetObject("cubeSystemsAroundSol", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        public static byte[] edsmBodies {
-            get {
-                object obj = ResourceManager.GetObject("edsmBodies", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
         public static byte[] edsmDeaths {
             get {
                 object obj = ResourceManager.GetObject("edsmDeaths", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        public static byte[] edsmFactions {
-            get {
-                object obj = ResourceManager.GetObject("edsmFactions", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        public static byte[] edsmStations {
-            get {
-                object obj = ResourceManager.GetObject("edsmStations", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        public static byte[] edsmSystem {
-            get {
-                object obj = ResourceManager.GetObject("edsmSystem", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -293,46 +253,6 @@ namespace Tests.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        public static byte[] Sol {
-            get {
-                object obj = ResourceManager.GetObject("Sol", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        public static byte[] SolBodies {
-            get {
-                object obj = ResourceManager.GetObject("SolBodies", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        public static byte[] SolFactions {
-            get {
-                object obj = ResourceManager.GetObject("SolFactions", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        public static byte[] SolStations {
-            get {
-                object obj = ResourceManager.GetObject("SolStations", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
         public static byte[] SpanshCarrierResult {
             get {
                 object obj = ResourceManager.GetObject("SpanshCarrierResult", resourceCulture);
@@ -373,9 +293,49 @@ namespace Tests.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        public static byte[] SpanshQuickStarSystemArtemis {
+            get {
+                object obj = ResourceManager.GetObject("SpanshQuickStarSystemArtemis", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] SpanshQuickStarSystemCalenerro {
+            get {
+                object obj = ResourceManager.GetObject("SpanshQuickStarSystemCalenerro", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] SpanshQuickStarSystemEravate {
+            get {
+                object obj = ResourceManager.GetObject("SpanshQuickStarSystemEravate", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         public static byte[] SpanshQuickStarSystemHyadesSector_DL_X_b1_2 {
             get {
                 object obj = ResourceManager.GetObject("SpanshQuickStarSystemHyadesSector_DL_X_b1_2", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] SpanshQuickStarSystemLHS_20 {
+            get {
+                object obj = ResourceManager.GetObject("SpanshQuickStarSystemLHS_20", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -413,9 +373,69 @@ namespace Tests.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        public static byte[] SpanshQuickStarSystemShinrartaDezhra {
+            get {
+                object obj = ResourceManager.GetObject("SpanshQuickStarSystemShinrartaDezhra", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         public static byte[] SpanshQuickStarSystemSol {
             get {
                 object obj = ResourceManager.GetObject("SpanshQuickStarSystemSol", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] SpanshQuickStarSystemTachmetae {
+            get {
+                object obj = ResourceManager.GetObject("SpanshQuickStarSystemTachmetae", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] SpanshStarSystemDumpCalenerro {
+            get {
+                object obj = ResourceManager.GetObject("SpanshStarSystemDumpCalenerro", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] SpanshStarSystemDumpEravate {
+            get {
+                object obj = ResourceManager.GetObject("SpanshStarSystemDumpEravate", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] SpanshStarSystemDumpLHS_20 {
+            get {
+                object obj = ResourceManager.GetObject("SpanshStarSystemDumpLHS_20", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] SpanshStarSystemDumpShinrartaDezhra {
+            get {
+                object obj = ResourceManager.GetObject("SpanshStarSystemDumpShinrartaDezhra", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -433,9 +453,9 @@ namespace Tests.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        public static byte[] sphereAroundSol {
+        public static byte[] SpanshStarSystemDumpTachmetae {
             get {
-                object obj = ResourceManager.GetObject("sphereAroundSol", resourceCulture);
+                object obj = ResourceManager.GetObject("SpanshStarSystemDumpTachmetae", resourceCulture);
                 return ((byte[])(obj));
             }
         }

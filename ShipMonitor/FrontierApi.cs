@@ -41,12 +41,12 @@ namespace EddiShipMonitor
                                 ship.station = (string)shipObj["station"]?["name"];
 
                                 // Get the ship's coordinates for distance calculations
-                                var StoredShipStarSystem = EDDI.Instance.DataProvider.GetOrFetchQuickStarSystem(ship.starsystem);
-                                if ( StoredShipStarSystem != null )
+                                var storedShipStarSystem = EDDI.Instance.DataProvider.GetOrFetchSystemWaypoint(ship.starsystem);
+                                if ( storedShipStarSystem != null )
                                 {
-                                    ship.x = StoredShipStarSystem.x;
-                                    ship.y = StoredShipStarSystem.y;
-                                    ship.z = StoredShipStarSystem.z;
+                                    ship.x = storedShipStarSystem.x;
+                                    ship.y = storedShipStarSystem.y;
+                                    ship.z = storedShipStarSystem.z;
                                     shipyard.Add( ship );
                                 }
                             }

@@ -1,85 +1,19 @@
-﻿using EddiDataDefinitions;
-using EddiSpanshService;
+﻿using EddiCore;
+using EddiDataDefinitions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using RestSharp;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Text;
 using Tests.Properties;
-using Utilities;
 
 namespace UnitTests
 {
-    // A mock rest client for the Spansh Service
-    internal class FakeSpanshRestClient : ISpanshRestClient
-    {
-        public Dictionary<string, string> CannedContent = new Dictionary<string, string>();
-
-        public Uri BuildUri(IRestRequest request)
-        {
-            return new Uri("fakeSpansh://" + request.Resource);
-        }
-
-        IRestResponse<T> ISpanshRestClient.Execute<T>(IRestRequest request)
-        {
-            // this will throw if given a resource not in the canned dictionaries: that's OK
-            string content = CannedContent[request.Resource];
-            IRestResponse<T> restResponse = new RestResponse<T>
-            {
-                Content = content,
-                ResponseStatus = ResponseStatus.Completed,
-                StatusCode = HttpStatusCode.OK,
-            };
-            return restResponse;
-        }
-
-        IRestResponse ISpanshRestClient.Get(IRestRequest request)
-        {
-            // this will throw if given a resource not in the canned dictionaries: that's OK
-            string resourceString = $"{request.Resource}";
-            resourceString += request.Parameters.Any() ? "?" : string.Empty;
-            foreach (var parameter in request.Parameters)
-            {
-                resourceString += $"{parameter.Name}={parameter.Value}";
-            }
-
-            try
-            {
-                string content = CannedContent[resourceString];
-                IRestResponse restResponse = new RestResponse
-                {
-                    Content = content,
-                    ResponseStatus = ResponseStatus.Completed,
-                    StatusCode = HttpStatusCode.OK,
-                };
-                return restResponse;
-            }
-            catch ( KeyNotFoundException knfe )
-            {
-                Logging.Error( knfe.Message, knfe );
-                throw;
-            }
-        }
-
-        public void Expect(string resource, string content)
-        {
-            CannedContent[resource] = content;
-        }
-    }
-
     [TestClass]
     public class SpanshServiceTests : TestBase
     {
-        FakeSpanshRestClient fakeSpanshRestClient;
-        private SpanshService fakeSpanshService;
-
         [TestInitialize]
         public void start()
         {
-            fakeSpanshRestClient = new FakeSpanshRestClient();
-            fakeSpanshService = new SpanshService( fakeSpanshRestClient );
             MakeSafe();
         }
 
@@ -87,10 +21,11 @@ namespace UnitTests
         public void TestSpanshCarrierRoute()
         {
             // Arrange
-            fakeSpanshRestClient.Expect("systems/field_values/system_names?q=NLTT 13249", @"{""min_max"":[{""id64"":2869440882065,""name"":""NLTT 13249"",""x"":-38.8125,""y"":9.3125,""z"":-60.53125},{""id64"":44853758275,""name"":""HIP 13249"",""x"":71.0,""y"":-646.5625,""z"":-407.34375},{""id64"":216669342059,""name"":""NLTT 14641"",""x"":97.625,""y"":-65.1875,""z"":35.03125},{""id64"":83449746098,""name"":""NLTT 2408"",""x"":-259.1875,""y"":-147.84375,""z"":-161.75},{""id64"":908553360066,""name"":""NLTT 16391"",""x"":42.90625,""y"":-8.65625,""z"":-81.875},{""id64"":908620468962,""name"":""NLTT 35146"",""x"":86.65625,""y"":9.75,""z"":74.9375},{""id64"":1041269524835,""name"":""NLTT 18977"",""x"":-43.9375,""y"":49.78125,""z"":-64.34375},{""id64"":1458309108442,""name"":""NLTT 54244"",""x"":42.4375,""y"":-68.6875,""z"":52.15625},{""id64"":1733187048146,""name"":""NLTT 11599"",""x"":48.78125,""y"":-62.09375,""z"":-11.71875},{""id64"":670148273569,""name"":""NLTT 1796"",""x"":-55.28125,""y"":-279.625,""z"":-13.78125},{""id64"":670149059985,""name"":""NLTT 6667"",""x"":-49.8125,""y"":-33.4375,""z"":-55.28125},{""id64"":670149125569,""name"":""NLTT 48288"",""x"":-60.4375,""y"":-13.09375,""z"":56.3125},{""id64"":2282942829266,""name"":""NLTT 8653"",""x"":44.15625,""y"":-101.03125,""z"":-20.03125},{""id64"":2868904076721,""name"":""NLTT 46709"",""x"":-65.3125,""y"":25.875,""z"":23.6875},{""id64"":2869709579681,""name"":""NLTT 30929"",""x"":-8.3125,""y"":84.65625,""z"":-12.25},{""id64"":2870782731705,""name"":""NLTT 4671"",""x"":69.34375,""y"":-96.125,""z"":36.125},{""id64"":3107442332362,""name"":""NLTT 6637"",""x"":-25.3125,""y"":-82.96875,""z"":-52.90625},{""id64"":7267487393161,""name"":""NLTT 14879"",""x"":-31.71875,""y"":14.0,""z"":-67.5},{""id64"":3382454555338,""name"":""NLTT 19808"",""x"":46.09375,""y"":26.78125,""z"":-43.71875},{""id64"":2832698741474,""name"":""NLTT 40287"",""x"":38.40625,""y"":33.78125,""z"":92.75}],""values"":[""NLTT 13249"",""HIP 13249"",""NLTT 14641"",""NLTT 2408"",""NLTT 16391"",""NLTT 35146"",""NLTT 18977"",""NLTT 54244"",""NLTT 11599"",""NLTT 1796"",""NLTT 6667"",""NLTT 48288"",""NLTT 8653"",""NLTT 46709"",""NLTT 30929"",""NLTT 4671"",""NLTT 6637"",""NLTT 14879"",""NLTT 19808"",""NLTT 40287""]}");
-            fakeSpanshRestClient.Expect("systems/field_values/system_names?q=Sagittarius A*", @"{""min_max"":[{""id64"":20578934,""name"":""Sagittarius A*"",""x"":25.21875,""y"":-20.90625,""z"":25899.96875},{""id64"":9955165356,""name"":""A Velorum"",""x"":2116.375,""y"":-191.90625,""z"":-168.96875},{""id64"":1356850348,""name"":""a Velorum"",""x"":1847.15625,""y"":-55.78125,""z"":-138.625},{""id64"":359334384322,""name"":""a Puppis"",""x"":339.25,""y"":-40.8125,""z"":-86.96875},{""id64"":3386376805,""name"":""a Centauri"",""x"":264.9375,""y"":153.375,""z"":339.90625},{""id64"":669074466345,""name"":""A Capricorni"",""x"":-132.375,""y"":-296.8125,""z"":320.125},{""id64"":57153684668,""name"":""A Cen"",""x"":391.9375,""y"":50.3125,""z"":160.03125},{""id64"":10645195219,""name"":""a Lupi"",""x"":806.1875,""y"":288.71875,""z"":1026.40625},{""id64"":2007863857882,""name"":""A Bootis"",""x"":-72.28125,""y"":218.5625,""z"":38.84375},{""id64"":216753195363,""name"":""A Carinae"",""x"":502.78125,""y"":-200.6875,""z"":-58.5625},{""id64"":5597258940,""name"":""104 Aquarii A"",""x"":-229.65625,""y"":-796.5,""z"":126.09375},{""id64"":560182856067,""name"":""28 A Aquilae"",""x"":-248.625,""y"":-5.75,""z"":227.84375},{""id64"":358461936370,""name"":""1 Aquarii A"",""x"":-155.6875,""y"":-95.0,""z"":145.21875},{""id64"":6605501013,""name"":""59 Andromedae A"",""x"":-158.21875,""y"":-93.625,""z"":-187.875},{""id64"":4488778134528,""name"":""Aiphaits AS-A a0"",""x"":-8178.375,""y"":11.21875,""z"":33503.25},{""id64"":545086002277,""name"":""Aunair AF-A f1015"",""x"":-472.15625,""y"":1640.5625,""z"":20796.6875},{""id64"":550839986436,""name"":""Agnaiz AF-A e128"",""x"":-8694.125,""y"":-1079.71875,""z"":22039.625},{""id64"":503751120293,""name"":""Aishaish AF-A f938"",""x"":845.8125,""y"":326.40625,""z"":33682.125},{""id64"":508225858372,""name"":""Aemonz AF-A e118"",""x"":4173.0625,""y"":-1027.84375,""z"":33515.28125},{""id64"":516673308868,""name"":""Aunair AA-A e120"",""x"":-1261.78125,""y"":1378.46875,""z"":20709.4375}],""values"":[""Sagittarius A*"",""A Velorum"",""a Velorum"",""a Puppis"",""a Centauri"",""A Capricorni"",""A Cen"",""a Lupi"",""A Bootis"",""A Carinae"",""104 Aquarii A"",""28 A Aquilae"",""1 Aquarii A"",""59 Andromedae A"",""Aiphaits AS-A a0"",""Aunair AF-A f1015"",""Agnaiz AF-A e128"",""Aishaish AF-A f938"",""Aemonz AF-A e118"",""Aunair AA-A e120""]}");
-            fakeSpanshRestClient.Expect("fleetcarrier/route?source=NLTT 13249capacity_used=25000calculate_starting_fuel=1destinations=Sagittarius A*", "{\"job\":\"F2B5B476-4458-11ED-9B9F-5DE194EB4526\",\"status\":\"queued\"}");
-            fakeSpanshRestClient.Expect("results/F2B5B476-4458-11ED-9B9F-5DE194EB4526", DeserializeJsonResource<string>(Resources.SpanshCarrierResult));
+            EDDI.Instance.DataProvider = ConfigureTestDataProvider();
+            fakeSpanshRestClient.Expect( "systems/field_values/system_names?q=NLTT 13249", @"{""min_max"":[{""id64"":2869440882065,""name"":""NLTT 13249"",""x"":-38.8125,""y"":9.3125,""z"":-60.53125},{""id64"":44853758275,""name"":""HIP 13249"",""x"":71.0,""y"":-646.5625,""z"":-407.34375},{""id64"":216669342059,""name"":""NLTT 14641"",""x"":97.625,""y"":-65.1875,""z"":35.03125},{""id64"":83449746098,""name"":""NLTT 2408"",""x"":-259.1875,""y"":-147.84375,""z"":-161.75},{""id64"":908553360066,""name"":""NLTT 16391"",""x"":42.90625,""y"":-8.65625,""z"":-81.875},{""id64"":908620468962,""name"":""NLTT 35146"",""x"":86.65625,""y"":9.75,""z"":74.9375},{""id64"":1041269524835,""name"":""NLTT 18977"",""x"":-43.9375,""y"":49.78125,""z"":-64.34375},{""id64"":1458309108442,""name"":""NLTT 54244"",""x"":42.4375,""y"":-68.6875,""z"":52.15625},{""id64"":1733187048146,""name"":""NLTT 11599"",""x"":48.78125,""y"":-62.09375,""z"":-11.71875},{""id64"":670148273569,""name"":""NLTT 1796"",""x"":-55.28125,""y"":-279.625,""z"":-13.78125},{""id64"":670149059985,""name"":""NLTT 6667"",""x"":-49.8125,""y"":-33.4375,""z"":-55.28125},{""id64"":670149125569,""name"":""NLTT 48288"",""x"":-60.4375,""y"":-13.09375,""z"":56.3125},{""id64"":2282942829266,""name"":""NLTT 8653"",""x"":44.15625,""y"":-101.03125,""z"":-20.03125},{""id64"":2868904076721,""name"":""NLTT 46709"",""x"":-65.3125,""y"":25.875,""z"":23.6875},{""id64"":2869709579681,""name"":""NLTT 30929"",""x"":-8.3125,""y"":84.65625,""z"":-12.25},{""id64"":2870782731705,""name"":""NLTT 4671"",""x"":69.34375,""y"":-96.125,""z"":36.125},{""id64"":3107442332362,""name"":""NLTT 6637"",""x"":-25.3125,""y"":-82.96875,""z"":-52.90625},{""id64"":7267487393161,""name"":""NLTT 14879"",""x"":-31.71875,""y"":14.0,""z"":-67.5},{""id64"":3382454555338,""name"":""NLTT 19808"",""x"":46.09375,""y"":26.78125,""z"":-43.71875},{""id64"":2832698741474,""name"":""NLTT 40287"",""x"":38.40625,""y"":33.78125,""z"":92.75}],""values"":[""NLTT 13249"",""HIP 13249"",""NLTT 14641"",""NLTT 2408"",""NLTT 16391"",""NLTT 35146"",""NLTT 18977"",""NLTT 54244"",""NLTT 11599"",""NLTT 1796"",""NLTT 6667"",""NLTT 48288"",""NLTT 8653"",""NLTT 46709"",""NLTT 30929"",""NLTT 4671"",""NLTT 6637"",""NLTT 14879"",""NLTT 19808"",""NLTT 40287""]}" );
+            fakeSpanshRestClient.Expect( "systems/field_values/system_names?q=Sagittarius A*", @"{""min_max"":[{""id64"":20578934,""name"":""Sagittarius A*"",""x"":25.21875,""y"":-20.90625,""z"":25899.96875},{""id64"":9955165356,""name"":""A Velorum"",""x"":2116.375,""y"":-191.90625,""z"":-168.96875},{""id64"":1356850348,""name"":""a Velorum"",""x"":1847.15625,""y"":-55.78125,""z"":-138.625},{""id64"":359334384322,""name"":""a Puppis"",""x"":339.25,""y"":-40.8125,""z"":-86.96875},{""id64"":3386376805,""name"":""a Centauri"",""x"":264.9375,""y"":153.375,""z"":339.90625},{""id64"":669074466345,""name"":""A Capricorni"",""x"":-132.375,""y"":-296.8125,""z"":320.125},{""id64"":57153684668,""name"":""A Cen"",""x"":391.9375,""y"":50.3125,""z"":160.03125},{""id64"":10645195219,""name"":""a Lupi"",""x"":806.1875,""y"":288.71875,""z"":1026.40625},{""id64"":2007863857882,""name"":""A Bootis"",""x"":-72.28125,""y"":218.5625,""z"":38.84375},{""id64"":216753195363,""name"":""A Carinae"",""x"":502.78125,""y"":-200.6875,""z"":-58.5625},{""id64"":5597258940,""name"":""104 Aquarii A"",""x"":-229.65625,""y"":-796.5,""z"":126.09375},{""id64"":560182856067,""name"":""28 A Aquilae"",""x"":-248.625,""y"":-5.75,""z"":227.84375},{""id64"":358461936370,""name"":""1 Aquarii A"",""x"":-155.6875,""y"":-95.0,""z"":145.21875},{""id64"":6605501013,""name"":""59 Andromedae A"",""x"":-158.21875,""y"":-93.625,""z"":-187.875},{""id64"":4488778134528,""name"":""Aiphaits AS-A a0"",""x"":-8178.375,""y"":11.21875,""z"":33503.25},{""id64"":545086002277,""name"":""Aunair AF-A f1015"",""x"":-472.15625,""y"":1640.5625,""z"":20796.6875},{""id64"":550839986436,""name"":""Agnaiz AF-A e128"",""x"":-8694.125,""y"":-1079.71875,""z"":22039.625},{""id64"":503751120293,""name"":""Aishaish AF-A f938"",""x"":845.8125,""y"":326.40625,""z"":33682.125},{""id64"":508225858372,""name"":""Aemonz AF-A e118"",""x"":4173.0625,""y"":-1027.84375,""z"":33515.28125},{""id64"":516673308868,""name"":""Aunair AA-A e120"",""x"":-1261.78125,""y"":1378.46875,""z"":20709.4375}],""values"":[""Sagittarius A*"",""A Velorum"",""a Velorum"",""a Puppis"",""a Centauri"",""A Capricorni"",""A Cen"",""a Lupi"",""A Bootis"",""A Carinae"",""104 Aquarii A"",""28 A Aquilae"",""1 Aquarii A"",""59 Andromedae A"",""Aiphaits AS-A a0"",""Aunair AF-A f1015"",""Agnaiz AF-A e128"",""Aishaish AF-A f938"",""Aemonz AF-A e118"",""Aunair AA-A e120""]}" );
+            fakeSpanshRestClient.Expect( "fleetcarrier/route?source=NLTT 13249capacity_used=25000calculate_starting_fuel=1destinations=Sagittarius A*", "{\"job\":\"F2B5B476-4458-11ED-9B9F-5DE194EB4526\",\"status\":\"queued\"}" );
+            fakeSpanshRestClient.Expect( "results/F2B5B476-4458-11ED-9B9F-5DE194EB4526", DeserializeJsonResource<string>( Resources.SpanshCarrierResult ) );
 
             // Act
             var result = fakeSpanshService.GetCarrierRoute("NLTT 13249", new[] { "Sagittarius A*" }, 25000);
@@ -171,14 +106,15 @@ namespace UnitTests
         public void TestSpanshGalaxyRoute()
         {
             // Arrange
+            EDDI.Instance.DataProvider = ConfigureTestDataProvider();
             fakeSpanshRestClient.Expect( "systems/field_values/system_names?q=NLTT 13249", @"{""min_max"":[{""id64"":2869440882065,""name"":""NLTT 13249"",""x"":-38.8125,""y"":9.3125,""z"":-60.53125},{""id64"":44853758275,""name"":""HIP 13249"",""x"":71.0,""y"":-646.5625,""z"":-407.34375},{""id64"":216669342059,""name"":""NLTT 14641"",""x"":97.625,""y"":-65.1875,""z"":35.03125},{""id64"":83449746098,""name"":""NLTT 2408"",""x"":-259.1875,""y"":-147.84375,""z"":-161.75},{""id64"":908553360066,""name"":""NLTT 16391"",""x"":42.90625,""y"":-8.65625,""z"":-81.875},{""id64"":908620468962,""name"":""NLTT 35146"",""x"":86.65625,""y"":9.75,""z"":74.9375},{""id64"":1041269524835,""name"":""NLTT 18977"",""x"":-43.9375,""y"":49.78125,""z"":-64.34375},{""id64"":1458309108442,""name"":""NLTT 54244"",""x"":42.4375,""y"":-68.6875,""z"":52.15625},{""id64"":1733187048146,""name"":""NLTT 11599"",""x"":48.78125,""y"":-62.09375,""z"":-11.71875},{""id64"":670148273569,""name"":""NLTT 1796"",""x"":-55.28125,""y"":-279.625,""z"":-13.78125},{""id64"":670149059985,""name"":""NLTT 6667"",""x"":-49.8125,""y"":-33.4375,""z"":-55.28125},{""id64"":670149125569,""name"":""NLTT 48288"",""x"":-60.4375,""y"":-13.09375,""z"":56.3125},{""id64"":2282942829266,""name"":""NLTT 8653"",""x"":44.15625,""y"":-101.03125,""z"":-20.03125},{""id64"":2868904076721,""name"":""NLTT 46709"",""x"":-65.3125,""y"":25.875,""z"":23.6875},{""id64"":2869709579681,""name"":""NLTT 30929"",""x"":-8.3125,""y"":84.65625,""z"":-12.25},{""id64"":2870782731705,""name"":""NLTT 4671"",""x"":69.34375,""y"":-96.125,""z"":36.125},{""id64"":3107442332362,""name"":""NLTT 6637"",""x"":-25.3125,""y"":-82.96875,""z"":-52.90625},{""id64"":7267487393161,""name"":""NLTT 14879"",""x"":-31.71875,""y"":14.0,""z"":-67.5},{""id64"":3382454555338,""name"":""NLTT 19808"",""x"":46.09375,""y"":26.78125,""z"":-43.71875},{""id64"":2832698741474,""name"":""NLTT 40287"",""x"":38.40625,""y"":33.78125,""z"":92.75}],""values"":[""NLTT 13249"",""HIP 13249"",""NLTT 14641"",""NLTT 2408"",""NLTT 16391"",""NLTT 35146"",""NLTT 18977"",""NLTT 54244"",""NLTT 11599"",""NLTT 1796"",""NLTT 6667"",""NLTT 48288"",""NLTT 8653"",""NLTT 46709"",""NLTT 30929"",""NLTT 4671"",""NLTT 6637"",""NLTT 14879"",""NLTT 19808"",""NLTT 40287""]}" );
             fakeSpanshRestClient.Expect("systems/field_values/system_names?q=Soul Sector EL-Y d7", @"{""min_max"":[{""id64"":249938593603,""name"":""Soul Sector EL-Y d7"",""x"":-5043.15625,""y"":85.03125,""z"":-5513.09375},{""id64"":18360574884,""name"":""Soul Sector EL-Y e4"",""x"":-5018.03125,""y"":163.5625,""z"":-5532.4375},{""id64"":215578855235,""name"":""Soul Sector EL-Y d6"",""x"":-5028.625,""y"":88.0625,""z"":-5535.6875},{""id64"":490456762179,""name"":""Soul Sector EL-Y d14"",""x"":-5068.125,""y"":129.4375,""z"":-5537.5},{""id64"":284298331971,""name"":""Soul Sector EL-Y d8"",""x"":-5047.0625,""y"":72.96875,""z"":-5504.46875},{""id64"":3098919636602,""name"":""Soul Sector EL-Y c11"",""x"":-5131.25,""y"":70.25,""z"":-5551.84375},{""id64"":5023064985210,""name"":""Soul Sector EL-Y c18"",""x"":-5114.09375,""y"":65.46875,""z"":-5559.65625},{""id64"":1933565773635,""name"":""Soul Sector EL-Y d56"",""x"":-5094.59375,""y"":81.53125,""z"":-5532.0625},{""id64"":1967925512003,""name"":""Soul Sector EL-Y d57"",""x"":-5093.90625,""y"":56.25,""z"":-5508.21875},{""id64"":2274285915770,""name"":""Soul Sector EL-Y c8"",""x"":-5131.875,""y"":86.53125,""z"":-5557.09375},{""id64"":1796126820163,""name"":""Soul Sector EL-Y d52"",""x"":-5036.78125,""y"":65.96875,""z"":-5475.125},{""id64"":1177651529539,""name"":""Soul Sector EL-Y d34"",""x"":-5071.40625,""y"":108.75,""z"":-5472.625},{""id64"":1418169698115,""name"":""Soul Sector EL-Y d41"",""x"":-5072.6875,""y"":113.34375,""z"":-5498.625},{""id64"":1074572314435,""name"":""Soul Sector EL-Y d31"",""x"":-5032.03125,""y"":124.03125,""z"":-5531.71875},{""id64"":834054145859,""name"":""Soul Sector EL-Y d24"",""x"":-5090.65625,""y"":73.5625,""z"":-5499.28125},{""id64"":899896381050,""name"":""Soul Sector EL-Y c3"",""x"":-5143.96875,""y"":87.53125,""z"":-5568.8125},{""id64"":902773622595,""name"":""Soul Sector EL-Y d26"",""x"":-5103.6875,""y"":118.5625,""z"":-5519.25},{""id64"":662255454019,""name"":""Soul Sector EL-Y d19"",""x"":-5063.5625,""y"":113.8125,""z"":-5516.25},{""id64"":696615192387,""name"":""Soul Sector EL-Y d20"",""x"":-5047.125,""y"":80.0625,""z"":-5489.53125},{""id64"":1452529436483,""name"":""Soul Sector EL-Y d42"",""x"":-5083.28125,""y"":101.21875,""z"":-5493.46875}],""values"":[""Soul Sector EL-Y d7"",""Soul Sector EL-Y e4"",""Soul Sector EL-Y d6"",""Soul Sector EL-Y d14"",""Soul Sector EL-Y d8"",""Soul Sector EL-Y c11"",""Soul Sector EL-Y c18"",""Soul Sector EL-Y d56"",""Soul Sector EL-Y d57"",""Soul Sector EL-Y c8"",""Soul Sector EL-Y d52"",""Soul Sector EL-Y d34"",""Soul Sector EL-Y d41"",""Soul Sector EL-Y d31"",""Soul Sector EL-Y d24"",""Soul Sector EL-Y c3"",""Soul Sector EL-Y d26"",""Soul Sector EL-Y d19"",""Soul Sector EL-Y d20"",""Soul Sector EL-Y d42""]}");
             fakeSpanshRestClient.Expect( "generic/route?source=NLTT 13249destination=Soul Sector EL-Y d7is_supercharged=0use_supercharge=1use_injections=0exclude_secondary=0fuel_power=2.6fuel_multiplier=0.012optimal_mass=1800base_mass=0tank_size=0internal_tank_size=1.07max_fuel_per_jump=8.00range_boost=0", "{\"job\":\"F2B5B476-4458-11ED-9B9F-5DE194EB4527\",\"status\":\"queued\"}");
             fakeSpanshRestClient.Expect("results/F2B5B476-4458-11ED-9B9F-5DE194EB4527", DeserializeJsonResource<string>(Resources.SpanshGalaxyResult));
 
             // Act
-            var ship = EddiDataDefinitions.ShipDefinitions.FromEDModel("Anaconda");
-            ship.frameshiftdrive = EddiDataDefinitions.Module.Int_Hyperdrive_Size6_Class5;
+            var ship = ShipDefinitions.FromEDModel("Anaconda");
+            ship.frameshiftdrive = Module.Int_Hyperdrive_Size6_Class5;
             var result = fakeSpanshService.GetGalaxyRoute("NLTT 13249", "Soul Sector EL-Y d7", ship);
 
             // Assert[9]
@@ -260,6 +196,7 @@ namespace UnitTests
         [ TestMethod ]
         public void TestSpanshSystemDumpSol ()
         {
+            EDDI.Instance.DataProvider = ConfigureTestDataProvider();
             fakeSpanshRestClient.Expect( "dump/10477373803", DeserializeJsonResource<string>( Resources.SpanshStarSystemDumpSol ) );
             var result = fakeSpanshService.GetStarSystem(10477373803U, true);
 
@@ -620,40 +557,20 @@ namespace UnitTests
         [TestMethod]
         public void TestSystems ()
         {
-            // Setup type-ahead results
-            fakeSpanshRestClient.Expect( @"systems/field_values/system_names?q=achenar", @"{""min_max"":[{""id64"":164098653,""name"":""Achenar"",""x"":67.5,""y"":-119.46875,""z"":24.84375}],""values"":[""Achenar""]}" );
-            fakeSpanshRestClient.Expect( @"systems/field_values/system_names?q=alioth", @"{""min_max"":[{""id64"":1109989017963,""name"":""Alioth"",""x"":-33.65625,""y"":72.46875,""z"":-20.65625}],""values"":[""Alioth""]}" );
-            fakeSpanshRestClient.Expect( @"systems/field_values/system_names?q=sol", @"{""min_max"":[{""id64"":10477373803,""name"":""Sol"",""x"":0.0,""y"":0.0,""z"":0.0},{""id64"":5267550898539,""name"":""Solibamba"",""x"":99.5625,""y"":40.125,""z"":26.8125},{""id64"":1458376315610,""name"":""Solati"",""x"":66.53125,""y"":29.1875,""z"":34.6875},{""id64"":5059379007779,""name"":""Solitude"",""x"":-9497.65625,""y"":-911.0,""z"":19807.625},{""id64"":11538024121505,""name"":""Sollaro"",""x"":-9528.625,""y"":-885.59375,""z"":19815.4375}],""values"":[""Sol"",""Solibamba"",""Solati"",""Solitude"",""Sollaro""]}" );
-
-            // Setup quick search results
+            // Arrange
+            EDDI.Instance.DataProvider = ConfigureTestDataProvider();
             fakeSpanshRestClient.Expect( @"search?q=164098653", Encoding.UTF8.GetString( Resources.SpanshQuickStarSystemAchenar ) );
             fakeSpanshRestClient.Expect( @"search?q=1109989017963", Encoding.UTF8.GetString( Resources.SpanshQuickStarSystemAlioth ) );
             fakeSpanshRestClient.Expect( @"search?q=10477373803", Encoding.UTF8.GetString( Resources.SpanshQuickStarSystemSol ) );
 
             // Act
-            var starSystems = fakeSpanshService.GetQuickStarSystems(new[] { "sol", "achenar", "alioth" });
+            var starSystems = fakeSpanshService.GetQuickStarSystems(new[] { 164098653U, 1109989017963U, 10477373803U });
 
             // Assert
             Assert.AreEqual( 3, starSystems?.Count );
             Assert.AreEqual( "Achenar", starSystems?.FirstOrDefault(s => s.systemAddress == 164098653U )?.systemname );
             Assert.AreEqual( "Alioth", starSystems?.FirstOrDefault( s => s.systemAddress == 1109989017963U )?.systemname );
             Assert.AreEqual( "Sol", starSystems?.FirstOrDefault( s => s.systemAddress == 10477373803U )?.systemname );
-        }
-
-        [TestMethod]
-        public void TestUnknown ()
-        {
-            // Setup type-ahead endpoint
-            fakeSpanshRestClient.Expect( "systems/field_values/system_names?q=No such system", @"{
-                ""min_max"": [],
-                ""values"": []
-                }" );
-
-            // Act
-            var system = fakeSpanshService.GetQuickStarSystem("No such system");
-
-            // Assert
-            Assert.IsNull( system );
         }
     }
 }

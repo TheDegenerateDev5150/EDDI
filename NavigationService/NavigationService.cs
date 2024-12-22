@@ -259,12 +259,6 @@ namespace EddiNavigationService
             return result;
         }
 
-        internal static decimal CalculateDistance(StarSystem curr, StarSystem dest)
-        {
-            if (curr is null || dest is null) { return 0; }
-            return Functions.StellarDistanceLy(curr.x, curr.y, curr.z, dest.x, dest.y, dest.z) ?? 0;
-        }
-
         internal static List<long> GetSystemMissionIds(string system)
         {
             var missionsConfig = ConfigService.Instance.missionMonitorConfiguration;
@@ -299,7 +293,7 @@ namespace EddiNavigationService
                         SearchStarSystem = system;
                     }
                     // Update search system distance
-                    SearchDistanceLy = CalculateDistance(EDDI.Instance.CurrentStarSystem, system);
+                    SearchDistanceLy = EDDI.Instance.CurrentStarSystem?.DistanceFromStarSystem(system) ?? 0;
                 }
             }
             else
@@ -326,7 +320,6 @@ namespace EddiNavigationService
                 SearchStation = null;
             }
         }
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         [NotifyPropertyChangedInvocator]

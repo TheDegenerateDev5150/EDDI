@@ -29,9 +29,9 @@ namespace EddiSpanshService
         public StarSystem GetStarSystem ( string systemName, bool showMarketDetails = false )
         {
             if ( systemName == null || string.IsNullOrEmpty( systemName ) ) { return null; }
-
-            var systemAddress = GetTypeAheadStarSystems( systemName ).FirstOrDefault().Key;
-            return GetStarSystem( systemAddress, showMarketDetails );
+            var systemAddress = GetWaypointsBySystemName( systemName ).FirstOrDefault()?.systemAddress;
+            if ( systemAddress == null ) { return null; }
+            return GetStarSystem( (ulong)systemAddress, showMarketDetails );
         }
 
         public IList<StarSystem> GetStarSystems ( ulong[] systemAddresses, bool showMarketDetails = false )
@@ -110,7 +110,7 @@ namespace EddiSpanshService
                 }
 
                 // Populated System Data
-                starSystem.population = data[ "population" ].ToObject<long?>();
+                starSystem.population = data[ "population" ]?.ToObject<long?>();
                 if ( starSystem.population > 0 )
                 {
                     GetFactionData( starSystem, data );
@@ -130,7 +130,10 @@ namespace EddiSpanshService
                     starSystem.powerState = PowerplayState.FromName( data[ "powerState" ]?.ToString() ) ?? PowerplayState.None;
                     var powers = data[ "powers" ]?.Select( p => Power.FromName( p.ToString() ) ).ToHashSet() ??
                                  new HashSet<Power>();
-                    powers.Add( starSystem.Power );
+                    if ( starSystem.Power != null && starSystem.Power != Power.None )
+                    {
+                        powers.Add( starSystem.Power );
+                    }
                     starSystem.Powers = powers.OrderByDescending(p => p.invariantName).ToList();
                 }
 
@@ -326,6 +329,7 @@ namespace EddiSpanshService
 
         private static Station ParseStation ( StarSystem starSystem, JToken stationData, JToken bodyData = null, bool showMarketDetails = false )
         {
+            // Spansh does not assign on-foot surface settlements a station type so we have to assign these ourselves.
             var station = new Station
             {
                 systemname = starSystem.systemname, 

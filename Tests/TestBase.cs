@@ -2,6 +2,8 @@
 using EddiConfigService;
 using EddiCore;
 using EddiDataProviderService;
+using EddiSpanshService;
+using EddiStarMapService;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -20,6 +22,12 @@ namespace UnitTests
 {
     public class TestBase
     {
+        internal static readonly FakeSpanshRestClient fakeSpanshRestClient = new FakeSpanshRestClient();
+        internal static readonly SpanshService fakeSpanshService = new SpanshService( fakeSpanshRestClient );
+
+        internal static readonly FakeEdsmRestClient fakeEdsmRestClient = new FakeEdsmRestClient();
+        internal static readonly StarMapService fakeEdsmService = new StarMapService(fakeEdsmRestClient);
+
         internal void MakeSafe()
         {
             // Prevent telemetry data from being reported based on test results
@@ -33,6 +41,11 @@ namespace UnitTests
 
             // Set ourselves as in a beta game session to stop automatic sending of data to remote systems
             EDDI.Instance.gameIsBeta = true;
+        }
+
+        internal DataProviderService ConfigureTestDataProvider ()
+        {
+            return new DataProviderService( fakeEdsmService, fakeSpanshService );
         }
 
         public static T DeserializeJsonResource<T>(byte[] data, JsonSerializerSettings settings = null) where T : class

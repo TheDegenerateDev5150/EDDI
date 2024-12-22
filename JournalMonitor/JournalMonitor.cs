@@ -3385,15 +3385,14 @@ namespace EddiJournalMonitor
                                                 .Replace("$MISSIONUTIL_MULTIPLE_FINAL_SEPARATOR;", "#")
                                                 .Split('#');
 
-                                            var starSystems = EDDI.Instance.DataProvider.GetOrFetchQuickStarSystems(destinationSystems);
-                                            foreach ( var system in starSystems )
+                                            var starSystems = EDDI.Instance.DataProvider.GetOrFetchSystemWaypoints(destinationSystems);
+                                            foreach ( var dest in starSystems )
                                             {
-                                                if ( !string.IsNullOrEmpty( system.systemname ) &&
-                                                     system.x is decimal sx &&
-                                                     system.y is decimal sy &&
-                                                     system.z is decimal sz )
+                                                if ( !string.IsNullOrEmpty( dest.systemName ) &&
+                                                     dest.x is decimal sx &&
+                                                     dest.y is decimal sy &&
+                                                     dest.z is decimal sz )
                                                 {
-                                                    var dest = new NavWaypoint( system.systemname, system.systemAddress, sx, sy, sz );
                                                     dest.missionids.Add( mission.missionid );
                                                     mission.destinationsystems.Add( dest );
                                                 }

@@ -8,6 +8,7 @@ using System.Windows.Controls;
 namespace Eddi
 {
     /// <summary>A subclass of ComboBox for selecting star systems</summary>
+    // TODO: Revise to use a base type with both systemName and systemAddress (e.g. StarSystem or NavWaypoint)
     public class StarSystemComboBox : ComboBox
     {
         public TextBox TextBox { get; private set; }
@@ -35,7 +36,7 @@ namespace Eddi
             if (!systemListCache.ContainsKey(partialSystemName))
             {
                 // Request a new list
-                systemListCache[partialSystemName] = EDDI.Instance.DataProvider.GetTypeAheadSystems(partialSystemName).Values.ToList();
+                systemListCache[ partialSystemName ] = EDDI.Instance.DataProvider.GetTypeAheadSystems( partialSystemName );
             }
 
             return systemListCache[partialSystemName];

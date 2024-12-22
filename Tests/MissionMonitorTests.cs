@@ -1,5 +1,6 @@
 ﻿using EddiConfigService;
 using EddiConfigService.Configurations;
+using EddiCore;
 using EddiCrimeMonitor;
 using EddiDataDefinitions;
 using EddiEvents;
@@ -7,6 +8,8 @@ using EddiJournalMonitor;
 using EddiMissionMonitor;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
+using System.Text;
+using Tests.Properties;
 
 namespace UnitTests
 {
@@ -158,6 +161,11 @@ namespace UnitTests
         [TestMethod]
         public void TestMissionEventsScenario()
         {
+            EDDI.Instance.DataProvider = ConfigureTestDataProvider();
+            fakeSpanshRestClient.Expect( "systems/field_values/system_names?q=Calennero", @"{""min_max"":[{""id64"":5581611930322,""name"":""Calennero"",""x"":104.15625,""y"":-99.5625,""z"":-6.15625}],""values"":[""Calennero""]}" );
+            fakeSpanshRestClient.Expect( "dump/5581611930322", Encoding.UTF8.GetString( Resources.SpanshStarSystemDumpCalenerro ) );
+            fakeSpanshRestClient.Expect( "search?q=5581611930322", Encoding.UTF8.GetString( Resources.SpanshQuickStarSystemCalenerro ) );
+
             // Save original data
             var missionData = ConfigService.Instance.missionMonitorConfiguration;
 

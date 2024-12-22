@@ -33,9 +33,9 @@ namespace EddiDataProviderService
             this.starSystemRepository = starSystemRepository ?? new StarSystemSqLiteRepository();
         }
 
-        public Dictionary<ulong, string> GetTypeAheadSystems ( string systemName )
+        public List<string> GetTypeAheadSystems ( string systemName )
         {
-            return spanshService.GetTypeAheadStarSystems( systemName );
+            return spanshService.GetWaypointsBySystemName( systemName ).Select(s => s.systemName).ToList();
         }
 
         public List<StarSystem> GetOrCreateStarSystems ( Dictionary<ulong, string> requestedSystems, bool refreshIfOutdated = true, bool showMarketDetails = false )
@@ -67,8 +67,9 @@ namespace EddiDataProviderService
         public StarSystem GetOrFetchStarSystem ( string systemName, bool fetchIfMissing = true, bool refreshIfOutdated = true, bool showMarketDetails = false )
         {
             if ( string.IsNullOrEmpty( systemName ) ) { return null; }
-            var system = GetTypeAheadSystems( systemName ).FirstOrDefault(s => s.Value.Equals(systemName, StringComparison.InvariantCultureIgnoreCase));
-            return GetOrFetchStarSystems( new[] { system.Key }, fetchIfMissing, refreshIfOutdated, showMarketDetails )?.FirstOrDefault();
+            var system = GetOrFetchSystemWaypoint( systemName );
+            if ( system is null ) { return null; }
+            return GetOrFetchStarSystems( new[] { system.systemAddress }, fetchIfMissing, refreshIfOutdated, showMarketDetails )?.FirstOrDefault();
         }
 
         public List<StarSystem> GetOrFetchStarSystems ( ulong[] systemAddresses, bool fetchIfMissing = true, bool refreshIfOutdated = true, bool showMarketDetails = false )
@@ -76,7 +77,7 @@ namespace EddiDataProviderService
             var results = new List<StarSystem>();
             if ( systemAddresses is null || !systemAddresses.Any() ) { return results; }
 
-            ulong[] missingSystems () => systemAddresses.Where( k => results.All( s => s.systemAddress != k ) ).ToArray();
+            ulong[] missingSystems () => systemAddresses.Where( k => results.All( s => s.systemAddress != k ) ).Distinct().ToArray();
 
             // Fetch from cached systems
             results.AddRange( starSystemCache.GetRange( missingSystems() ) );
@@ -87,7 +88,7 @@ namespace EddiDataProviderService
             // Fetch from external data providers (when so instructed)
             if ( missingSystems().Any() && fetchIfMissing )
             {
-                var fetchedSystems = GetSystemsData( missingSystems(), showMarketDetails );
+                var fetchedSystems = FetchSystemsData( missingSystems(), showMarketDetails );
                 if ( fetchedSystems?.Count > 0 )
                 {
                     // Synchronize EDSM visits and comments
@@ -115,35 +116,11 @@ namespace EddiDataProviderService
             return results;
         }
 
-        public List<StarSystem> GetOrFetchStarSystems ( string[] systemNames, bool fetchIfMissing = true, bool refreshIfOutdated = true, bool showMarketDetails = false )
-        {
-            var systemsDict = new ConcurrentDictionary<ulong, string>();
-            Parallel.ForEach( systemNames, systemName =>
-            {
-                var result = GetTypeAheadSystems( systemName ).FirstOrDefault( r =>
-                    r.Value.Equals( systemName, StringComparison.InvariantCultureIgnoreCase ) );
-                if ( result.Key > 0 )
-                {
-                    systemsDict.TryAdd( result.Key, result.Value );
-                }
-            } );
-            return GetOrFetchStarSystems( systemsDict.Keys.ToArray(), fetchIfMissing, refreshIfOutdated, showMarketDetails );
-        }
-
         public StarSystem GetOrFetchQuickStarSystem ( ulong systemAddress, bool fetchIfMissing = true )
         {
-            if ( systemAddress <= 0 )
-            { return null; }
+            if ( systemAddress <= 0 ) { return null; }
 
             return GetOrFetchQuickStarSystems( new[] { systemAddress }, fetchIfMissing )?.FirstOrDefault();
-        }
-
-        public StarSystem GetOrFetchQuickStarSystem ( string systemName, bool fetchIfMissing = true )
-        {
-            if ( string.IsNullOrEmpty( systemName ) )
-            { return null; }
-            var system = GetTypeAheadSystems( systemName ).FirstOrDefault(s => s.Value.Equals(systemName, StringComparison.InvariantCultureIgnoreCase));
-            return GetOrFetchQuickStarSystems( new[] { system.Key }, fetchIfMissing )?.FirstOrDefault();
         }
 
         public List<StarSystem> GetOrFetchQuickStarSystems ( ulong[] systemAddresses, bool fetchIfMissing = true )
@@ -151,7 +128,7 @@ namespace EddiDataProviderService
             var results = new List<StarSystem>();
             if ( systemAddresses is null || !systemAddresses.Any() ) { return results; }
 
-            ulong[] missingSystems() => systemAddresses.Where( k => results.All( s => s.systemAddress != k ) ).ToArray();
+            ulong[] missingSystems() => systemAddresses.Where( k => results.All( s => s.systemAddress != k ) ).Distinct().ToArray();
             
             // Fetch from cached systems
             results.AddRange( starSystemCache.GetRange( missingSystems() ) );
@@ -176,17 +153,38 @@ namespace EddiDataProviderService
 
         public List<StarSystem> GetOrFetchQuickStarSystems ( string[] systemNames, bool fetchIfMissing = true )
         {
-            var systemsDict = new ConcurrentDictionary<ulong, string>();
+            var systemAddresses = new ConcurrentBag<ulong>();
             Parallel.ForEach( systemNames, systemName =>
             {
-                var result = GetTypeAheadSystems( systemName ).FirstOrDefault( r =>
-                    r.Value.Equals( systemName, StringComparison.InvariantCultureIgnoreCase ) );
-                if ( result.Key > 0 )
-                {
-                    systemsDict.TryAdd( result.Key, result.Value );
-                }
+                var system = GetOrFetchSystemWaypoint( systemName );
+                if ( system is null ) { return; }
+
+                systemAddresses.Add( system.systemAddress );
             } );
-            return GetOrFetchQuickStarSystems(systemsDict.Keys.ToArray(), fetchIfMissing);
+            return GetOrFetchQuickStarSystems( systemAddresses.ToArray(), fetchIfMissing );
+        }
+
+        public NavWaypoint GetOrFetchSystemWaypoint ( string systemName )
+        {
+            return GetOrFetchSystemWaypoints( new[] { systemName } ).FirstOrDefault();
+        }
+
+        public List<NavWaypoint> GetOrFetchSystemWaypoints ( string[] systemNames )
+        {
+            var results = new List<NavWaypoint>();
+            if ( systemNames is null || !systemNames.Any() ) { return results; }
+            string[] missingSystems () => systemNames.Where( k => results.All( s => s.systemName != k ) ).Distinct().ToArray();
+
+            // Fetch from cached systems
+            results.AddRange( starSystemCache.GetRange( missingSystems() ).Select( s => new NavWaypoint( s ) ) );
+
+            var waypoints = new ConcurrentBag<NavWaypoint>();
+            Parallel.ForEach( systemNames, systemName =>
+            {
+                waypoints.Add( spanshService.GetWaypointsBySystemName( systemName.Trim() ).FirstOrDefault( s => s.systemName.Equals( systemName, StringComparison.InvariantCultureIgnoreCase ) ) );
+            } );
+            results.AddRange( waypoints );
+            return results;
         }
 
         #region StarSystemSqlLiteRepository
@@ -380,14 +378,14 @@ namespace EddiDataProviderService
 
         #region Spansh End Points
 
-        public NavWaypointCollection GetCarrierRoute ( string currentSystem, string[] targetSystems, long usedCarrierCapacity,
+        public NavWaypointCollection FetchCarrierRoute ( string currentSystem, string[] targetSystems, long usedCarrierCapacity,
             bool calculateTotalFuelRequired = true, string[] refuelDestinations = null, bool fromUIquery = false )
         {
             return spanshService.GetCarrierRoute( currentSystem, targetSystems, usedCarrierCapacity,
                 calculateTotalFuelRequired, refuelDestinations, fromUIquery );
         }
 
-        public NavWaypointCollection GetGalaxyRoute ( string currentSystem, string targetSystem, Ship ship,
+        public NavWaypointCollection FetchGalaxyRoute ( string currentSystem, string targetSystem, Ship ship,
             int? cargoCarriedTons = null, bool isSupercharged = false, bool useSupercharge = true,
             bool useInjections = false, bool excludeSecondary = false, bool fromUIquery = false )
         {
@@ -395,18 +393,7 @@ namespace EddiDataProviderService
                 useSupercharge, useInjections, excludeSecondary, fromUIquery );
         }
 
-        internal StarSystem GetSystemData ( string systemName, bool showMarketDetails = false )
-        {
-            var starSystem = spanshService.GetStarSystem( systemName, showMarketDetails );
-            return GetSystemExtras( starSystem ) ?? new StarSystem { systemname = systemName };
-        }
-
-        public StarSystem GetQuickSystemData ( string systemName )
-        {
-            return spanshService.GetQuickStarSystem( systemName );
-        }
-
-        internal List<StarSystem> GetSystemsData ( ulong[] systemAddresses, bool showMarketDetails = false )
+        internal List<StarSystem> FetchSystemsData ( ulong[] systemAddresses, bool showMarketDetails = false )
         {
             if ( systemAddresses == null || systemAddresses.Length == 0 ) { return new List<StarSystem>(); }
             var starSystems = spanshService.GetStarSystems( systemAddresses, showMarketDetails );
@@ -418,30 +405,30 @@ namespace EddiDataProviderService
                 {
                     if ( starSystem != null )
                     {
-                        fullStarSystems.Add( GetSystemExtras( starSystems.FirstOrDefault( s => s?.systemAddress == starSystem.systemAddress ) ) );
+                        fullStarSystems.Add( FetchSystemExtras( starSystems.FirstOrDefault( s => s?.systemAddress == starSystem.systemAddress ) ) );
                     }
                 } );
             }
             return fullStarSystems.ToList();
-        }
 
-        internal StarSystem GetSystemExtras ( StarSystem starSystem )
-        {
-            if ( starSystem != null )
+            StarSystem FetchSystemExtras ( StarSystem starSystem )
             {
-                var quickSystem = spanshService.GetQuickStarSystem( starSystem.systemAddress );
-                starSystem.requirespermit = quickSystem?.requirespermit ?? false;
-                starSystem.ThargoidWar = quickSystem?.ThargoidWar;
+                if ( starSystem != null )
+                {
+                    var quickSystem = spanshService.GetQuickStarSystem( starSystem.systemAddress );
+                    starSystem.requirespermit = quickSystem?.requirespermit ?? false;
+                    starSystem.ThargoidWar = quickSystem?.ThargoidWar;
+                }
+                return starSystem;
             }
-            return starSystem;
         }
 
-        public NavWaypoint GetStationWaypoint ( ulong fromSystemAddress, Dictionary<string, object> filters )
+        public NavWaypoint FetchStationWaypoint ( ulong fromSystemAddress, Dictionary<string, object> filters )
         {
             return spanshService.GetStationWaypoint( fromSystemAddress, filters );
         }
 
-        public NavWaypoint GetBodyWaypoint ( ulong fromSystemAddress, Dictionary<string, object> filters )
+        public NavWaypoint FetchBodyWaypoint ( ulong fromSystemAddress, Dictionary<string, object> filters )
         {
             return spanshService.GetBodyWaypoint( fromSystemAddress, filters );
         }
@@ -562,7 +549,7 @@ namespace EddiDataProviderService
         {
             var syncedSystems = new List<StarSystem>();
             var flightLogSystems = flightLogBatch.ToDictionary(k => k.systemId64, v => v.system);
-            var batchSystems = GetOrCreateStarSystems(flightLogSystems, false, false );
+            var batchSystems = GetOrCreateStarSystems(flightLogSystems, false );
             foreach (var starSystem in batchSystems)
             {
                 if (starSystem != null)

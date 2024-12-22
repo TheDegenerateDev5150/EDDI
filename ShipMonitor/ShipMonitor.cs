@@ -675,7 +675,7 @@ namespace EddiShipMonitor
             }
         }
 
-        private void handleStoredModulesEvent(StoredModulesEvent @event)
+        internal void handleStoredModulesEvent(StoredModulesEvent @event)
         {
             if (@event.timestamp > updatedAt)
             {
