@@ -1607,7 +1607,6 @@ namespace UnitTests
             // Set up our data resources with canned data
             EDDI.Instance.DataProvider = ConfigureTestDataProvider();
             fakeSpanshRestClient.Expect( "dump/3932277478106", Encoding.UTF8.GetString( Tests.Properties.Resources.SpanshStarSystemDumpShinrartaDezhra ) );
-            fakeSpanshRestClient.Expect( "search?q=3932277478106", Encoding.UTF8.GetString( Tests.Properties.Resources.SpanshQuickStarSystemShinrartaDezhra ) );
 
             // Parse the event
             var line = "{ \"timestamp\":\"2020-06-12T11:01:40Z\", \"event\":\"CarrierJumpRequest\", \"CarrierID\":3701442048, \"SystemName\":\"Shinrarta Dezhra\", \"SystemAddress\":3932277478106, \"BodyID\":16, \"DepartureTime\":\"2023-05-22T09:09:57Z\" }";

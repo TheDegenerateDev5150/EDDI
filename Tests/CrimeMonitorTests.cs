@@ -309,7 +309,6 @@ namespace UnitTests
             EDDI.Instance.DataProvider = ConfigureTestDataProvider();
             fakeSpanshRestClient.Expect( "systems/field_values/system_names?q=Tachmetae", @"{""min_max"":[{""id64"":2869977949641,""name"":""Tachmetae"",""x"":-0.59375,""y"":60.6875,""z"":84.71875}],""values"":[""Tachmetae""]}" );
             fakeSpanshRestClient.Expect( "dump/2869977949641", Encoding.UTF8.GetString( Tests.Properties.Resources.SpanshStarSystemDumpTachmetae ) );
-            fakeSpanshRestClient.Expect( "search?q=2869977949641", Encoding.UTF8.GetString( Tests.Properties.Resources.SpanshQuickStarSystemTachmetae ) );
             
             // Set a bounty with `Radio Sidewinder Crew`
             events = JournalMonitor.ParseJournalEntry(line1);

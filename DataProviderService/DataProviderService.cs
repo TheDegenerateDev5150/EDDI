@@ -166,6 +166,7 @@ namespace EddiDataProviderService
 
         public NavWaypoint GetOrFetchSystemWaypoint ( string systemName )
         {
+            if ( string.IsNullOrEmpty(systemName) ) { return null; }
             return GetOrFetchSystemWaypoints( new[] { systemName } ).FirstOrDefault();
         }
 
@@ -405,22 +406,11 @@ namespace EddiDataProviderService
                 {
                     if ( starSystem != null )
                     {
-                        fullStarSystems.Add( FetchSystemExtras( starSystems.FirstOrDefault( s => s?.systemAddress == starSystem.systemAddress ) ) );
+                        fullStarSystems.Add( starSystems.FirstOrDefault( s => s?.systemAddress == starSystem.systemAddress ) );
                     }
                 } );
             }
             return fullStarSystems.ToList();
-
-            StarSystem FetchSystemExtras ( StarSystem starSystem )
-            {
-                if ( starSystem != null )
-                {
-                    var quickSystem = spanshService.GetQuickStarSystem( starSystem.systemAddress );
-                    starSystem.requirespermit = quickSystem?.requirespermit ?? false;
-                    starSystem.ThargoidWar = quickSystem?.ThargoidWar;
-                }
-                return starSystem;
-            }
         }
 
         public NavWaypoint FetchStationWaypoint ( ulong fromSystemAddress, Dictionary<string, object> filters )
