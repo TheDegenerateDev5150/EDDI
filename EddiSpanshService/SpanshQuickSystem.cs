@@ -13,7 +13,7 @@ namespace EddiSpanshService
     public partial class SpanshService
     {
         // Uses the Spansh star system quick API (brief star system data), e.g. https://spansh.co.uk/api/search?q=3932277478106
-        // Useful for getting system coordinates and a few details not available from the `dump` endpoint.
+        // Useful for quickly obtaining sparse system stations.
         public StarSystem GetQuickStarSystem(ulong systemAddress)
         {
             if ( systemAddress == 0 ) { return null; }
@@ -112,20 +112,16 @@ namespace EddiSpanshService
                         marketId = s[ "market_id" ]?.ToObject<long?>(),
                         Model = FromSpanshStationModel( s[ "type" ]?.ToString() ) ?? StationModel.OnFootSettlement,
                         systemname = starSystem.systemname,
-                        systemAddress = starSystem.systemAddress
-                    } ).ToList();
-
-                starSystem.requirespermit = data[ "needs_permit" ]?.ToObject<bool?>() ?? false;
-                var thargoidWarStateStr =  data[ "thargoid_war_state" ]?.ToString();
-                if ( !string.IsNullOrEmpty( thargoidWarStateStr ) && thargoidWarStateStr != "None" )
-                {
-                    starSystem.ThargoidWar = new ThargoidWar
-                    {
-                        CurrentState = FactionState.FromName( thargoidWarStateStr ),
-                        SuccessState = FactionState.FromName( data[ "thargoid_war_success_state" ]?.ToString() ),
-                        FailureState = FactionState.FromName( data[ "thargoid_war_failure_state" ]?.ToString() )
-                    };
-                }
+                        systemAddress = starSystem.systemAddress,
+                        landingPads = new StationLandingPads( 
+                            s[ "small_pads" ]?.ToObject<int?>() ?? 0, 
+                            s[ "medium_pads" ]?.ToObject<int?>() ?? 0,
+                            s[ "large_pads" ]?.ToObject<int?>() ?? 0 ),
+                        hasdocking = (
+                            (s[ "small_pads" ]?.ToObject<int?>() ?? 0 ) + 
+                            (s[ "medium_pads" ]?.ToObject<int?>() ?? 0) + 
+                            (s[ "large_pads" ]?.ToObject<int?>() ?? 0)) > 0
+                } ).ToList();
 
                 starSystem.lastupdated = DateTime.UtcNow;
                 return starSystem;

@@ -298,8 +298,8 @@ namespace EddiDataDefinitions
         private List<Station> _stations;
 
         /// <summary>Summary info for stations</summary>
-        [Utilities.PublicAPI, JsonIgnore]
-        public List<Station> planetarystations => stations.FindAll(s => s.IsPlanetary());
+        [ Utilities.PublicAPI, JsonIgnore ]
+        public List<Station> planetarystations => stations.FindAll( s => ( s.hasdocking ?? false ) && s.IsPlanetary() );
 
         [Utilities.PublicAPI, JsonIgnore]
         public List<Station> orbitalstations => stations.FindAll(s => (s.hasdocking ?? false) 

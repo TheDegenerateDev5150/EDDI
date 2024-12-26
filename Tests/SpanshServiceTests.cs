@@ -554,23 +554,30 @@ namespace UnitTests
             Assert.AreEqual( 1730689554, surfaceSettlement.updatedat );
         }
 
-        [TestMethod]
-        public void TestSystems ()
+        [ TestMethod ]
+        public void TestQuickSystemStations ()
         {
             // Arrange
             EDDI.Instance.DataProvider = ConfigureTestDataProvider();
-            fakeSpanshRestClient.Expect( @"search?q=164098653", Encoding.UTF8.GetString( Resources.SpanshQuickStarSystemAchenar ) );
-            fakeSpanshRestClient.Expect( @"search?q=1109989017963", Encoding.UTF8.GetString( Resources.SpanshQuickStarSystemAlioth ) );
             fakeSpanshRestClient.Expect( @"search?q=10477373803", Encoding.UTF8.GetString( Resources.SpanshQuickStarSystemSol ) );
 
             // Act
-            var starSystems = fakeSpanshService.GetQuickStarSystems(new[] { 164098653U, 1109989017963U, 10477373803U });
+            var starSystem = fakeSpanshService.GetQuickStarSystem(10477373803U);
 
             // Assert
-            Assert.AreEqual( 3, starSystems?.Count );
-            Assert.AreEqual( "Achenar", starSystems?.FirstOrDefault(s => s.systemAddress == 164098653U )?.systemname );
-            Assert.AreEqual( "Alioth", starSystems?.FirstOrDefault( s => s.systemAddress == 1109989017963U )?.systemname );
-            Assert.AreEqual( "Sol", starSystems?.FirstOrDefault( s => s.systemAddress == 10477373803U )?.systemname );
+            Assert.AreEqual( "Sol", starSystem.systemname );
+            Assert.AreEqual( 10477373803U, starSystem.systemAddress );
+            Assert.AreEqual( 0M, starSystem.x );
+            Assert.AreEqual( 0M, starSystem.y );
+            Assert.AreEqual( 0M, starSystem.z );
+
+            Assert.AreEqual( 67, starSystem.stations.Count );
+            Assert.AreEqual( 9, starSystem.orbitalstations.Count );
+            Assert.AreEqual( 53, starSystem.planetarystations.Count );
+            var station = starSystem.stations.FirstOrDefault(s => s.marketId == 128016384);
+            Assert.IsNotNull( station );
+            Assert.AreEqual( "Daedalus", station.name );
+            Assert.AreEqual( "Orbis Starport", station.Model.invariantName );
         }
     }
 }

@@ -3,7 +3,6 @@ using EddiDataDefinitions;
 using EddiDataProviderService;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Tests.Properties;
@@ -41,9 +40,6 @@ namespace UnitTests
         public void TestVolcanismConversion()
         {
             // Fetch a star system with various types of volcanism
-            //IStarSystemRepository starSystemRepository = StarSystemSqLiteRepository.Instance;
-            //StarSystem sol = starSystemRepository.GetOrFetchStarSystem("Sol", true);
-            //Assert.IsNotNull(sol);
             var sol = DeserializeJsonResource<StarSystem>(Resources.sqlStarSystem6);
 
             // Ariel has no volcanism

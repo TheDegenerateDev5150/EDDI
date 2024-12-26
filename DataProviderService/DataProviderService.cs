@@ -128,8 +128,8 @@ namespace EddiDataProviderService
             var results = new List<StarSystem>();
             if ( systemAddresses is null || !systemAddresses.Any() ) { return results; }
 
-            ulong[] missingSystems() => systemAddresses.Where( k => results.All( s => s.systemAddress != k ) ).Distinct().ToArray();
-            
+            ulong[] missingSystems () => systemAddresses.Where( k => results.All( s => s.systemAddress != k ) ).Distinct().ToArray();
+
             // Fetch from cached systems
             results.AddRange( starSystemCache.GetRange( missingSystems() ) );
 
@@ -145,7 +145,7 @@ namespace EddiDataProviderService
 
             if ( missingSystems().Any() )
             {
-                Logging.Warn("Unable to retrieve data on all requested star systems.", missingSystems() );
+                Logging.Warn( "Unable to retrieve data on all requested star systems.", missingSystems() );
             }
 
             return results;
