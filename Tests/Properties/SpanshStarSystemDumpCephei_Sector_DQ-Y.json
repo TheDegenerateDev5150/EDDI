@@ -1,0 +1,154 @@
+{
+  "system": {
+    "allegiance": null,
+    "bodies": [
+      {
+        "absoluteMagnitude": 8.468643,
+        "age": 24,
+        "argOfPeriapsis": 337.966769,
+        "ascendingNode": -131.085247,
+        "axialTilt": 0,
+        "belts": [
+          {
+            "id64": 108089259692533140,
+            "innerRadius": 721670000,
+            "mass": 3840700000000,
+            "name": "Cephei Sector DQ-Y b1 A A Belt",
+            "outerRadius": 1758100000,
+            "type": "Metal Rich"
+          }
+        ],
+        "bodyId": 1,
+        "distanceToArrival": 0,
+        "id64": 36031665654605190,
+        "luminosity": "Va",
+        "mainStar": true,
+        "meanAnomaly": 55.243158,
+        "name": "Cephei Sector DQ-Y b1 A",
+        "orbitalEccentricity": 0.072785,
+        "orbitalInclination": -78.024977,
+        "orbitalPeriod": 497367.115760291,
+        "parents": [
+          {
+            "Null": 0
+          }
+        ],
+        "rotationalPeriod": 2.82967842217593,
+        "semiMajorAxis": 17.4007766469029,
+        "solarMasses": 0.386719,
+        "solarRadius": 0.599243134435658,
+        "spectralClass": "TTS2",
+        "stations": [],
+        "subType": "T Tauri Star",
+        "surfaceTemperature": 3230,
+        "timestamps": {
+          "distanceToArrival": "2024-12-23T03:55:28Z",
+          "meanAnomaly": "2024-12-23T03:55:28Z"
+        },
+        "type": "Star",
+        "updateTime": "2024-12-23 03:55:28+00"
+      },
+      {
+        "absoluteMagnitude": 15.805847,
+        "age": 24,
+        "argOfPeriapsis": 157.966774,
+        "ascendingNode": -131.085247,
+        "axialTilt": 0,
+        "belts": [
+          {
+            "innerRadius": 313290000,
+            "mass": 2576600000000,
+            "name": "Cephei Sector DQ-Y b1 B A Belt",
+            "outerRadius": 1064900000,
+            "type": "Metal Rich"
+          }
+        ],
+        "bodyId": 2,
+        "distanceToArrival": 45956.627183,
+        "id64": 72060462673569170,
+        "luminosity": "VI",
+        "meanAnomaly": 55.24013,
+        "name": "Cephei Sector DQ-Y b1 B",
+        "orbitalEccentricity": 0.072785,
+        "orbitalInclination": -78.024977,
+        "orbitalPeriod": 497367.115760291,
+        "parents": [
+          {
+            "Null": 0
+          }
+        ],
+        "rotationalPeriod": 0.886720688310185,
+        "semiMajorAxis": 78.3035012859819,
+        "solarMasses": 0.085938,
+        "solarRadius": 0.228546139468009,
+        "spectralClass": "TTS5",
+        "stations": [],
+        "subType": "T Tauri Star",
+        "surfaceTemperature": 966,
+        "timestamps": {
+          "distanceToArrival": "2024-12-18T23:31:43Z",
+          "meanAnomaly": "2024-12-18T23:31:43Z"
+        },
+        "type": "Star",
+        "updateTime": "2024-12-18 23:31:43+00"
+      }
+    ],
+    "bodyCount": 2,
+    "coords": {
+      "x": -93.3125,
+      "y": 31,
+      "z": -73
+    },
+    "date": "2024-12-23 03:55:22+00",
+    "government": "None",
+    "id64": 2868635641225,
+    "name": "Cephei Sector DQ-Y b1",
+    "population": 0,
+    "primaryEconomy": "None",
+    "secondaryEconomy": "None",
+    "security": "Anarchy",
+    "stations": [
+      {
+        "controllingFaction": "FleetCarrier",
+        "controllingFactionState": null,
+        "distanceToArrival": 8353.919356,
+        "economies": {
+          "Private Enterprise": 100
+        },
+        "government": "Private Ownership",
+        "id": 3710007040,
+        "landingPads": {
+          "large": 8,
+          "medium": 4,
+          "small": 4
+        },
+        "market": {
+          "commodities": [],
+          "prohibitedCommodities": [],
+          "updateTime": "2024-04-04 19:54:48+00"
+        },
+        "name": "HBV-33Z",
+        "primaryEconomy": "Private Enterprise",
+        "services": [
+          "Dock",
+          "Autodock",
+          "Market",
+          "Contacts",
+          "Crew Lounge",
+          "Restock",
+          "Refuel",
+          "Repair",
+          "Workshop",
+          "Flight Controller",
+          "Station Operations",
+          "Station Menu",
+          "Fleet Carrier Management",
+          "Fleet Carrier Fuel",
+          "Social Space"
+        ],
+        "type": "Drake-Class Carrier",
+        "updateTime": "2024-04-04 19:54:40+00"
+      }
+    ]
+  }
+}

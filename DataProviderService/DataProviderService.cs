@@ -413,14 +413,14 @@ namespace EddiDataProviderService
             return fullStarSystems.ToList();
         }
 
-        public NavWaypoint FetchStationWaypoint ( ulong fromSystemAddress, Dictionary<string, object> filters )
+        public NavWaypoint FetchStationWaypoint ( decimal fromX, decimal fromY, decimal fromZ, Dictionary<string, object> filters )
         {
-            return spanshService.GetStationWaypoint( fromSystemAddress, filters );
+            return spanshService.GetStationWaypoint( fromX, fromY, fromZ, filters );
         }
 
-        public NavWaypoint FetchBodyWaypoint ( ulong fromSystemAddress, Dictionary<string, object> filters )
+        public NavWaypoint FetchBodyWaypoint ( decimal fromX, decimal fromY, decimal fromZ, Dictionary<string, object> filters )
         {
-            return spanshService.GetBodyWaypoint( fromSystemAddress, filters );
+            return spanshService.GetBodyWaypoint( fromX, fromY, fromZ, filters );
         }
 
         #endregion

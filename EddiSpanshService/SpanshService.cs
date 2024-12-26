@@ -2,6 +2,7 @@
 using RestSharp;
 using System;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Utilities;
@@ -57,85 +58,29 @@ namespace EddiSpanshService
             /// <returns></returns>
             public IRestResponse Post ( IRestRequest request )
             {
-                var initialResponse = Execute<object>( request );
-
-                if ( !IsResponseOk( initialResponse, out var initialData ) )
-                {
-                    return null;
-                }
-
-                var searchReferenceId = initialData[ "search_reference" ]?.ToString();
-                if ( string.IsNullOrEmpty( searchReferenceId ) )
-                {
-                    Logging.Warn( "Spansh API failed to provide a search_reference.", initialResponse );
-                    return null;
-                }
-
-                var response = SearchResponseAsync( request, searchReferenceId ).Result;
-
-                if ( !IsResponseOk( response, out _ ) )
-                {
-                    return null;
-                }
-
+                var response = Execute<object>( request );
+                if ( !IsResponseOk( response ) ) { return null; }
                 return response;
             }
 
-            private static bool IsResponseOk ( IRestResponse response, out JToken data )
+            private static bool IsResponseOk ( IRestResponse response )
             {
-                data = null;
                 if ( response is null )
                 {
                     Logging.Warn( "Spansh API is not responding" );
                     return false;
                 }
-
+                if ( response.StatusCode > HttpStatusCode.OK)
+                {
+                    Logging.Warn( $"Spansh API responded with: {response.StatusCode} - {response.StatusDescription}", response );
+                    return false;
+                }
                 if ( string.IsNullOrEmpty( response.Content ) )
                 {
                     Logging.Warn( "Spansh API responded without providing any data", response );
                     return false;
                 }
-                data = JToken.Parse( response.Content );
-                if ( data[ "error" ] != null )
-                {
-                    Logging.Debug( "Spansh API responded with: " + data[ "error" ], response );
-                    return false;
-                }
-
                 return true;
-            }
-
-            private async Task<IRestResponse> SearchResponseAsync ( IRestRequest initialRequest, string searchReferenceId )
-            {
-                return await Task.Run( () =>
-                {
-                    var requestGroup = initialRequest.Resource.Split( '/' ).FirstOrDefault();
-                    var searchRequest = new RestRequest(requestGroup + "/search/recall/" + searchReferenceId);
-                    IRestResponse response = null;
-                    while ( response is null )
-                    {
-                        Thread.Sleep( 500 );
-                        response = Execute<object>( searchRequest );
-
-                        if ( response is null )
-                        {
-                            return null;
-                        }
-
-                        if ( response.ResponseStatus == ResponseStatus.TimedOut )
-                        {
-                            Logging.Warn( response.ErrorMessage, searchRequest );
-                            return null;
-                        }
-
-                        if ( JToken.Parse( response.Content )[ "status" ]?.ToString() != "queued" )
-                        {
-                            return response;
-                        }
-                    }
-
-                    return null;
-                } ).ConfigureAwait( false );
             }
         }
 

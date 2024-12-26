@@ -252,7 +252,7 @@ namespace EddiNavigationService
                     ConfigService.Instance.navigationMonitorConfiguration = navConfig;
 
                     // Update the global `SearchSystem` and `SearchStation` variables
-                    UpdateSearchData(result.system, result.station);
+                    UpdateSearchData(result.systemAddress, result.marketID);
                 }
             }
 
@@ -277,12 +277,12 @@ namespace EddiNavigationService
             return missionids;
         }
 
-        private void UpdateSearchData(string searchSystem, string searchStation)
+        private void UpdateSearchData(ulong? searchSystemAddress, long? marketID)
         {
             // Update search system data
-            if (!string.IsNullOrEmpty(searchSystem))
+            if ( searchSystemAddress > 0 )
             {
-                var system = EDDI.Instance.DataProvider.GetOrFetchStarSystem(searchSystem);
+                var system = EDDI.Instance.DataProvider.GetOrFetchStarSystem( (ulong)searchSystemAddress );
 
                 //Ignore null & empty systems
                 if (system != null)
@@ -302,17 +302,13 @@ namespace EddiNavigationService
             }
 
             // Update search station data
-            if (!string.IsNullOrEmpty(searchStation) && SearchStarSystem?.stations != null)
+            if ( marketID > 0 && SearchStarSystem?.stations != null )
             {
-                string searchStationName = searchStation.Trim();
-                Station station = SearchStarSystem.stations.FirstOrDefault(s => s.name == searchStationName);
-                if (station != null)
+                var station = SearchStarSystem.stations.FirstOrDefault(s => s.marketId == marketID);
+                if (station != null && station.marketId != SearchStation?.marketId)
                 {
-                    if (station.name != SearchStation?.name)
-                    {
-                        Logging.Debug("Search station is " + station.name);
-                        SearchStation = station;
-                    }
+                    Logging.Debug("Search station is " + station.name);
+                    SearchStation = station;
                 }
             }
             else

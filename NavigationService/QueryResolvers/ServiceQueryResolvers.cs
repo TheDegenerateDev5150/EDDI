@@ -116,6 +116,15 @@ namespace EddiNavigationService.QueryResolvers
                 Logging.Error($"No search filter has been defined for '{serviceQuery}' navigation searches.");
                 return null;
             }
+            if ( startSystem.x is null || startSystem.y is null || startSystem.z is null )
+            {
+                Logging.Warn( "Start system coordinates are unknown." );
+                return null;
+            }
+
+            var fromX = Convert.ToDecimal( startSystem.x );
+            var fromY = Convert.ToDecimal( startSystem.y );
+            var fromZ = Convert.ToDecimal( startSystem.z );
 
             // Get up-to-date configuration data
             var navConfig = ConfigService.Instance.navigationMonitorConfiguration;
@@ -134,7 +143,7 @@ namespace EddiNavigationService.QueryResolvers
             }
             spanshQueryFilter.Add( "distance_to_arrival", new { comparison = "<=>", value = new[] { 0, maxStationDistance } } );
             
-            var searchResult = EDDI.Instance.DataProvider.FetchStationWaypoint( startSystem.systemAddress, spanshQueryFilter );
+            var searchResult = EDDI.Instance.DataProvider.FetchStationWaypoint( fromX, fromY, fromZ, spanshQueryFilter );
             if ( searchResult != null )
             {
                 searchResult.visited = searchResult.systemAddress == startSystem.systemAddress;
@@ -150,7 +159,7 @@ namespace EddiNavigationService.QueryResolvers
                 // Get mission IDs for 'service' system 
                 var missionids = NavigationService.GetSystemMissionIds( searchResult.systemName );
 
-                return new RouteDetailsEvent( DateTime.UtcNow, serviceQuery.ToString(), searchResult.systemName, searchResult.stationName, navRouteList, missionids.Count, missionids );
+                return new RouteDetailsEvent( DateTime.UtcNow, serviceQuery.ToString(), searchResult.systemName, searchResult.systemAddress, searchResult.stationName, searchResult.marketID, navRouteList, missionids.Count, missionids );
             }
             else
             {

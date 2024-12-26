@@ -45,7 +45,7 @@ namespace UnitTests
 
         internal DataProviderService ConfigureTestDataProvider ()
         {
-            return new DataProviderService( fakeEdsmService, fakeSpanshService );
+            return new DataProviderService( fakeEdsmService, fakeSpanshService, new StarSystemSqLiteRepository() {  } );
         }
 
         public static T DeserializeJsonResource<T>(byte[] data, JsonSerializerSettings settings = null) where T : class

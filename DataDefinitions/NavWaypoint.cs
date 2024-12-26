@@ -1,5 +1,6 @@
 ﻿using JetBrains.Annotations;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -17,9 +18,9 @@ namespace EddiDataDefinitions
 
         public string systemName { get; set; }
         public ulong systemAddress { get; set; }
-        public decimal? x { get; set; }
-        public decimal? y { get; set; }
-        public decimal? z { get; set; }
+        public decimal x { get; set; }
+        public decimal y { get; set; }
+        public decimal z { get; set; }
 
         /// <summary>
         /// Distance to this waypoint (from the last waypoint)
@@ -39,6 +40,8 @@ namespace EddiDataDefinitions
         public int index { get; set; }
 
         public string stationName { get; set; }
+
+        public long? marketID { get; set; }
 
         // NavRoute only
         public string stellarclass { get; set; }
@@ -99,9 +102,9 @@ namespace EddiDataDefinitions
         {
             this.systemName = starSystem.systemname;
             this.systemAddress = starSystem.systemAddress;
-            this.x = starSystem.x;
-            this.y = starSystem.y;
-            this.z = starSystem.z;
+            this.x = Convert.ToDecimal( starSystem.x );
+            this.y = Convert.ToDecimal( starSystem.y );
+            this.z = Convert.ToDecimal( starSystem.z );
             var closeStars = starSystem.bodies.Where(b => b.bodyType == BodyType.Star && b.distance < 100).ToList();
             stellarclass = closeStars.FirstOrDefault(b => b.mainstar ?? false)?.stellarclass;
             isScoopable = closeStars.Any(b => !string.IsNullOrEmpty(b.stellarclass) && "KGBFOAM".Contains(b.stellarclass));

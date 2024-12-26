@@ -41,14 +41,24 @@ namespace EddiNavigationService.QueryResolvers
         /// <returns> The query result </returns>
         private RouteDetailsEvent GetNearestScoopSystem ( [ NotNull ] StarSystem startSystem, [ NotNull ] Dictionary<string, object> searchFilter )
         {
-            var navRouteList = new NavWaypointCollection(Convert.ToDecimal(startSystem.x), Convert.ToDecimal(startSystem.y), Convert.ToDecimal(startSystem.z));
+            if ( startSystem.x is null || startSystem.y is null || startSystem.z is null )
+            {
+                Logging.Warn("Start system coordinates are unknown.");
+                return null;
+            }
+
+            var fromX = Convert.ToDecimal( startSystem.x );
+            var fromY = Convert.ToDecimal( startSystem.y );
+            var fromZ = Convert.ToDecimal( startSystem.z );
+
+            var navRouteList = new NavWaypointCollection(fromX, fromY, fromZ);
             navRouteList.Waypoints.Add( new NavWaypoint( startSystem ) { visited = true } );
             if ( !startSystem.scoopable )
             {
-                var searchSystem = EDDI.Instance.DataProvider.FetchBodyWaypoint( startSystem.systemAddress, searchFilter );
+                var searchSystem = EDDI.Instance.DataProvider.FetchBodyWaypoint( fromX, fromY, fromZ, searchFilter );
                 navRouteList.Waypoints.Add( searchSystem );
             }
-            return new RouteDetailsEvent ( DateTime.UtcNow, QueryType.scoop.ToString (), navRouteList.Waypoints.LastOrDefault()?.systemName, null, navRouteList, navRouteList.Waypoints.Count, null );
+            return new RouteDetailsEvent ( DateTime.UtcNow, QueryType.scoop.ToString (), navRouteList.Waypoints.LastOrDefault()?.systemName, navRouteList.Waypoints.LastOrDefault()?.systemAddress, null, null, navRouteList, navRouteList.Waypoints.Count, null );
         }
     }
 
@@ -93,9 +103,7 @@ namespace EddiNavigationService.QueryResolvers
             }
 
             plottedRouteList.Waypoints.First ().visited = true;
-            var searchSystem = plottedRouteList.Waypoints[1].systemName;
-
-            return new RouteDetailsEvent ( DateTime.UtcNow, QueryType.neutron.ToString (), searchSystem, null, plottedRouteList, plottedRouteList.Waypoints.Count, null );
+            return new RouteDetailsEvent ( DateTime.UtcNow, QueryType.neutron.ToString (), plottedRouteList.Waypoints[ 1 ]?.systemName, plottedRouteList.Waypoints[ 1 ]?.systemAddress, null, null, plottedRouteList, plottedRouteList.Waypoints.Count, null );
         }
 
     }
@@ -129,9 +137,8 @@ namespace EddiNavigationService.QueryResolvers
             }
 
             plottedRouteList.Waypoints.First ().visited = true;
-            var searchSystem = plottedRouteList.Waypoints[1].systemName;
             
-            return new RouteDetailsEvent ( DateTime.UtcNow, QueryType.carrier.ToString (), searchSystem, null, plottedRouteList, plottedRouteList.Waypoints.Count, null );
+            return new RouteDetailsEvent ( DateTime.UtcNow, QueryType.carrier.ToString (), plottedRouteList.Waypoints[ 1 ]?.systemName, plottedRouteList.Waypoints[ 1 ]?.systemAddress, null, null, plottedRouteList, plottedRouteList.Waypoints.Count, null );
         }
     }
 }

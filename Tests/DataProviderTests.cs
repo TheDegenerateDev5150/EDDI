@@ -1,4 +1,5 @@
-﻿using EddiDataDefinitions;
+﻿using EddiCore;
+using EddiDataDefinitions;
 using EddiDataProviderService;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
@@ -143,21 +144,28 @@ namespace UnitTests
         [TestMethod]
         public void TestPreservedProperties()
         {
+            EDDI.Instance.DataProvider = ConfigureTestDataProvider();
+
             // Set up our original star systems
-            StarSystem system = DeserializeJsonResource<StarSystem>(Resources.sqlStarSystem5);
-            List<DatabaseStarSystem> systemsToUpdate = new List<DatabaseStarSystem>() { new DatabaseStarSystem(system.systemname, system.systemAddress, JsonConvert.SerializeObject(system)) };
+            var system = DeserializeJsonResource<StarSystem>(Resources.sqlStarSystem5);
+            var systemsToUpdate = new List<DatabaseStarSystem>
+            {
+                new DatabaseStarSystem(system.systemname, system.systemAddress, JsonConvert.SerializeObject(system))
+            };
 
             // Set up a copy where we mimic missing data not recovered from the server
-            StarSystem systemCopy = system.Copy();
-            systemCopy.totalbodies = 0;
-            systemCopy.visitLog.Clear();
-            systemCopy.bodies.Clear();
-            List<StarSystem> updatedSystems = new List<StarSystem>() { systemCopy };
+            var systemCopy = new StarSystem()
+            {
+                systemname = system.systemname,
+                systemAddress = system.systemAddress,
+                x = system.x,
+                y = system.y,
+                z = system.z
+            };
+            var updatedSystems = new List<StarSystem>() { systemCopy };
 
             // Invoke the method under test
-            PrivateType privateType = new PrivateType(typeof(StarSystemSqLiteRepository));
-            var results = ((List<StarSystem>)privateType
-                .InvokeStatic("PreserveUnsyncedProperties", new object[] { updatedSystems, systemsToUpdate }));
+            var results = DataProviderService.PreserveUnsyncedProperties( updatedSystems, systemsToUpdate );
             var result = results[0];
 
             // Evaluate the results. The result must include the preserved data.
@@ -176,7 +184,6 @@ namespace UnitTests
             Assert.AreEqual( "2017-12-11T06:17:06Z", Dates.FromDateTimeToString( body2?.scannedDateTime ) );
             Assert.AreEqual( string.Empty, Dates.FromDateTimeToString( body2?.mappedDateTime ) );
             Assert.AreEqual( false, body2?.mappedEfficiently ?? false );
-
         }
     }
 }
