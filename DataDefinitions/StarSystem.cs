@@ -308,12 +308,8 @@ namespace EddiDataDefinitions
             && !s.IsMegaShip());
 
         /// <summary> Whether this system requires a permit for visiting </summary>
-        [Utilities.PublicAPI]
-        public bool requirespermit { get; set; }
-
-        /// <summary> The name of the permit required for visiting this system, if any </summary>
-        [Utilities.PublicAPI]
-        public string permitname { get; set; }
+        [ Utilities.PublicAPI, JsonIgnore ]
+        public bool requirespermit => StarSystemPermits.IsPermitRequired( systemname, x, y, z );
 
         // Other data
 
