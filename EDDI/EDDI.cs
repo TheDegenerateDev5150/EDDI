@@ -1684,11 +1684,7 @@ namespace EddiCore
                     }
 
                     // (When pledged) Powerplay information
-                    CurrentStarSystem.Powers = @event.Power != null ? new List<Power>() { @event.Power } : new List<Power>();
-                    if ( @event.ContestingPowers.Any() )
-                    {
-                        CurrentStarSystem.Powers.AddRange( @event.ContestingPowers );
-                    }
+                    CurrentStarSystem.ContestingPowers = @event.ContestingPowers;
                     CurrentStarSystem.powerState = @event.PowerState ?? CurrentStarSystem.powerState;
 
                     // Update to most recent information
@@ -2031,11 +2027,7 @@ namespace EddiCore
                 }
 
                 // (When pledged) Powerplay information
-                CurrentStarSystem.Powers = theEvent.Power != null ? new List<Power>() { theEvent.Power } : new List<Power>();
-                if ( theEvent.ContestingPowers.Any() )
-                {
-                    CurrentStarSystem.Powers.AddRange( theEvent.ContestingPowers );
-                }
+                CurrentStarSystem.ContestingPowers = theEvent.ContestingPowers;
                 CurrentStarSystem.powerState = theEvent.PowerState ?? CurrentStarSystem.powerState;
 
                 if ( theEvent.docked )
@@ -2644,11 +2636,7 @@ namespace EddiCore
                     }
 
                     // (When pledged) Powerplay information
-                    CurrentStarSystem.Powers = theEvent.Power != null ? new List<Power>() { theEvent.Power } : new List<Power>();
-                    if ( theEvent.ContestingPowers.Any() )
-                    {
-                        CurrentStarSystem.Powers.AddRange(theEvent.ContestingPowers);
-                    }
+                    CurrentStarSystem.ContestingPowers = theEvent.ContestingPowers;
                     CurrentStarSystem.powerState = theEvent.PowerState ?? CurrentStarSystem.powerState;
 
                     // Update to most recent information

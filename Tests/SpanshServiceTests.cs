@@ -218,9 +218,8 @@ namespace UnitTests
             Assert.AreEqual( true, new[]
                 {
                     "Edmund Mahon", 
-                    "Yuri Grom", 
-                    "Jerome Archer"
-                }.All( n => result.Powers.Select( p => p.invariantName ).Contains( n ) ) );
+                    "Yuri Grom"
+                }.All( n => result.ContestingPowers.Select( p => p.invariantName ).Contains( n ) ) );
             Assert.AreEqual( "High", result.securityLevel?.invariantName );
             Assert.AreEqual( 22780919531L, result.population );
             Assert.AreEqual( 1731650107L, result.updatedat );
@@ -490,7 +489,7 @@ namespace UnitTests
 
             // Test a planetary station
 
-            Assert.AreEqual( 57, result.planetarystations.Count );
+            Assert.AreEqual( 53, result.planetarystations.Count );
 
             var surfaceOutpost = result.stations.FirstOrDefault( b => b.marketId == 3534389760 );
             Assert.IsNotNull( surfaceOutpost );

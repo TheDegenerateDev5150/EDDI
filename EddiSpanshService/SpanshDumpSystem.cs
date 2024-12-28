@@ -126,15 +126,13 @@ namespace EddiSpanshService
 
                     starSystem.stations.AddRange( data[ "stations" ]?.Select( stationToken => ParseStation( starSystem, stationToken, null, showMarketDetails ) ) ?? new List<Station>() );
 
-                    starSystem.Power = Power.FromName( data[ "controllingPower" ]?.ToString() ) ?? Power.None;
-                    starSystem.powerState = PowerplayState.FromName( data[ "powerState" ]?.ToString() ) ?? PowerplayState.None;
-                    var powers = data[ "powers" ]?.Select( p => Power.FromName( p.ToString() ) ).ToHashSet() ??
-                                 new HashSet<Power>();
-                    if ( starSystem.Power != null && starSystem.Power != Power.None )
-                    {
-                        powers.Add( starSystem.Power );
-                    }
-                    starSystem.Powers = powers.OrderByDescending(p => p.invariantName).ToList();
+                    starSystem.Power = Power.FromName( data[ "controllingPower" ]?.ToString() );
+                    starSystem.powerState = PowerplayState.FromName( data[ "powerState" ]?.ToString() );
+                    var contestingPowers = data[ "powers" ]?
+                                               .Select( t => Power.FromName( t.ToString() ) )
+                                               .Where( p => p != starSystem.Power )
+                                               .ToHashSet() ?? new HashSet<Power>();
+                    starSystem.ContestingPowers = contestingPowers.ToList();
                 }
 
                 // Get bodies
