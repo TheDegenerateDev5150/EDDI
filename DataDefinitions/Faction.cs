@@ -99,10 +99,20 @@ namespace EddiDataDefinitions
         // Not intended to be user facing
 
         /// <summary> The faction's current system state </summary>
-        public FactionState FactionState { get; set; } = FactionState.None;
+        public FactionState FactionState
+        {
+            get => _factionState ?? FactionState.None;
+            set => _factionState = value;
+        }
+        private FactionState _factionState;
 
         /// <summary> The faction's current happiness within the system </summary>
-        public Happiness Happiness { get; set; }
+        public Happiness Happiness
+        {
+            get => _happiness ?? Happiness.None;
+            set => _happiness = value;
+        }
+        private Happiness _happiness;
 
         /// <summary> The last time the information present changed </summary> 
         public long? updatedat => Dates.fromDateTimeToSeconds(updatedAt);
