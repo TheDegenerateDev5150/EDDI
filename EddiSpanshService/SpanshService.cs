@@ -1,8 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using RestSharp;
 using System;
-using System.Linq;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Utilities;
@@ -70,7 +68,7 @@ namespace EddiSpanshService
                     Logging.Warn( "Spansh API is not responding" );
                     return false;
                 }
-                if ( response.StatusCode > HttpStatusCode.OK)
+                if ( !response.IsSuccessful )
                 {
                     Logging.Warn( $"Spansh API responded with: {response.StatusCode} - {response.StatusDescription}", response );
                     return false;

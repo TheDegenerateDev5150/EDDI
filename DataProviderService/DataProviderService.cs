@@ -3,6 +3,7 @@ using EddiDataDefinitions;
 using EddiSpanshService;
 using EddiStarMapService;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -413,14 +414,73 @@ namespace EddiDataProviderService
             return fullStarSystems.ToList();
         }
 
+        /// <summary>
+        /// Find the nearest station with specific station services from the Spansh Station Search API.
+        /// </summary>
+        /// <param name="fromX"></param>
+        /// <param name="fromY"></param>
+        /// <param name="fromZ"></param>
+        /// <param name="filters"></param>
+        /// <returns></returns>
         public NavWaypoint FetchStationWaypoint ( decimal fromX, decimal fromY, decimal fromZ, Dictionary<string, object> filters )
         {
-            return spanshService.GetStationWaypoint( fromX, fromY, fromZ, filters );
+            var data = spanshService.DistanceOrderedQuery( SpanshService.QueryGroup.stations, fromX, fromY, fromZ, filters );
+            if ( data?[ "error" ] != null )
+            {
+                Logging.Warn( "Spansh API responded with: " + data[ "error" ] );
+                return null;
+        }
+            return ParseQuickStation( data?[ "results" ]?.FirstOrDefault() );
+
+            NavWaypoint ParseQuickStation ( JToken stationData )
+            {
+                if ( stationData is null ) { return null; }
+
+                var systemName = stationData[ "system_name" ]?.ToString();
+                var systemAddress = stationData[ "system_id64" ]?.ToObject<ulong>() ?? 0;
+                var systemX = stationData[ "system_x" ]?.ToObject<decimal>() ?? 0;
+                var systemY = stationData[ "system_y" ]?.ToObject<decimal>() ?? 0;
+                var systemZ = stationData[ "system_z" ]?.ToObject<decimal>() ?? 0;
+
+                return new NavWaypoint( systemName, systemAddress, systemX, systemY, systemZ )
+                {
+                    stationName = stationData[ "name" ]?.ToString(),
+                    marketID = stationData[ "market_id" ]?.ToObject<long>()
+                };
+            }
         }
 
+        /// <summary>
+        /// Find the nearest body with specific parameters from the Spansh Station Search API.
+        /// </summary>
+        /// <param name="fromX"></param>
+        /// <param name="fromY"></param>
+        /// <param name="fromZ"></param>
+        /// <param name="filters"></param>
+        /// <returns></returns>
         public NavWaypoint FetchBodyWaypoint ( decimal fromX, decimal fromY, decimal fromZ, Dictionary<string, object> filters )
         {
-            return spanshService.GetBodyWaypoint( fromX, fromY, fromZ, filters );
+            var data = spanshService.DistanceOrderedQuery( SpanshService.QueryGroup.bodies, fromX, fromY, fromZ, filters );
+            if ( data?[ "error" ] != null )
+            {
+                Logging.Warn( "Spansh API responded with: " + data[ "error" ] );
+                return null;
+            }
+            return ParseQuickBody( data?[ "results" ]?.FirstOrDefault() );
+
+            NavWaypoint ParseQuickBody ( JToken bodyData )
+            {
+                if ( bodyData is null ) { return null; }
+
+                var systemName = bodyData[ "system_name" ]?.ToString();
+                var systemAddress = bodyData[ "system_id64" ]?.ToObject<ulong>() ?? 0;
+                var systemX = bodyData[ "system_x" ]?.ToObject<decimal>() ?? 0;
+                var systemY = bodyData[ "system_y" ]?.ToObject<decimal>() ?? 0;
+                var systemZ = bodyData[ "system_z" ]?.ToObject<decimal>() ?? 0;
+
+                return new NavWaypoint( systemName, systemAddress, systemX, systemY, systemZ );
+            }
+        }
         }
 
         #endregion

@@ -1,5 +1,4 @@
 ﻿using EddiDataDefinitions;
-using EddiStarMapService;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 using Tests.Properties;

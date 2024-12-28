@@ -1,8 +1,8 @@
 ﻿using Eddi;
-using EddiCore.Upgrader;
 using EddiCargoMonitor;
 using EddiCompanionAppService;
 using EddiCore;
+using EddiCore.Upgrader;
 using EddiDataDefinitions;
 using EddiEvents;
 using EddiNavigationService;
