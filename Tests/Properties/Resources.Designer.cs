@@ -483,6 +483,16 @@ namespace Tests.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        public static byte[] SpanshStarSystemDumpCarthage {
+            get {
+                object obj = ResourceManager.GetObject("SpanshStarSystemDumpCarthage", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         public static byte[] SpanshStarSystemDumpCephei_Sector_DQ_Y {
             get {
                 object obj = ResourceManager.GetObject("SpanshStarSystemDumpCephei_Sector_DQ_Y", resourceCulture);

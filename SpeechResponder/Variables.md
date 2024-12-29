@@ -704,7 +704,7 @@ An object describing the presence and state of a faction within a system
   - *PendingStates* - a list of FactionState objects and trend values
   - *RecoveringStates* - a list of FactionState objects and trend values
   - *influence* - the faction's influence level within the system, as a percentage
-  - *happiness* - the current happiness level within the faction
+  - *happiness* - the current happiness level of the faction within the system
 
 ### Conflict
 

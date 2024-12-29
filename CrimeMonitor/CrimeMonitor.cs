@@ -1,5 +1,4 @@
-﻿using EddiBgsService;
-using EddiConfigService;
+﻿using EddiConfigService;
 using EddiConfigService.Configurations;
 using EddiCore;
 using EddiDataDefinitions;
@@ -38,7 +37,6 @@ namespace EddiCrimeMonitor
 
         internal static readonly object recordLock = new object();
         public event EventHandler RecordUpdatedEvent;
-        private readonly IBgsService bgsService;
 
         public string MonitorName()
         {
@@ -62,7 +60,6 @@ namespace EddiCrimeMonitor
 
         public CrimeMonitor()
         {
-            bgsService = new BgsService();
             criminalrecord = new ObservableCollection<FactionRecord>();
             homeSystems = new Dictionary<string, string>();
             BindingOperations.CollectionRegistering += Record_CollectionRegistering;
@@ -240,8 +237,8 @@ namespace EddiCrimeMonitor
                     target.Power = @event.Power;
                     target.LegalStatus = @event.LegalStatus;
                     target.bounty = @event.bounty;
-                    target.Allegiance = currentSystem?.factions.FirstOrDefault(f => f.name == @event.faction)?.Allegiance ?? 
-                                        bgsService.GetFactionByName( @event.faction )?.Allegiance;
+                    target.Allegiance = currentSystem?.factions.FirstOrDefault( f => f.name == @event.faction )?.Allegiance ??
+                                        EDDI.Instance?.DataProvider.FetchFactionByName( @event.faction )?.Allegiance;
                 }
             }
         }
@@ -258,12 +255,12 @@ namespace EddiCrimeMonitor
 
         internal void _handleBondAwardedEvent(BondAwardedEvent @event)
         {
-            string currentSystem = EDDI.Instance?.CurrentStarSystem?.systemname;
+            var currentSystem = EDDI.Instance?.CurrentStarSystem?.systemname;
 
             // Get the victim faction data
-            Faction faction = bgsService.GetFactionByName(@event.victimfaction);
+            var faction = EDDI.Instance?.DataProvider.FetchFactionByName( @event.victimfaction );
 
-            FactionReport report = new FactionReport(@event.timestamp, false, Crime.None, currentSystem, @event.reward)
+            var report = new FactionReport(@event.timestamp, false, Crime.None, currentSystem, @event.reward)
             {
                 station = EDDI.Instance?.CurrentStation?.name,
                 body = EDDI.Instance?.CurrentStellarBody?.bodyname,
@@ -271,7 +268,7 @@ namespace EddiCrimeMonitor
                 victimAllegiance = (faction?.Allegiance ?? Superpower.None).invariantName
             };
 
-            FactionRecord record = GetRecordWithFaction(@event.awardingfaction) 
+            var record = GetRecordWithFaction(@event.awardingfaction) 
                 ?? AddRecord(@event.awardingfaction);
             record.factionReports.Add(report);
             record.claims += @event.reward;
@@ -293,7 +290,7 @@ namespace EddiCrimeMonitor
         {
             bool update = false;
 
-            FactionRecord record = new FactionRecord();
+            FactionRecord record;
 
             // Calculate amount, broker fees
             decimal percentage = (100 - (@event.brokerpercentage ?? 0)) / 100;
@@ -363,26 +360,26 @@ namespace EddiCrimeMonitor
         internal void _handleBountyAwardedEvent(BountyAwardedEvent @event, bool test = false)
         {
             // 20% bonus for Arissa Lavigny-Duval 'controlled' and 'exploited' systems
-            StarSystem currentSystem = EDDI.Instance?.CurrentStarSystem;
+            var currentSystem = EDDI.Instance?.CurrentStarSystem;
 
             // Default to 1.0 for unit testing
-            double bonus = (!test && currentSystem?.Power == Power.FromEDName("ALavignyDuval")) ? 1.2 : 1.0;
+            var bonus = (!test && currentSystem?.Power == Power.ALavignyDuval) ? 1.2 : 1.0;
 
             // Get the victim faction data
-            Faction faction = bgsService.GetFactionByName(@event.faction);
+            var faction = EDDI.Instance?.DataProvider.FetchFactionByName( @event.faction );
 
-            foreach (Reward reward in @event.rewards.ToList())
+            foreach (var reward in @event.rewards.ToList())
             {
-                long amount = Convert.ToInt64(reward.amount * bonus);
-                FactionReport report = new FactionReport(@event.timestamp, true, Crime.None, currentSystem?.systemname, amount)
+                var amount = Convert.ToInt64(reward.amount * bonus);
+                var report = new FactionReport(@event.timestamp, true, Crime.None, currentSystem?.systemname, amount)
                 {
                     station = EDDI.Instance?.CurrentStation?.name,
                     body = EDDI.Instance?.CurrentStellarBody?.bodyname,
                     victim = @event.faction,
-                    victimAllegiance = (faction.Allegiance ?? Superpower.None).invariantName
+                    victimAllegiance = (faction?.Allegiance ?? Superpower.None).invariantName
                 };
 
-                FactionRecord record = GetRecordWithFaction(reward.faction) 
+                var record = GetRecordWithFaction(reward.faction) 
                     ?? AddRecord(reward.faction);
                 record.factionReports.Add(report);
                 record.claims += amount;
@@ -407,7 +404,7 @@ namespace EddiCrimeMonitor
 
             foreach (Reward reward in @event.rewards.ToList())
             {
-                FactionRecord record = new FactionRecord();
+                FactionRecord record;
 
                 // Calculate amount, before broker fees
                 decimal percentage = (100 - (@event.brokerpercentage ?? 0)) / 100;
@@ -992,19 +989,19 @@ namespace EddiCrimeMonitor
         {
             if (record == null || string.IsNullOrEmpty(record.faction) || record.faction == Properties.CrimeMonitor.blank_faction) { return; }
 
-            // Get the faction from Elite BGS and set faction record values
-            Faction faction = bgsService.GetFactionByName(record.faction);
-            record.Allegiance = faction.Allegiance;
+            // Get the faction and set faction record values
+            var faction = EDDI.Instance?.DataProvider.FetchFactionByName( record.faction );
+            record.Allegiance = faction?.Allegiance ?? Superpower.None;
 
             // Check faction with archived home systems
-            if (homeSystems.TryGetValue(record.faction, out string factionHomeSystem))
+            if (homeSystems.TryGetValue(record.faction, out var factionHomeSystem))
             {
                 record.system = factionHomeSystem;
                 record.station = GetFactionStation(factionHomeSystem);
                 return;
             }
 
-            if (faction.presences.Any())
+            if (faction?.presences.Any() ?? false)
             {
                 var factionSystems = faction.presences
                     .OrderByDescending(p => p.influence)
@@ -1028,7 +1025,7 @@ namespace EddiCrimeMonitor
                 homeSystem = FindHomeSystem(record.faction, factionSystems);
                 if (homeSystem != null)
                 {
-                    string factionStation = GetFactionStation(homeSystem);
+                    var factionStation = GetFactionStation(homeSystem);
 
                     // Station found meeting game/user requirements
                     if (factionStation != null)
@@ -1040,9 +1037,9 @@ namespace EddiCrimeMonitor
                 }
 
                 // Check faction presences, by order of influence, for qualifying station
-                foreach (string system in factionSystems)
+                foreach (var system in factionSystems)
                 {
-                    string factionStation = GetFactionStation(system);
+                    var factionStation = GetFactionStation(system);
                     if (factionStation != null)
                     {
                         record.system = system;

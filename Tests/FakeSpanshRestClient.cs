@@ -33,16 +33,19 @@ namespace UnitTests
 
         IRestResponse ISpanshRestClient.Get(IRestRequest request)
         {
-            // this will throw if given a resource not in the canned dictionaries: that's OK
             var resourceString = $"{request.Resource}";
-            resourceString += request.Parameters.Any() ? "?" : string.Empty;
-            foreach (var parameter in request.Parameters)
-            {
-                resourceString += $"{parameter.Name}={parameter.Value}";
-            }
 
+            // this will throw if given a resource not in the canned dictionaries: that's OK
             try
             {
+                resourceString += request.Parameters.Any() ? "?" : string.Empty;
+                for ( int i = 0; i < request.Parameters.Count; i++ )
+                {
+                    var parameter = request.Parameters[ i ];
+                    resourceString += i > 0 ? "&" : "";
+                    resourceString += $"{parameter.Name}={parameter.Value}";
+                }
+
                 var content = CannedContent[resourceString];
                 IRestResponse restResponse = new RestResponse
                 {
@@ -61,16 +64,17 @@ namespace UnitTests
 
         public IRestResponse Post ( IRestRequest request )
         {
-            // this will throw if given a resource not in the canned dictionaries: that's OK
             var resourceString = $"{request.Resource}";
-            resourceString += request.Parameters.Any() ? "?" : string.Empty;
-            foreach ( var parameter in request.Parameters )
-            {
-                resourceString += $"{parameter.Name}={parameter.Value}";
-            }
 
+            // this will throw if given a resource not in the canned dictionaries: that's OK
             try
             {
+                resourceString += request.Parameters.Any() ? "?" : string.Empty;
+                foreach ( var parameter in request.Parameters )
+                {
+                    resourceString += $"{parameter.Name}={parameter.Value}";
+                }
+
                 var content = CannedContent[resourceString];
                 IRestResponse restResponse = new RestResponse
                 {

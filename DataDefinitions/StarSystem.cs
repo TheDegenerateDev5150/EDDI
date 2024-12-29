@@ -325,15 +325,15 @@ namespace EddiDataDefinitions
                     string factionState = (string)fState;
                     if ( factionState != null )
                     {
-                        factionPresence.FactionState = FactionState.FromEDName( factionState ) ?? FactionState.None;
+                        factionPresence.FactionState = FactionState.FromEDName( factionState );
                     }
                 }
             }
             else
             {
                 // get the canonical FactionState object for the given EDName
-                factionPresence.FactionState =
-                    FactionState.FromEDName( Faction.presences.FirstOrDefault( p => p.systemAddress == systemAddress )?.FactionState.edname ) ?? FactionState.None;
+                factionPresence.FactionState = FactionState.FromEDName( Faction.presences
+                    .FirstOrDefault( p => p.systemAddress == systemAddress )?.FactionState.edname );
             }
         }
 

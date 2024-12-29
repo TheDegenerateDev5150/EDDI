@@ -1,7 +1,6 @@
 ﻿using EddiConfigService;
 using EddiCore;
 using EddiDataDefinitions;
-using EddiDataProviderService;
 using EddiEvents;
 using EddiStarMapService;
 using System.Collections.Generic;
@@ -18,7 +17,6 @@ namespace EddiEdsmResponder
         private Thread updateThread;
         private List<string> ignoredEvents = new List<string>();
         private readonly StarMapService edsmService;
-        private readonly DataProviderService dataProviderService;
 
         // This responder currently requires game version 4.0 or later.
         private static readonly System.Version minGameVersion = new System.Version(4, 0);
@@ -44,7 +42,6 @@ namespace EddiEdsmResponder
         public EDSMResponder(StarMapService edsmService)
         {
             this.edsmService = edsmService;
-            dataProviderService = new DataProviderService(edsmService);
             Logging.Info($"Initialized {ResponderName()}");
         }
 
@@ -80,7 +77,7 @@ namespace EddiEdsmResponder
                 if (updateThread == null && edsmService.EdsmCredentialsSet())
                 {
                     // Spin off a thread to download & sync flight logs & system comments from EDSM in the background 
-                    updateThread = new Thread(() => dataProviderService.syncFromStarMapService(ConfigService.Instance.edsmConfiguration?.lastFlightLogSync))
+                    updateThread = new Thread(() => EDDI.Instance.DataProvider.syncFromStarMapService(ConfigService.Instance.edsmConfiguration?.lastFlightLogSync))
                     {
                         IsBackground = true,
                         Name = "EDSM updater"
@@ -112,8 +109,8 @@ namespace EddiEdsmResponder
 
             if (edsmService != null)
             {
-                /// Retrieve applicable transient game state info (metadata) 
-                /// for the event and send the event with transient info to EDSM
+                // Retrieve applicable transient game state info (metadata) 
+                // for the event and send the event with transient info to EDSM
                 IDictionary<string, object> eventObject = null;
                 try
                 {

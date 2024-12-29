@@ -1,4 +1,4 @@
-﻿using EddiStarMapService;
+﻿using EddiBgsService;
 using RestSharp;
 using System;
 using System.Collections.Generic;
@@ -8,13 +8,13 @@ using Utilities;
 
 namespace UnitTests
 {
-    internal class FakeEdsmRestClient : IEdsmRestClient
+    public class FakeBgsRestClient : IBgsRestClient
     {
         public Dictionary<string, string> CannedContent = new Dictionary<string, string>();
 
         public Uri BuildUri(IRestRequest request)
         {
-            return new Uri("fakeEDSM://" + request.Resource);
+            return new Uri("fakeBGS://" + request.Resource);
         }
 
         public IRestResponse<T> Execute<T>(IRestRequest request) where T : new()
@@ -43,9 +43,10 @@ namespace UnitTests
             }
             catch ( KeyNotFoundException knfe )
             {
-                Logging.Error( knfe.Message, knfe );
+                 Logging.Error( knfe.Message, knfe );
                 throw;
             }
+
         }
 
         public void Expect(string resource, string content)

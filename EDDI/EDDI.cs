@@ -1,5 +1,4 @@
 ﻿using Eddi;
-using EddiBgsService;
 using EddiCompanionAppService;
 using EddiConfigService;
 using EddiConfigService.Configurations;
@@ -102,7 +101,6 @@ namespace EddiCore
                         : null;
 
                     // Set game version in applicable services
-                    BgsService.SetGameVersion(GameVersion);
                     CompanionAppService.SetGameVersion(GameVersion);
                     InaraService.SetGameVersion(GameVersion);
                     StarMapService.SetGameVersion(GameVersion, gameVersion, gameBuild);

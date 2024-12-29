@@ -1,4 +1,5 @@
-﻿using EddiCompanionAppService;
+﻿using EddiBgsService;
+using EddiCompanionAppService;
 using EddiConfigService;
 using EddiCore;
 using EddiDataProviderService;
@@ -22,6 +23,9 @@ namespace UnitTests
 {
     public class TestBase
     {
+        internal static readonly FakeBgsRestClient fakeBgsRestClient = new FakeBgsRestClient();
+        internal static readonly BgsService fakeBgsService = new BgsService( fakeBgsRestClient );
+
         internal static readonly FakeSpanshRestClient fakeSpanshRestClient = new FakeSpanshRestClient();
         internal static readonly SpanshService fakeSpanshService = new SpanshService( fakeSpanshRestClient );
 
@@ -45,7 +49,7 @@ namespace UnitTests
 
         internal DataProviderService ConfigureTestDataProvider ()
         {
-            return new DataProviderService( fakeEdsmService, fakeSpanshService, new StarSystemSqLiteRepository() {  } );
+            return new DataProviderService( fakeBgsService, fakeEdsmService, fakeSpanshService, new StarSystemSqLiteRepository() {  } );
         }
 
         public static T DeserializeJsonResource<T>(byte[] data, JsonSerializerSettings settings = null) where T : class

@@ -1,6 +1,6 @@
 ﻿using Cottle;
+using EddiCore;
 using EddiDataDefinitions;
-using EddiDataProviderService;
 using EddiSpeechResponder.ScriptResolverService;
 using JetBrains.Annotations;
 using System;
@@ -16,8 +16,6 @@ namespace EddiSpeechResponder.CustomFunctions
         public string description => Properties.CustomFunctions_Untranslated.TrafficDetails;
         public Type ReturnType => typeof( Traffic );
 
-        private static readonly DataProviderService dataProviderService = new DataProviderService();
-
         public IFunction function => Function.CreateNativeMinMax( ( runtime, values, writer ) =>
         {
             Traffic result = null;
@@ -28,20 +26,20 @@ namespace EddiSpeechResponder.CustomFunctions
                 {
                     if (values[1].AsString == "traffic")
                     {
-                        result = dataProviderService.GetSystemTraffic(systemName);
+                        result = EDDI.Instance.DataProvider.GetSystemTraffic(systemName);
                     }
                     if (values[1].AsString == "deaths")
                     {
-                        result = dataProviderService.GetSystemDeaths(systemName);
+                        result = EDDI.Instance.DataProvider.GetSystemDeaths(systemName);
                     }
                     else if (values[1].AsString == "hostility")
                     {
-                        result = dataProviderService.GetSystemHostility(systemName);
+                        result = EDDI.Instance.DataProvider.GetSystemHostility(systemName);
                     }
                 }
                 if (result == null)
                 {
-                    result = dataProviderService.GetSystemTraffic(systemName);
+                    result = EDDI.Instance.DataProvider.GetSystemTraffic(systemName);
                 }
             }
             return result is null ? Value.EmptyMap : Value.FromReflection( result, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic );

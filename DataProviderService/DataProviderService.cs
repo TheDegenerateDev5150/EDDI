@@ -1,16 +1,16 @@
-﻿using EddiConfigService;
+﻿using EddiBgsService;
+using EddiConfigService;
 using EddiDataDefinitions;
 using EddiSpanshService;
 using EddiStarMapService;
+using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using System.Threading.Tasks;
 using Utilities;
 
 [assembly: InternalsVisibleTo( "Tests" )]
@@ -19,6 +19,7 @@ namespace EddiDataProviderService
     /// <summary>Access data services. Prefer our cache and local database wherever possible.</summary>
     public class DataProviderService
     {
+        private readonly BgsService bgsService;
         private readonly StarMapService edsmService;
         private readonly SpanshService spanshService;
         private readonly StarSystemSqLiteRepository starSystemRepository;
@@ -26,9 +27,11 @@ namespace EddiDataProviderService
 
         public static bool unitTesting;
 
-        public DataProviderService ( StarMapService edsmService = null, SpanshService spanshService = null, StarSystemSqLiteRepository starSystemRepository = null )
+        public DataProviderService ( BgsService bgsService = null, StarMapService edsmService = null,
+            SpanshService spanshService = null, StarSystemSqLiteRepository starSystemRepository = null )
         {
             starSystemCache = new StarSystemCache( 300 ); // Keep a cache of star systems for 5 minutes
+            this.bgsService = bgsService ?? new BgsService();
             this.edsmService = edsmService ?? new StarMapService();
             this.spanshService = spanshService ?? new SpanshService();
             this.starSystemRepository = starSystemRepository ?? new StarSystemSqLiteRepository();
@@ -154,14 +157,8 @@ namespace EddiDataProviderService
 
         public List<StarSystem> GetOrFetchQuickStarSystems ( string[] systemNames, bool fetchIfMissing = true )
         {
-            var systemAddresses = new ConcurrentBag<ulong>();
-            Parallel.ForEach( systemNames, systemName =>
-            {
-                var system = GetOrFetchSystemWaypoint( systemName );
-                if ( system is null ) { return; }
-
-                systemAddresses.Add( system.systemAddress );
-            } );
+            var systemAddresses = systemNames.AsParallel().Select( GetOrFetchSystemWaypoint )
+                .Where( wp => wp != null ).Select( wp => wp.systemAddress ).ToArray();
             return GetOrFetchQuickStarSystems( systemAddresses.ToArray(), fetchIfMissing );
         }
 
@@ -180,12 +177,12 @@ namespace EddiDataProviderService
             // Fetch from cached systems
             results.AddRange( starSystemCache.GetRange( missingSystems() ).Select( s => new NavWaypoint( s ) ) );
 
-            var waypoints = new ConcurrentBag<NavWaypoint>();
-            Parallel.ForEach( systemNames, systemName =>
-            {
-                waypoints.Add( spanshService.GetWaypointsBySystemName( systemName.Trim() ).FirstOrDefault( s => s.systemName.Equals( systemName, StringComparison.InvariantCultureIgnoreCase ) ) );
-            } );
+            // Fetch from Spansh
+            var waypoints = missingSystems().AsParallel().Select( systemName =>
+                spanshService.GetWaypointsBySystemName( systemName.Trim() ).FirstOrDefault( s =>
+                    s.systemName.Equals( systemName, StringComparison.InvariantCultureIgnoreCase ) ) ).ToList();
             results.AddRange( waypoints );
+
             return results;
         }
 
@@ -357,8 +354,7 @@ namespace EddiDataProviderService
 
         public void SaveStarSystems ( List<StarSystem> starSystems )
         {
-            if ( !starSystems.Any() || unitTesting )
-            { return; }
+            if ( !starSystems.Any() || unitTesting ) { return; }
 
             // Update any star systems in our short term star system cache to minimize repeat deserialization
             foreach ( var starSystem in starSystems )
@@ -378,7 +374,19 @@ namespace EddiDataProviderService
 
         #endregion
 
-        #region Spansh End Points
+        #region EliteBGS Endpoints
+
+        [CanBeNull]
+        public Faction FetchFactionByName ( string factionName, string presenceSystemName = null )
+        {
+            // While it is possible to obtain faction data from Spansh, Spansh does not have a dedicated endpoint for faction data.
+            // In benchmarking conducted Dec. 2024 it was both slower and less comprehensive than EliteBGS.
+            return bgsService.GetFactionByName( factionName, presenceSystemName );
+        }
+
+        #endregion
+
+        #region Spansh Endpoints
 
         public NavWaypointCollection FetchCarrierRoute ( string currentSystem, string[] targetSystems, long usedCarrierCapacity,
             bool calculateTotalFuelRequired = true, string[] refuelDestinations = null, bool fromUIquery = false )
@@ -398,20 +406,7 @@ namespace EddiDataProviderService
         internal List<StarSystem> FetchSystemsData ( ulong[] systemAddresses, bool showMarketDetails = false )
         {
             if ( systemAddresses == null || systemAddresses.Length == 0 ) { return new List<StarSystem>(); }
-            var starSystems = spanshService.GetStarSystems( systemAddresses, showMarketDetails );
-
-            var fullStarSystems = new ConcurrentBag<StarSystem>();
-            if ( starSystems != null )
-            {
-                Parallel.ForEach( starSystems, starSystem =>
-                {
-                    if ( starSystem != null )
-                    {
-                        fullStarSystems.Add( starSystems.FirstOrDefault( s => s?.systemAddress == starSystem.systemAddress ) );
-                    }
-                } );
-            }
-            return fullStarSystems.ToList();
+            return spanshService.GetStarSystems( systemAddresses, showMarketDetails ).ToList();
         }
 
         /// <summary>
@@ -429,7 +424,7 @@ namespace EddiDataProviderService
             {
                 Logging.Warn( "Spansh API responded with: " + data[ "error" ] );
                 return null;
-        }
+            }
             return ParseQuickStation( data?[ "results" ]?.FirstOrDefault() );
 
             NavWaypoint ParseQuickStation ( JToken stationData )
@@ -481,11 +476,10 @@ namespace EddiDataProviderService
                 return new NavWaypoint( systemName, systemAddress, systemX, systemY, systemZ );
             }
         }
-        }
 
         #endregion
 
-        #region EDSM End Points
+        #region EDSM Endpoints
 
         public Traffic GetSystemTraffic(string systemName, long? edsmId = null)
         {

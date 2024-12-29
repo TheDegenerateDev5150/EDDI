@@ -2,10 +2,8 @@
 using Newtonsoft.Json.Linq;
 using RestSharp;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Utilities;
 
 namespace EddiSpanshService
@@ -27,19 +25,9 @@ namespace EddiSpanshService
 
         public IList<StarSystem> GetQuickStarSystems ( ulong[] systemAddresses )
         {
-            var starSystems = new ConcurrentBag<StarSystem>();
-            Parallel.ForEach( systemAddresses, systemAddress =>
-            {
-                if ( systemAddress > 0 )
-                {
-                    var starSystem = GetQuickStarSystem( systemAddress );
-                    if ( starSystem != null )
-                    {
-                        starSystems.Add( starSystem );
-                    }
-                }
-            } );
-            return starSystems.ToList();
+            return systemAddresses.AsParallel()
+                .Select( GetQuickStarSystem )
+                .ToList();
         }
 
         private bool TryGetQuickSystem ( IRestRequest request, out StarSystem quickStarSystem )

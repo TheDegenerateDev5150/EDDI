@@ -19,6 +19,7 @@
     <None Remove="Properties\**" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\BgsService\EddiBgsService.csproj" />
     <ProjectReference Include="..\ConfigService\EddiConfigService.csproj" />
     <ProjectReference Include="..\DataDefinitions\EddiDataDefinitions.csproj" />
     <ProjectReference Include="..\EddiSpanshService\EddiSpanshService.csproj" />
