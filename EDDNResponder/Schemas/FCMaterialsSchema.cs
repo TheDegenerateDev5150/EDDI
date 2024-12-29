@@ -44,7 +44,8 @@ namespace EddiEddnResponder.Schemas
             }
         }
 
-        public IDictionary<string, object> Handle(JObject profileJson, JObject marketJson, JObject shipyardJson, JObject fleetCarrierJson, bool fromLegacyServer, EDDNState eddnState)
+        public IDictionary<string, object> Handle ( JObject profileJson, JObject marketJson, JObject shipyardJson,
+            JObject fleetCarrierJson, EDDNState eddnState )
         {
             try
             {
@@ -80,8 +81,7 @@ namespace EddiEddnResponder.Schemas
                         // Apply data augments
                         data = eddnState.GameVersion.AugmentVersion(data);
 
-                        var gameVersionOverride = fromLegacyServer ? "CAPI-Legacy-market" : "CAPI-Live-market";
-                        EDDNSender.SendToEDDN("https://eddn.edcd.io/schemas/fcmaterials_capi/1", data, eddnState, gameVersionOverride);
+                        EDDNSender.SendToEDDN("https://eddn.edcd.io/schemas/fcmaterials_capi/1", data, eddnState, "CAPI-Live-market" );
                         lastSentMarketID = marketID;
                         return data;
                     }

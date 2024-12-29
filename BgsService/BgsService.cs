@@ -16,11 +16,7 @@ namespace EddiBgsService
 
     public partial class BgsService : IBgsService
     {
-        // This API only returns data for the "live" galaxy, game version 4.0 or later.
-        private static readonly System.Version minGameVersion = new System.Version(4, 0);
-        private static System.Version currentGameVersion { get; set; }
-
-        public readonly IBgsRestClient bgsRestClient;
+        private readonly IBgsRestClient bgsRestClient;
 
         private const string bgsBaseUrl = "https://elitebgs.app/api/ebgs/";
 
@@ -45,8 +41,10 @@ namespace EddiBgsService
         /// <summary> Specify the endpoint (e.g. EddiBgsService.Endpoint.factions) and a list of queries as KeyValuePairs </summary>
         public List<object> GetData(IBgsRestClient restClient, string endpoint, List<KeyValuePair<string, object>> queries)
         {
-            if (!(queries?.Any() ?? false)) { return null; }
-            if (currentGameVersion != null && currentGameVersion < minGameVersion) { return null; }
+            if ( ( !queries?.Any() ?? false ) || ( queries?.Any( q => 
+                                                       string.IsNullOrEmpty( q.Key ) || 
+                                                       string.IsNullOrEmpty( q.Value.ToString() ) ) ?? false ) ) 
+            { return null; }
 
             var docs = new List<object>();
             var currentPage = 1;
@@ -78,15 +76,6 @@ namespace EddiBgsService
                 return docs;
             }
             return null;
-        }
-
-        public static void SetGameVersion(System.Version version)
-        {
-            currentGameVersion = version;
-            if (currentGameVersion != null && currentGameVersion < minGameVersion)
-            {
-                Logging.Warn($"Service disabled. Game version is {currentGameVersion}, service returns data for version {minGameVersion} or later.");
-            }
         }
 
         private PageResponse PageRequest(IBgsRestClient restClient, RestRequest request, int page)

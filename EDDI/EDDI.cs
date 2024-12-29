@@ -5,9 +5,7 @@ using EddiConfigService.Configurations;
 using EddiDataDefinitions;
 using EddiDataProviderService;
 using EddiEvents;
-using EddiInaraService;
 using EddiSpeechService;
-using EddiStarMapService;
 using EddiStatusService;
 using JetBrains.Annotations;
 using Newtonsoft.Json.Linq;
@@ -77,13 +75,14 @@ namespace EddiCore
             {
                 _gameVersion = value;
                 SetGameVersion(value);
-                GameVersionUpdated?.Invoke(GameVersion, new PropertyChangedEventArgs(nameof(gameVersion)));
             }
         }
         private string _gameVersion;
-        public EventHandler GameVersionUpdated;
 
         public System.Version GameVersion { get; private set; }
+
+        // EDDI uses APIs which only return data for the "live" galaxy, game version 4.0 or later.
+        public readonly System.Version minGameVersion = new System.Version(4, 0);
 
         private void SetGameVersion(string v)
         {
@@ -100,10 +99,17 @@ namespace EddiCore
                         ? versionResult
                         : null;
 
-                    // Set game version in applicable services
-                    CompanionAppService.SetGameVersion(GameVersion);
-                    InaraService.SetGameVersion(GameVersion);
-                    StarMapService.SetGameVersion(GameVersion, gameVersion, gameBuild);
+                    // We rely on and use 3rd party APIs which only support data from the live galaxy. 
+                    if ( GameVersion != null && GameVersion < minGameVersion )
+                    {
+                        // Alert the user that we are operating in legacy mode
+                        var msg = "Legacy game version detected. EDDI shall resume processing events after you return to the live galaxy.";
+                        SpeechService.Instance.Say( null, msg, 0 );
+                        Logging.Warn(msg);
+                    }
+
+                    // We need to report our game version when sending journal data to EDSM
+                    EddiStarMapService.StarMapService.SetGameVersion(GameVersion, gameVersion, gameBuild);
                 }
             }
             catch (Exception e)
@@ -951,6 +957,9 @@ namespace EddiCore
         {
             if (@event != null)
             {
+                // Event handling is disabled when running a legacy game version.
+                if ( GameVersion != null && GameVersion < minGameVersion && !( @event is FileHeaderEvent ) ) { return; }
+
                 try
                 {
                     Logging.Debug("Handling event: ", @event);

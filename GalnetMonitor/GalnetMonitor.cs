@@ -19,7 +19,6 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Xml;
 using Utilities;
-using Version = System.Version;
 
 namespace EddiGalnetMonitor
 {
@@ -39,7 +38,7 @@ namespace EddiGalnetMonitor
         private DateTime journalTimeStamp;
 
         // This monitor currently requires game version 4.0 or later.
-        private static readonly Version minGameVersion = new Version(4, 0);
+        private static readonly System.Version minGameVersion = new System.Version(4, 0);
 
         public GalnetMonitor ()
         {
@@ -82,30 +81,10 @@ namespace EddiGalnetMonitor
         /// </summary>
         public void Start ()
         {
-            EDDI.Instance.GameVersionUpdated += OnGameVersionUpdated;
             cancellationTokenSource = new CancellationTokenSource();
             running = true;
             locales = GetGalnetLocales();
             Monitor();
-        }
-
-        private void OnGameVersionUpdated ( object sender, EventArgs e )
-        {
-            if ( sender is Version currentGameVersion )
-            {
-                if ( currentGameVersion < minGameVersion )
-                {
-                    Logging.Warn( $"Monitor disabled. Game version is {currentGameVersion}, monitor may only receive data for version {minGameVersion} or later." );
-                    Stop();
-                }
-                else
-                {
-                    if ( !running )
-                    {
-                        Start();
-                    }
-                }
-            }
         }
 
         /// <summary>
@@ -200,7 +179,7 @@ namespace EddiGalnetMonitor
                             if ( string.IsNullOrEmpty( firstUid ) )
                             {
                                 // Obtain the ID of the first item that we read as a marker
-                                firstUid = item?.Id;
+                                firstUid = item.Id;
                             }
 
                             if ( item.Id == configuration.lastuuid )
@@ -321,6 +300,7 @@ namespace EddiGalnetMonitor
         /// Pick a category for the news item given its title
         /// </summary>
         /// <param name="title"></param>
+        /// <param name="content"></param>
         /// <returns></returns>
         private string assignCategory ( string title, string content )
         {

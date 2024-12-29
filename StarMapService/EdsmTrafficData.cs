@@ -29,7 +29,6 @@ namespace EddiStarMapService
         public Traffic GetStarMapTraffic(string systemName, long? edsmId = null)
         {
             if (systemName == null) { return null; }
-            if (currentGameVersion != null && currentGameVersion < minGameVersion) { return null; }
 
             var request = new RestRequest("api-system-v1/traffic", Method.POST);
             request.AddParameter("systemName", systemName);
@@ -61,7 +60,6 @@ namespace EddiStarMapService
         public Traffic GetStarMapDeaths(string systemName, long? edsmId = null)
         {
             if (systemName == null) { return null; }
-            if (currentGameVersion != null && currentGameVersion < minGameVersion) { return null; }
 
             var request = new RestRequest("api-system-v1/deaths", Method.POST);
             request.AddParameter("systemName", systemName);

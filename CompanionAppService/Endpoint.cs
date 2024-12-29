@@ -60,16 +60,12 @@ namespace EddiCompanionAppService
 
         public readonly JObject fleetCarrierJson;
 
-        public readonly bool fromLegacyServer;
-
         public CompanionApiEndpointEventArgs(string serverUrl, JObject profileJson, JObject marketJson, JObject shipyardJson, JObject fleetCarrierJson)
         {
             this.profileJson = profileJson;
             this.marketJson = marketJson;
             this.shipyardJson = shipyardJson;
             this.fleetCarrierJson = fleetCarrierJson;
-
-            fromLegacyServer = serverUrl == CompanionAppService.LEGACY_SERVER;
         }
     }
 }

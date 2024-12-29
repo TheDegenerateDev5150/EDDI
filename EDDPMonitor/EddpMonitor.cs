@@ -25,9 +25,6 @@ namespace EddiEddpMonitor
 
         private EddpConfiguration configuration;
 
-        // This monitor currently requires game version 4.0 or later.
-        private static readonly System.Version minGameVersion = new System.Version(4, 0);
-
         /// <summary>
         /// The name of the monitor; shows up in EDDI's configuration window
         /// </summary>
@@ -65,28 +62,8 @@ namespace EddiEddpMonitor
         public void Start()
         {
             configuration = ConfigService.Instance.eddpConfiguration;
-            EDDI.Instance.GameVersionUpdated += OnGameVersionUpdated;
             running = false; //true;
             monitor();
-        }
-
-        private void OnGameVersionUpdated(object sender, EventArgs e)
-        {
-            if (sender is System.Version currentGameVersion)
-            {
-                if (currentGameVersion < minGameVersion)
-                {
-                    Logging.Warn($"Monitor disabled. Game version is {currentGameVersion}, monitor may only receive data for version {minGameVersion} or later.");
-                    Stop();
-                }
-                else
-                {
-                    if (!running)
-                    {
-                        Start();
-                    }
-                }
-            }
         }
 
         public void Stop()

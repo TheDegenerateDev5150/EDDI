@@ -68,7 +68,8 @@ namespace EddiEddnResponder.Schemas
             return false;
         }
 
-        public IDictionary<string, object> Handle(JObject profileJson, JObject marketJson, JObject shipyardJson, JObject fleetCarrierJson, bool fromLegacyServer, EDDNState eddnState)
+        public IDictionary<string, object> Handle ( JObject profileJson, JObject marketJson, JObject shipyardJson,
+            JObject fleetCarrierJson, EDDNState eddnState )
         {
             try
             {
@@ -109,8 +110,7 @@ namespace EddiEddnResponder.Schemas
                     // Apply data augments
                     data = eddnState.GameVersion.AugmentVersion(data);
 
-                    var gameVersionOverride = fromLegacyServer ? "CAPI-Legacy-shipyard" : "CAPI-Live-shipyard";
-                    EDDNSender.SendToEDDN("https://eddn.edcd.io/schemas/outfitting/2", data, eddnState, gameVersionOverride);
+                    EDDNSender.SendToEDDN("https://eddn.edcd.io/schemas/outfitting/2", data, eddnState, "CAPI-Live-shipyard" );
                     lastSentMarketID = marketID;
                     lastSentDateTime = timestamp;
                     return data;

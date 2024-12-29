@@ -33,6 +33,7 @@ namespace EddiSpanshService
             return response is null ? null : JToken.Parse( response.Content );
         }
 
+        // TODO: Handle multi-page responses (see BgsService for example)
         private static IRestRequest GetRestRequest ( QueryGroup queryGroup, [NotNull] Dictionary<string, object> filter, int? maxResults, int? pageId )
         {
             var request = new RestRequest($@"{queryGroup.ToString()}/search") { Method = Method.POST };

@@ -17,8 +17,6 @@ namespace EddiInaraService
 
         public InaraCmdr GetCommanderProfile ( string cmdrName = null )
         {
-            if ( currentGameVersion != null && currentGameVersion < minGameVersion ) { return null; }
-
             return string.IsNullOrEmpty( cmdrName )
                 ? GetCommanderProfiles( null )?.FirstOrDefault()
                 : GetCommanderProfiles( new List<string> { cmdrName } )?.FirstOrDefault();
