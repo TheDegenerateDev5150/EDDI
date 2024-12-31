@@ -588,6 +588,7 @@ In addition, stars have the following data:
   - *absolutemagnitude* - the absolute magnitude of the star (lower is brighter)
   - *chromaticity* - the colour of the star
   - *luminosity* - the calculated luminosity of the star
+  - *luminosityclass* - the luminosity class of the star
   - *estimatedhabzoneinner* - The estimated inner radius of the habitable zone of the star, in light seconds, not considering other stars in the system
   - *estimatedhabzoneouter* - The estimated outer radius of the habitable zone of the star, in light seconds, not considering other stars in the system
   - *ageprobability* - the cumulative probability describing the star's age, relative to other stars of the same stellar class.
