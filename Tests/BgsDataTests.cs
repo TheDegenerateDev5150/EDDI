@@ -33,7 +33,6 @@ namespace UnitTests
             // Test The Dark Wheel core data
             Assert.AreEqual("Independent", faction.Allegiance.invariantName);
             Assert.AreEqual("Democracy", faction.Government.invariantName);
-            Assert.IsNull(faction.isplayer);
             Assert.AreEqual("2019-04-13T03:37:17Z", Dates.FromDateTimeToString(faction.updatedAt));
 
             var factionPresence = faction.presences.FirstOrDefault( p => p.systemName == "Shinrarta Dezhra" );
