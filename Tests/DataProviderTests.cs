@@ -23,7 +23,13 @@ namespace UnitTests
         public void TestSqlRepositoryPresent()
         {
             var starSystemRepository = StarSystemSqLiteRepository.Instance;
-            var DBData = starSystemRepository.GetSqlStarSystem( 10477373803 );
+
+            var DBData = starSystemRepository.GetSqlStarSystem( 10477373803U );
+            if ( DBData is null )
+            {
+                starSystemRepository.SaveStarSystem( DeserializeJsonResource<StarSystem>( Resources.sqlStarSystem6 ) );
+                DBData = starSystemRepository.GetSqlStarSystem( 10477373803U );
+            }
             Assert.IsNotNull(DBData);
             Assert.AreEqual("Sol", DBData.systemName);
         }
@@ -43,12 +49,12 @@ namespace UnitTests
             var sol = DeserializeJsonResource<StarSystem>(Resources.sqlStarSystem6);
 
             // Ariel has no volcanism
-            Body ariel = sol.bodies.Find(b => b.bodyname == "Ariel");
+            var ariel = sol.bodies.Find(b => b.bodyname == "Ariel");
             Assert.IsNotNull(ariel);
             Assert.IsNull(ariel.volcanism);
 
             // Europa has water magma
-            Body europa = sol.bodies.Find(b => b.bodyname == "Europa");
+            var europa = sol.bodies.Find(b => b.bodyname == "Europa");
             Assert.IsNotNull(europa);
             Assert.IsNotNull(europa.volcanism);
             Assert.AreEqual("Major", europa.volcanism.invariantAmount);
