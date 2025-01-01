@@ -59,5 +59,12 @@ namespace EddiDataDefinitions
             string tidiedName = edName.ToLowerInvariant().Replace(" ", "").Replace(".", "").Replace("-", "");
             return AllOfThem.FirstOrDefault(v => v.edname.ToLowerInvariant() == tidiedName);
         }
+
+        public static new Power FromName ( string name )
+        {
+            // Spansh uses an abbreviated name for Arissa Lavigny-Duval. Fix that here.
+            var tidiedName = name?.Replace( "A. Lavigny-Duval", "Arissa Lavigny-Duval" );
+            return ResourceBasedLocalizedEDName<Power>.FromName( tidiedName );
+        }
     }
 }

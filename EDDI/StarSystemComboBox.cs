@@ -1,4 +1,4 @@
-﻿using EddiSpanshService;
+﻿using EddiCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +8,7 @@ using System.Windows.Controls;
 namespace Eddi
 {
     /// <summary>A subclass of ComboBox for selecting star systems</summary>
+    // TODO: Revise to use a base type with both systemName and systemAddress (e.g. StarSystem or NavWaypoint)
     public class StarSystemComboBox : ComboBox
     {
         public TextBox TextBox { get; private set; }
@@ -15,7 +16,6 @@ namespace Eddi
         private List<string> systemList = new List<string>();
         private readonly Dictionary<string, List<string>> systemListCache = new Dictionary<string, List<string>>();
         private const int systemDisplayListSize = 10;
-        private readonly ISpanshService spanshService = new SpanshService();
 
         public StarSystemComboBox()
         {
@@ -36,7 +36,7 @@ namespace Eddi
             if (!systemListCache.ContainsKey(partialSystemName))
             {
                 // Request a new list
-                systemListCache[partialSystemName] = spanshService.GetTypeAheadStarSystems(partialSystemName).Values.ToList();
+                systemListCache[ partialSystemName ] = EDDI.Instance.DataProvider.GetTypeAheadSystems( partialSystemName );
             }
 
             return systemListCache[partialSystemName];

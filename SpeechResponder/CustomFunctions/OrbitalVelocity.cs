@@ -1,7 +1,6 @@
 ﻿using Cottle;
 using EddiCore;
 using EddiDataDefinitions;
-using EddiDataProviderService;
 using EddiSpeechResponder.ScriptResolverService;
 using JetBrains.Annotations;
 using System;
@@ -38,7 +37,7 @@ namespace EddiSpeechResponder.CustomFunctions
             else if (values.Count == 3 && values[0].AsNumber >= 0 && !string.IsNullOrEmpty(values[1].AsString) && !string.IsNullOrEmpty(values[2].AsString))
             {
                 currentAltitudeMeters = Convert.ToDecimal(values[0].AsNumber);
-                body = StarSystemSqLiteRepository.Instance.GetOrFetchStarSystem(values[2].AsString)?.bodies?
+                body = EDDI.Instance.DataProvider.GetOrFetchStarSystem(values[2].AsString, true, false)?.bodies?
                     .FirstOrDefault(b => b.bodyname == values[1].AsString);
             }
             else

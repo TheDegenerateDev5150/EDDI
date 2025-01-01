@@ -18,8 +18,8 @@ namespace EddiSpanshService
         {
             if (!fromUIquery)
             {
-                // The Spansh Galaxy Plotter uses case sensitive system names. Use the TypeAhead API to normalize casing.
-                targetSystem = GetTypeAheadStarSystems(targetSystem).Values.FirstOrDefault();
+                // The Spansh Galaxy Plotter uses case-sensitive system names. Use the TypeAhead API to normalize casing.
+                targetSystem = GetWaypointsBySystemName(targetSystem).FirstOrDefault()?.systemName;
                 if (string.IsNullOrEmpty(targetSystem))
                 {
                     Logging.Warn("Neutron route plotting is not available, requested star system is unknown.");
@@ -123,10 +123,9 @@ namespace EddiSpanshService
             {
                 if ( jump[ "id64" ] != null && jump["x"] != null && jump["y"] != null && jump["z"] != null)
                 {
-                    var waypoint = new NavWaypoint(jump["name"]?.ToObject<string>(), jump["x"].ToObject<decimal>(),
+                    var waypoint = new NavWaypoint(jump["name"]?.ToObject<string>(), jump["id64"].ToObject<ulong>(), jump["x"].ToObject<decimal>(),
                         jump["y"].ToObject<decimal>(), jump["z"].ToObject<decimal>())
                     {
-                        systemAddress = jump["id64"].ToObject<ulong>(),
                         hasNeutronStar = jump["has_neutron"]?.ToObject<bool>() ?? false,
                         isScoopable = jump["is_scoopable"]?.ToObject<bool?>() ?? false,
                         refuelRecommended = jump["must_refuel"]?.ToObject<bool?>() ?? false

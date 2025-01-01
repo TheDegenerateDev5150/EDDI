@@ -5,26 +5,32 @@ Full details of the variables available for each noted event, and VoiceAttack in
 ## 4.1.0-b4
   * Core
     * Added `Coriolis (Beta)` export target to Ship Monitor and `coriolisbeta` plugin command.
-    * Added new ship type `Mandalay` and modules.
-    * Added and updated powerplay object definitions.
     * Fixed cargo need calculations. (#2645)
     * Fixed child scripts not always using the latest state variables in their contexts.
-    * Fixed missing `systemname` property in the `Star scanned` event.
     * Fixed a null reference exception which could occur when deleting scripts.
+    * Simplified and centralized legacy game mode handling.
+    * Updated star system lookups to use Spansh APIs rather than EDSM APIs. 
+  * Definitions
+    * Added new ship types `Mandalay` and `Cobra Mk 5` and modules.
+    * Added and updated powerplay object definitions.
+    * Added star property `luminosityclass`.
+    * Added star system property `contestingpowers`.
+    * Removed the `permitname` property from the `system` object (permit data is now calculated and permit names are not stored / not always known).
+  * Events
+    * `Carrier jumped` event updated to expose new Powerplay properties.
+    * `Holoscreen hacked` event added. 
+    * `Jumped` event updated to expose new Powerplay properties.
+    * `Location` event updated to expose new Powerplay properties.
+    * `Power commodity fast tracked` obsolete event removed.
+    * `Power defected` obsolete event removed.
+    * `Power expansion vote cast` obsolete event removed.
+    * `Power preparation vote cast` obsolete event removed.
+    * `Power micro resources collected` event added.
+    * `Power micro resources delivered` event added.
+    * `Powerplay` event updated to remove the obsolete `votes` property (Powerplay 2.0 does not use a voting system).
+    * `Signal detected` event updated to include new Powerplay properties.
+    * `Star scanned` event updated to add missing `systemname` property.
   * Speech Responder
-    * Events 
-      * `Carrier jumped` event updated to expose new Powerplay properties.
-      * `Holoscreen hacked` event added. 
-      * `Jumped` event updated to expose new Powerplay properties.
-      * `Location` event updated to expose new Powerplay properties.
-      * `Power commodity fast tracked` obsolete event removed.
-      * `Power defected` obsolete event removed.
-      * `Power expansion vote cast` obsolete event removed.
-      * `Power preparation vote cast` obsolete event removed.
-      * `Power micro resources collected` event added.
-      * `Power micro resources delivered` event added.
-      * `Powerplay` event updated to remove the obsolete `votes` property (Powerplay 2.0 does not use a voting system).
-      * `Signal detected` event updated to include new Powerplay properties.
     * Scripts 
       * `Carrier jumped` script updated to include new Powerplay details.
       * `Holoscreen hacked` event added. 

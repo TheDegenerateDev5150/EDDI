@@ -27,10 +27,13 @@ namespace EddiDataDefinitions
             Dock = new StationService("Dock");
             Exploration = new StationService("Exploration");
             Facilitator = new StationService("Facilitator");
+            FleetCarrierFuel = new StationService( "FleetCarrierFuel" );
+            FleetCarrierManagement = new StationService( "FleetCarrierManagement" );
             FlightController = new StationService("FlightController");
             FrontlineSolutions = new StationService("FrontlineSolutions");
             Initiatives = new StationService("Initiatives");
             Livery = new StationService("Livery");
+            Market = new StationService("Market");
             MaterialTrader = new StationService("MaterialTrader");
             Missions = new StationService("Missions");
             MissionsGenerated = new StationService("MissionsGenerated");
@@ -71,10 +74,13 @@ namespace EddiDataDefinitions
         public static readonly StationService Dock;
         public static readonly StationService Exploration;
         public static readonly StationService Facilitator;
+        public static readonly StationService FleetCarrierFuel;
+        public static readonly StationService FleetCarrierManagement;
         public static readonly StationService FlightController;
         public static readonly StationService FrontlineSolutions;
         public static readonly StationService Initiatives;
         public static readonly StationService Livery;
+        public static readonly StationService Market;
         public static readonly StationService MaterialTrader;
         public static readonly StationService Missions;
         public static readonly StationService MissionsGenerated;
@@ -106,13 +112,21 @@ namespace EddiDataDefinitions
         private StationService(string edname) : base(edname, edname)
         { }
 
-        public new static StationService FromEDName(string edname)
+        public static new StationService FromEDName(string edname)
         {
             // In Elite Dangerous v3.7, "Workshop" is replaced by "Engineer" and "SearchAndRescue" is replaced by "SearchRescue"
             // Preserve the original edname for backwards compatibility.
             return ResourceBasedLocalizedEDName<StationService>.FromEDName(
                 edname.ToLowerInvariant().Replace("engineer", "workshop").Replace("searchrescue", "searchandrescue")
                 );
+        }
+
+        public static new StationService FromName ( string name )
+        {
+            // Spansh localized names can vary slightly from the expected invariant names, normalize any differences here
+            return ResourceBasedLocalizedEDName<StationService>.FromName(name
+                .Replace( "Autodock", "Auto Dock" )
+            );
         }
     }
 }

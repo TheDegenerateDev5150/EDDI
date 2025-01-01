@@ -129,6 +129,25 @@ namespace UnitTests
             Assert.IsFalse(starSystem.isgold, "empty system should not be gold");
         }
 
+        [DataTestMethod]
+        [DataRow( "Tionisla", "85.25", "48.75", "68.15625", false )]
+        [DataRow( "Peregrina", "-24.9375", "-80.59375", "-184.34375", true )]
+        [DataRow( "Regor Sector", "1099.23828", "-146.67188", "-133.58008", true )]
+        [DataRow( "Regor Sector - 5LY AWAY", "1104.23828", "-146.67188", "-133.58008", true )]
+        [DataRow( "Regor Sector - 50LY AWAY", "1149.23828","-146.67188", "-133.58008", true )]
+        [DataRow( "Regor Sector - 200LY AWAY", "1299.23828", "-146.67188", "-133.58008", false )]
+        public void TestPermitSystem ( string systemName, string x, string y, string z, bool needsPermit )
+        {
+            var starSystem = new StarSystem()
+            {
+                systemname = systemName,
+                x = Convert.ToDecimal( x ),
+                y = Convert.ToDecimal( y ),
+                z = Convert.ToDecimal( z )
+            };
+            Assert.AreEqual( needsPermit, starSystem.requirespermit );
+        }
+
         [TestMethod]
         public void TestGreenSystemGreenGold()
         {

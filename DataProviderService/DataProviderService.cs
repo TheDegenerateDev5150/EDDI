@@ -1,114 +1,485 @@
-﻿using EddiConfigService;
+﻿using EddiBgsService;
+using EddiConfigService;
 using EddiDataDefinitions;
+using EddiSpanshService;
 using EddiStarMapService;
+using JetBrains.Annotations;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using Utilities;
 
+[assembly: InternalsVisibleTo( "Tests" )]
 namespace EddiDataProviderService
 {
-    /// <summary>Access data services<summary>
+    /// <summary>Access data services. Prefer our cache and local database wherever possible.</summary>
     public class DataProviderService
     {
-        private readonly IEdsmService edsmService;
+        private readonly BgsService bgsService;
+        private readonly StarMapService edsmService;
+        private readonly SpanshService spanshService;
+        private readonly StarSystemSqLiteRepository starSystemRepository;
+        private readonly StarSystemCache starSystemCache;
 
-        public DataProviderService(IEdsmService edsmService = null)
+        public static bool unitTesting;
+
+        public DataProviderService ( BgsService bgsService = null, StarMapService edsmService = null,
+            SpanshService spanshService = null, StarSystemSqLiteRepository starSystemRepository = null )
         {
+            starSystemCache = new StarSystemCache( 300 ); // Keep a cache of star systems for 5 minutes
+            this.bgsService = bgsService ?? new BgsService();
             this.edsmService = edsmService ?? new StarMapService();
+            this.spanshService = spanshService ?? new SpanshService();
+            this.starSystemRepository = starSystemRepository ?? new StarSystemSqLiteRepository();
         }
 
-        // Uses the EDSM data service and legacy EDDP data
-        public StarSystem GetSystemData(string system, bool showCoordinates = true, bool showBodies = true, bool showStations = true, bool showFactions = true)
+        public List<string> GetTypeAheadSystems ( string systemName )
         {
-            if (system == null || string.IsNullOrEmpty(system)) { return null; }
-
-            StarSystem starSystem = edsmService.GetStarMapSystem(system, showCoordinates);
-            starSystem = GetSystemExtras(starSystem, showBodies, showStations, showFactions);
-            return starSystem ?? new StarSystem() { systemname = system };
+            return spanshService.GetWaypointsBySystemName( systemName ).Select(s => s.systemName).ToList();
         }
 
-        public StarSystem GetSystemData ( ulong systemAddress, bool showCoordinates = true, bool showBodies = true, bool showStations = true, bool showFactions = true )
+        public List<StarSystem> GetOrCreateStarSystems ( Dictionary<ulong, string> requestedSystems, bool refreshIfOutdated = true, bool showMarketDetails = false )
         {
-            if ( systemAddress == 0 ) { return null; }
+            var results = new List<StarSystem>();
+            if ( !requestedSystems.Any() ) { return new List<StarSystem>(); }
 
-            StarSystem starSystem = edsmService.GetStarMapSystem(systemAddress, showCoordinates);
-            starSystem = GetSystemExtras( starSystem, showBodies, showStations, showFactions );
-            return starSystem ?? new StarSystem() { systemAddress = systemAddress };
+            var missingSystems = requestedSystems.Where( k => results.All( s => s.systemAddress != k.Key ) )
+                .ToDictionary( k => k.Key, v => v.Value );
+
+            results = GetOrFetchStarSystems( missingSystems.Keys.ToArray(), true, refreshIfOutdated, showMarketDetails ) ?? new List<StarSystem>();
+
+            // Create a new system object for each name that isn't in the database and couldn't be fetched from a server
+            var createdStarSystems = missingSystems
+                .Select( s => new StarSystem { systemname = s.Value, systemAddress = s.Key } )
+                .ToList();
+            results.AddRange( createdStarSystems );
+            SaveStarSystems( createdStarSystems );
+            return results;
         }
 
-        public List<StarSystem> GetSystemsData(string[] systemNames, bool showCoordinates = true, bool showBodies = true, bool showStations = true, bool showFactions = true)
+        public StarSystem GetOrFetchStarSystem ( ulong systemAddress, string systemName = null, bool fetchIfMissing = true, bool refreshIfOutdated = true, bool showMarketDetails = false )
         {
-            if (systemNames == null || systemNames.Length == 0) { return new List<StarSystem>(); }
+            if ( systemAddress <= 0 ) { return null; }
 
-            List<StarSystem> starSystems = edsmService.GetStarMapSystems(systemNames, showCoordinates);
-            if (starSystems == null) { return new List<StarSystem>(); }
+            return GetOrFetchStarSystems( new[] { systemAddress }, fetchIfMissing, refreshIfOutdated, showMarketDetails )?.FirstOrDefault();
+        }
 
-            List<StarSystem> fullStarSystems = new List<StarSystem>();
-            foreach (string systemName in systemNames)
+        public StarSystem GetOrFetchStarSystem ( string systemName, bool fetchIfMissing = true, bool refreshIfOutdated = true, bool showMarketDetails = false )
+        {
+            if ( string.IsNullOrEmpty( systemName ) ) { return null; }
+            var system = GetOrFetchSystemWaypoint( systemName );
+            if ( system is null ) { return null; }
+            return GetOrFetchStarSystems( new[] { system.systemAddress }, fetchIfMissing, refreshIfOutdated, showMarketDetails )?.FirstOrDefault();
+        }
+
+        public List<StarSystem> GetOrFetchStarSystems ( ulong[] systemAddresses, bool fetchIfMissing = true, bool refreshIfOutdated = true, bool showMarketDetails = false )
+        {
+            var results = new List<StarSystem>();
+            if ( systemAddresses is null || !systemAddresses.Any() ) { return results; }
+
+            ulong[] missingSystems () => systemAddresses.Where( k => results.All( s => s.systemAddress != k ) ).Distinct().ToArray();
+
+            // Fetch from cached systems
+            results.AddRange( starSystemCache.GetRange( missingSystems() ) );
+            
+            // Fetch from the local database
+            results.AddRange( GetSqlStarSystems( systemAddresses.ToArray(), out var dbStarSystems, refreshIfOutdated ) );
+
+            // Fetch from external data providers (when so instructed)
+            if ( missingSystems().Any() && fetchIfMissing )
             {
-                if (!string.IsNullOrEmpty(systemName))
+                var fetchedSystems = FetchSystemsData( missingSystems(), showMarketDetails );
+                if ( fetchedSystems?.Count > 0 )
                 {
-                    fullStarSystems.Add(GetSystemExtras(starSystems.Find(s => s?.systemname == systemName), showBodies, showStations, showFactions) ?? new StarSystem() { systemname = systemName });
+                    // Synchronize EDSM visits and comments
+                    fetchedSystems = syncFromStarMapService( fetchedSystems );
+
+                    // Update properties that aren't synced from the server and that we want to preserve
+                    fetchedSystems = PreserveUnsyncedProperties( fetchedSystems, dbStarSystems );
+
+                    // Update the `lastupdated` timestamps for the systems we have updated
+                    foreach ( var starSystem in fetchedSystems ) { starSystem.lastupdated = DateTime.UtcNow; }
+
+                    // Add the external data to our results
+                    results.AddRange( fetchedSystems );
+                    
+                    // Save changes to our star systems
+                    starSystemRepository.SaveStarSystems( fetchedSystems );
+                }
+
+                if ( missingSystems().Any() )
+                {
+                    Logging.Warn( "Unable to retrieve data on all requested star systems.", missingSystems() );
                 }
             }
-            return fullStarSystems;
+
+            return results;
         }
 
-        private StarSystem GetSystemExtras(StarSystem starSystem, bool showBodies, bool showStations, bool showFactions)
+        public StarSystem GetOrFetchQuickStarSystem ( ulong systemAddress, bool fetchIfMissing = true )
         {
+            if ( systemAddress <= 0 ) { return null; }
 
-            if (starSystem != null)
+            return GetOrFetchQuickStarSystems( new[] { systemAddress }, fetchIfMissing )?.FirstOrDefault();
+        }
+
+        public List<StarSystem> GetOrFetchQuickStarSystems ( ulong[] systemAddresses, bool fetchIfMissing = true )
+        {
+            var results = new List<StarSystem>();
+            if ( systemAddresses is null || !systemAddresses.Any() ) { return results; }
+
+            ulong[] missingSystems () => systemAddresses.Where( k => results.All( s => s.systemAddress != k ) ).Distinct().ToArray();
+
+            // Fetch from cached systems
+            results.AddRange( starSystemCache.GetRange( missingSystems() ) );
+
+            // Fetch from the local database
+            results.AddRange( GetSqlStarSystems( missingSystems(), out _, false ) );
+
+            // Fetch from external data providers (when so instructed)
+            if ( missingSystems().Any() && fetchIfMissing )
             {
-                if (showBodies)
+                // Add the external data to our results
+                results.AddRange( spanshService.GetQuickStarSystems( missingSystems() ) );
+            }
+
+            if ( missingSystems().Any() )
+            {
+                Logging.Warn( "Unable to retrieve data on all requested star systems.", missingSystems() );
+            }
+
+            return results;
+        }
+
+        public List<StarSystem> GetOrFetchQuickStarSystems ( string[] systemNames, bool fetchIfMissing = true )
+        {
+            var systemAddresses = systemNames.AsParallel().Select( GetOrFetchSystemWaypoint )
+                .Where( wp => wp != null ).Select( wp => wp.systemAddress ).ToArray();
+            return GetOrFetchQuickStarSystems( systemAddresses.ToArray(), fetchIfMissing );
+        }
+
+        public NavWaypoint GetOrFetchSystemWaypoint ( string systemName )
+        {
+            if ( string.IsNullOrEmpty(systemName) ) { return null; }
+            return GetOrFetchSystemWaypoints( new[] { systemName } ).FirstOrDefault();
+        }
+
+        public List<NavWaypoint> GetOrFetchSystemWaypoints ( string[] systemNames )
+        {
+            var results = new List<NavWaypoint>();
+            if ( systemNames is null || !systemNames.Any() ) { return results; }
+            string[] missingSystems () => systemNames.Where( k => results.All( s => s.systemName != k ) ).Distinct().ToArray();
+
+            // Fetch from cached systems
+            results.AddRange( starSystemCache.GetRange( missingSystems() ).Select( s => new NavWaypoint( s ) ) );
+
+            // Fetch from Spansh
+            var waypoints = missingSystems().AsParallel().Select( systemName =>
+                spanshService.GetWaypointsBySystemName( systemName.Trim() ).FirstOrDefault( s =>
+                    s.systemName.Equals( systemName, StringComparison.InvariantCultureIgnoreCase ) ) ).ToList();
+            results.AddRange( waypoints );
+
+            return results;
+        }
+
+        #region StarSystemSqlLiteRepository
+
+        internal List<StarSystem> GetSqlStarSystems ( ulong[] systemAddresses, out List<DatabaseStarSystem> dbStarSystems, bool refreshIfOutdated = true )
+        {
+            var results = new List<StarSystem>();
+            dbStarSystems = starSystemRepository.GetSqlStarSystems( systemAddresses );
+
+            foreach ( var dbStarSystem in dbStarSystems )
+            {
+                if ( refreshIfOutdated && dbStarSystem.lastUpdated < DateTime.UtcNow.AddHours( -1 ) )
                 {
-                    var bodies = edsmService.GetStarMapBodies(starSystem.systemAddress) ?? new List<Body>();
-                    foreach (var body in bodies)
-                    {
-                        body.systemname = starSystem.systemname;
-                        body.systemAddress = starSystem.systemAddress;
-                    }
-                    starSystem.AddOrUpdateBodies(bodies);
+                    // When specified, exclude stale data to force a refresh from another source
+                    continue;
                 }
 
-                if (starSystem.population > 0)
+                // Deserialize the result
+                var result = DeserializeStarSystem(dbStarSystem.systemAddress, dbStarSystem.systemJson);
+                
+                // Exclude null results and results with missing coordinates (forcing a refresh from another source)
+                if ( result?.x != null && result.y != null && result.z != null )
                 {
-                    var factions = new List<Faction>();
-                    var stations = new List<Station>();
-                    if (showFactions)
+                    results.Add( result );
+                }
+            }
+
+            return results;
+        }
+
+        internal static List<StarSystem> PreserveUnsyncedProperties ( List<StarSystem> updatedSystems, List<DatabaseStarSystem> databaseStarSystems )
+        {
+            if ( updatedSystems is null ) { return new List<StarSystem>(); }
+            foreach ( var updatedSystem in updatedSystems )
+            {
+                foreach ( var databaseStarSystem in databaseStarSystems )
+                {
+                    if ( updatedSystem.systemAddress == databaseStarSystem.systemAddress )
                     {
-                        factions = edsmService.GetStarMapFactions(starSystem.systemAddress) ?? factions;
-                        starSystem.factions = factions;
-                    }
-                    if (showStations)
-                    {
-                        stations = edsmService.GetStarMapStations(starSystem.systemAddress) ?? stations;
-                        starSystem.stations = showFactions 
-                            ? SetStationFactionData( stations, factions ) 
-                            : stations;
+                        var oldStarSystem = Deserializtion.DeserializeData(databaseStarSystem.systemJson);
+
+                        if ( oldStarSystem != null )
+                        {
+                            PreserveSystemProperties( updatedSystem, oldStarSystem );
+                            PreserveBodyProperties( updatedSystem, oldStarSystem );
+                            PreserveFactionProperties( updatedSystem, oldStarSystem );
+                            // No station data needs to be carried over at this time.
+                        }
                     }
                 }
             }
-            return starSystem;
+            return updatedSystems;
         }
 
-        private List<Station> SetStationFactionData(List<Station> stations, List<Faction> factions)
+        internal static void PreserveSystemProperties ( StarSystem updatedSystem, IDictionary<string, object> oldStarSystem )
         {
-            // EDSM doesn't provide full faction information (like faction state) from the stations endpoint data
-            // so we add it from the factions endpoint data
-            foreach (Station station in stations)
+            // Carry over StarSystem properties that we want to preserve
+            updatedSystem.totalbodies = JsonParsing.getOptionalInt( oldStarSystem, "discoverableBodies" ) ?? 0;
+            if ( oldStarSystem.TryGetValue( "visitLog", out object visitLogObj ) )
             {
-                foreach (Faction faction in factions)
+                // Visits should sync from EDSM, but in case there is a problem with the connection we will also seed back in our old star system visit data
+                if ( visitLogObj is List<object> oldVisitLog )
                 {
-                    if (station.Faction.name == faction.name)
+                    foreach ( var obj in oldVisitLog )
                     {
-                        station.Faction = faction;
+                        if ( obj is DateTime visit )
+                        {
+                            // The SortedSet<T> class does not accept duplicate elements so we can safely add timestamps which may be duplicates of visits already reported from EDSM.
+                            // If an item is already in the set, processing continues and no exception is thrown.
+                            updatedSystem.visitLog.Add( visit );
+                        }
                     }
                 }
             }
-            return stations;
         }
+
+        internal static void PreserveBodyProperties ( StarSystem updatedSystem, IDictionary<string, object> oldStarSystem )
+        {
+            // Carry over Body properties that we want to preserve (e.g. exploration data)
+            oldStarSystem.TryGetValue( "bodies", out object bodiesVal );
+            try
+            {
+                if ( bodiesVal != null )
+                {
+                    var oldBodiesString = JsonConvert.SerializeObject(bodiesVal);
+                    Logging.Debug( $"Reading old body properties from {updatedSystem.systemname} from database", oldBodiesString );
+                    var oldBodies = JsonConvert.DeserializeObject<List<Body>>(oldBodiesString);
+                    updatedSystem.PreserveBodyData( oldBodies, updatedSystem.bodies );
+                }
+            }
+            catch ( Exception e ) when ( e is JsonReaderException || e is JsonWriterException || e is JsonException )
+            {
+                Logging.Error( $"Failed to read exploration data for bodies in {updatedSystem.systemname} from database.", e );
+            }
+        }
+
+        internal static void PreserveFactionProperties ( StarSystem updatedSystem, IDictionary<string, object> oldStarSystem )
+        {
+            // Carry over Faction properties that we want to preserve (e.g. reputation data)
+            oldStarSystem.TryGetValue( "factions", out object factionsVal );
+            try
+            {
+                if ( factionsVal != null )
+                {
+                    var oldFactionsString = JsonConvert.SerializeObject(factionsVal);
+                    Logging.Debug( $"Reading old faction properties from {updatedSystem.systemname} from database", oldFactionsString );
+                    var oldFactions = JsonConvert.DeserializeObject<List<Faction>>(oldFactionsString);
+                    if ( oldFactions?.Count > 0 )
+                    {
+                        foreach ( var updatedFaction in updatedSystem.factions )
+                        {
+                            foreach ( var oldFaction in oldFactions )
+                            {
+                                if ( updatedFaction.name == oldFaction.name )
+                                {
+                                    updatedFaction.myreputation = oldFaction.myreputation;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch ( Exception e ) when ( e is JsonReaderException || e is JsonWriterException || e is JsonException )
+            {
+                Logging.Error( "Failed to read commander faction reputation data for " + updatedSystem.systemname + " from database.", e );
+            }
+        }
+
+        internal StarSystem DeserializeStarSystem ( ulong systemAddress, string data )
+        {
+            if ( systemAddress == 0 || data == string.Empty )
+            { return null; }
+
+            // Check our short term star system cache for a previously deserialized star system and return that if it is available.
+            if ( starSystemCache.TryGet( systemAddress, out var cachedStarSystem ) )
+            {
+                return cachedStarSystem;
+            }
+
+            // Not found in memory, proceed with deserialization
+            try
+            {
+                var result = JsonConvert.DeserializeObject<StarSystem>( data );
+                if ( result == null )
+                {
+                    Logging.Info( "Failed to obtain system for address " + systemAddress + " from the SQLiteRepository" );
+                }
+                // Save the deserialized star system to our short term star system cache for reference
+                if ( result != null )
+                {
+                    starSystemCache.AddOrUpdate( result );
+                }
+
+                return result;
+            }
+            catch ( Exception ex )
+            {
+                Logging.Warn( $"Problem reading data for star system address {systemAddress} from database.", ex );
+            }
+            return null;
+        }
+
+        public void SaveStarSystem ( StarSystem starSystem )
+        {
+            if ( starSystem == null ) { return; }
+            starSystemRepository.SaveStarSystems( new List<StarSystem> { starSystem } );
+        }
+
+        public void SaveStarSystems ( List<StarSystem> starSystems )
+        {
+            if ( !starSystems.Any() || unitTesting ) { return; }
+
+            // Update any star systems in our short term star system cache to minimize repeat deserialization
+            foreach ( var starSystem in starSystems )
+            {
+                starSystemCache.Remove( starSystem.systemAddress );
+                starSystemCache.AddOrUpdate( starSystem );
+            }
+
+            starSystemRepository.SaveStarSystems( starSystems );
+        }
+
+        public void LeaveStarSystem ( StarSystem system )
+        {
+            if ( system?.systemAddress <= 0 ) { return; }
+            SaveStarSystem( system );
+        }
+
+        #endregion
+
+        #region EliteBGS Endpoints
+
+        [CanBeNull]
+        public Faction FetchFactionByName ( string factionName, string presenceSystemName = null )
+        {
+            // While it is possible to obtain faction data from Spansh, Spansh does not have a dedicated endpoint for faction data.
+            // In benchmarking conducted Dec. 2024 it was both slower and less comprehensive than EliteBGS.
+            return bgsService.GetFactionByName( factionName, presenceSystemName );
+        }
+
+        #endregion
+
+        #region Spansh Endpoints
+
+        public NavWaypointCollection FetchCarrierRoute ( string currentSystem, string[] targetSystems, long usedCarrierCapacity,
+            bool calculateTotalFuelRequired = true, string[] refuelDestinations = null, bool fromUIquery = false )
+        {
+            return spanshService.GetCarrierRoute( currentSystem, targetSystems, usedCarrierCapacity,
+                calculateTotalFuelRequired, refuelDestinations, fromUIquery );
+        }
+
+        public NavWaypointCollection FetchGalaxyRoute ( string currentSystem, string targetSystem, Ship ship,
+            int? cargoCarriedTons = null, bool isSupercharged = false, bool useSupercharge = true,
+            bool useInjections = false, bool excludeSecondary = false, bool fromUIquery = false )
+        {
+            return spanshService.GetGalaxyRoute( currentSystem, targetSystem, ship, cargoCarriedTons, isSupercharged,
+                useSupercharge, useInjections, excludeSecondary, fromUIquery );
+        }
+
+        internal List<StarSystem> FetchSystemsData ( ulong[] systemAddresses, bool showMarketDetails = false )
+        {
+            if ( systemAddresses == null || systemAddresses.Length == 0 ) { return new List<StarSystem>(); }
+            return spanshService.GetStarSystems( systemAddresses, showMarketDetails ).ToList();
+        }
+
+        /// <summary>
+        /// Find the nearest station with specific station services from the Spansh Station Search API.
+        /// </summary>
+        /// <param name="fromX"></param>
+        /// <param name="fromY"></param>
+        /// <param name="fromZ"></param>
+        /// <param name="filters"></param>
+        /// <returns></returns>
+        public NavWaypoint FetchStationWaypoint ( decimal fromX, decimal fromY, decimal fromZ, Dictionary<string, object> filters )
+        {
+            var data = spanshService.DistanceOrderedQuery( SpanshService.QueryGroup.stations, fromX, fromY, fromZ, filters );
+            if ( data?[ "error" ] != null )
+            {
+                Logging.Warn( "Spansh API responded with: " + data[ "error" ] );
+                return null;
+            }
+            return ParseQuickStation( data?[ "results" ]?.FirstOrDefault() );
+
+            NavWaypoint ParseQuickStation ( JToken stationData )
+            {
+                if ( stationData is null ) { return null; }
+
+                var systemName = stationData[ "system_name" ]?.ToString();
+                var systemAddress = stationData[ "system_id64" ]?.ToObject<ulong>() ?? 0;
+                var systemX = stationData[ "system_x" ]?.ToObject<decimal>() ?? 0;
+                var systemY = stationData[ "system_y" ]?.ToObject<decimal>() ?? 0;
+                var systemZ = stationData[ "system_z" ]?.ToObject<decimal>() ?? 0;
+
+                return new NavWaypoint( systemName, systemAddress, systemX, systemY, systemZ )
+                {
+                    stationName = stationData[ "name" ]?.ToString(),
+                    marketID = stationData[ "market_id" ]?.ToObject<long>()
+                };
+            }
+        }
+
+        /// <summary>
+        /// Find the nearest body with specific parameters from the Spansh Station Search API.
+        /// </summary>
+        /// <param name="fromX"></param>
+        /// <param name="fromY"></param>
+        /// <param name="fromZ"></param>
+        /// <param name="filters"></param>
+        /// <returns></returns>
+        public NavWaypoint FetchBodyWaypoint ( decimal fromX, decimal fromY, decimal fromZ, Dictionary<string, object> filters )
+        {
+            var data = spanshService.DistanceOrderedQuery( SpanshService.QueryGroup.bodies, fromX, fromY, fromZ, filters );
+            if ( data?[ "error" ] != null )
+            {
+                Logging.Warn( "Spansh API responded with: " + data[ "error" ] );
+                return null;
+            }
+            return ParseQuickBody( data?[ "results" ]?.FirstOrDefault() );
+
+            NavWaypoint ParseQuickBody ( JToken bodyData )
+            {
+                if ( bodyData is null ) { return null; }
+
+                var systemName = bodyData[ "system_name" ]?.ToString();
+                var systemAddress = bodyData[ "system_id64" ]?.ToObject<ulong>() ?? 0;
+                var systemX = bodyData[ "system_x" ]?.ToObject<decimal>() ?? 0;
+                var systemY = bodyData[ "system_y" ]?.ToObject<decimal>() ?? 0;
+                var systemZ = bodyData[ "system_z" ]?.ToObject<decimal>() ?? 0;
+
+                return new NavWaypoint( systemName, systemAddress, systemX, systemY, systemZ );
+            }
+        }
+
+        #endregion
+
+        #region EDSM Endpoints
 
         public Traffic GetSystemTraffic(string systemName, long? edsmId = null)
         {
@@ -136,10 +507,10 @@ namespace EddiDataProviderService
                 try
                 {
                     Logging.Info( "Syncing all flight logs from EDSM" );
-                    List<StarMapResponseLogEntry> flightLogs = edsmService.getStarMapLog(lastSync);
+                    var flightLogs = edsmService.getStarMapLog(lastSync);
                     if (flightLogs?.Count > 0)
                     {
-                        Dictionary<string, string> comments = edsmService.getStarMapComments();
+                        var comments = edsmService.getStarMapComments();
                         int total = flightLogs.Count;
                         int i = 0;
 
@@ -188,10 +559,8 @@ namespace EddiDataProviderService
                                 Logging.Debug("Syncing star system " + starSystem.systemname + " from EDSM.");
                                 foreach (StarMapResponseLogEntry flightLog in flightLogs)
                                 {
-                                    if (flightLog.system == starSystem.systemname)
+                                    if (flightLog.systemId64 == starSystem.systemAddress)
                                     {
-                                        starSystem.EDSMID = starSystem.EDSMID ?? flightLog.systemId;
-                                        if (starSystem.EDSMID != flightLog.systemId) { continue; }
                                         starSystem.visitLog.Add(flightLog.date);
                                     }
                                 }
@@ -223,8 +592,8 @@ namespace EddiDataProviderService
         public void syncEdsmLogBatch(List<StarMapResponseLogEntry> flightLogBatch, Dictionary<string, string> comments)
         {
             var syncedSystems = new List<StarSystem>();
-            var systemNames = flightLogBatch.Select(x => x.system).Distinct().ToArray();
-            var batchSystems = StarSystemSqLiteRepository.Instance.GetOrCreateStarSystems(systemNames, false, false, false, false, false);
+            var flightLogSystems = flightLogBatch.ToDictionary(k => k.systemId64, v => v.system);
+            var batchSystems = GetOrCreateStarSystems(flightLogSystems, false );
             foreach (var starSystem in batchSystems)
             {
                 if (starSystem != null)
@@ -256,12 +625,6 @@ namespace EddiDataProviderService
                             }
                         }
 
-                        // Fill missing EDSMIDs
-                        if ( starSystem.EDSMID == null )
-                        {
-                            starSystem.EDSMID = flightLog.systemId;
-                        }
-
                         // Update Comments
                         if ( comments.TryGetValue( flightLog.system, out var comment ) )
                         {
@@ -280,10 +643,12 @@ namespace EddiDataProviderService
 
         private void saveFromStarMapService(List<StarSystem> syncSystems)
         {
-            StarSystemSqLiteRepository.Instance.SaveStarSystems(syncSystems);
+            starSystemRepository.SaveStarSystems(syncSystems);
             var starMapConfiguration = ConfigService.Instance.edsmConfiguration;
             starMapConfiguration.lastFlightLogSync = DateTime.UtcNow;
             ConfigService.Instance.edsmConfiguration = starMapConfiguration;
         }
+
+        #endregion
     }
 }

@@ -1,10 +1,9 @@
 ﻿using Eddi;
-using EddiCore.Upgrader;
 using EddiCargoMonitor;
 using EddiCompanionAppService;
 using EddiCore;
+using EddiCore.Upgrader;
 using EddiDataDefinitions;
-using EddiDataProviderService;
 using EddiEvents;
 using EddiNavigationService;
 using EddiShipMonitor;
@@ -897,14 +896,14 @@ namespace EddiVoiceAttackResponder
                 if (EDDI.Instance.CurrentStarSystem != null)
                 {
                     // Store locally
-                    string currentSystemName = EDDI.Instance.CurrentStarSystem.systemname;
-                    StarSystem currentSystem = StarSystemSqLiteRepository.Instance.GetOrFetchStarSystem(currentSystemName);
+                    var systemAddress = EDDI.Instance.CurrentStarSystem.systemAddress;
+                    var currentSystem = EDDI.Instance.DataProvider.GetOrFetchStarSystem(systemAddress);
                     currentSystem.comment = comment == "" ? null : comment;
-                    StarSystemSqLiteRepository.Instance.SaveStarSystem(currentSystem);
+                    EDDI.Instance.DataProvider.SaveStarSystem(currentSystem);
 
                     // Store in EDSM
-                    IEdsmService edsmService = new StarMapService(null, true);
-                    edsmService.sendStarMapComment(currentSystemName, comment);
+                    var edsmService = new StarMapService(null, true);
+                    edsmService.sendStarMapComment(systemAddress, comment);
                 }
             }
             catch (Exception e)

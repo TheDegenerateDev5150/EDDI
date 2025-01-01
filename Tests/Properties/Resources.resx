@@ -124,23 +124,8 @@
   <data name="CapitalSystems" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>CapitalSystems.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="cubeSystemsAroundSol" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>cubeSystemsAroundSol.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="edsmBodies" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>edsmBodies.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
   <data name="edsmDeaths" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>edsmDeaths.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="edsmFactions" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>edsmFactions.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="edsmStations" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>edsmStations.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="edsmSystem" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>edsmSystem.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="edsmTraffic" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>edsmTraffic.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
@@ -150,21 +135,6 @@
   </data>
   <data name="shipMonitor" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>shipMonitor.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Sol" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>Sol.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="SolBodies" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>SolBodies.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="SolFactions" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>SolFactions.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="SolStations" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>SolStations.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="sphereAroundSol" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>sphereAroundSol.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="sqlStarSystem1" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>sqlStarSystem1.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
@@ -179,7 +149,7 @@
     <value>sqlStarSystem4.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="starsystems" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>starsystems.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
+    <value>starsystems.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;iso-8859-1</value>
   </data>
   <data name="vehicle" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>vehicle.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
@@ -220,6 +190,9 @@
   <data name="capi_market_fleet_carrier" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>capi-market-fleet_carrier.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="capi_profile" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>capi-profile.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="Outfitting" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Outfitting.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
@@ -231,5 +204,104 @@
   </data>
   <data name="loadout_python_nx" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>loadout-python-nx.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="SpanshStarSystemDumpSol" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>SpanshStarSystemDumpSol.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="SpanshQuickStarSystemAchenar" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>SpanshQuickStarSystemAchenar.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="SpanshQuickStarSystemAlioth" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>SpanshQuickStarSystemAlioth.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="SpanshQuickStarSystemSol" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>SpanshQuickStarSystemSol.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="SpanshQuickStarSystemPleiadesSector_HR_W_d1_79" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>SpanshQuickStarSystemPleiadesSector_HR_W_d1_79.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="SpanshQuickStarSystemPleiadesSector_GW_W_c1_4" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>SpanshQuickStarSystemPleiadesSector_GW_W_c1_4.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="SpanshQuickStarSystemHyadesSector_DL_X_b1_2" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>SpanshQuickStarSystemHyadesSector_DL_X_b1_2.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="SpanshQuickStarSystemOmegaSector_DM_M_b7_16" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>SpanshQuickStarSystemOmegaSector_DM_M_b7_16.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="SpanshStarSystemDumpCalenerro" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>SpanshStarSystemDumpCalenerro.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="SpanshQuickStarSystemArtemis" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>SpanshQuickStarSystemArtemis.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="SpanshStarSystemDumpShinrartaDezhra" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>SpanshStarSystemDumpShinrartaDezhra.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="SpanshStarSystemDumpEravate" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>SpanshStarSystemDumpEravate.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="SpanshStarSystemDumpLHS_20" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>SpanshStarSystemDumpLHS_20.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="SpanshStarSystemDumpTachmetae" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>SpanshStarSystemDumpTachmetae.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="SpanshQueryStationEncodedMtrl" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>SpanshQueryStationEncodedMtrl.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="SpanshStarSystemDumpEZ_Aquarii" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>SpanshStarSystemDumpEZ_Aquarii.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="SpanshQueryStationManufacturedMtrl" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>SpanshQueryStationManufacturedMtrl.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="SpanshStarSystemDumpSirius" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>SpanshStarSystemDumpSirius.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="SpanshStarSystemDumpCephei_Sector_DQ_Y" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>SpanshStarSystemDumpCephei_Sector_DQ-Y.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="SpanshStarSystemDumpHP_8525" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>SpanshStarSystemDumpHP_8525.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="SpanshQueryStationRawMtrl" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>SpanshQueryStationRawMtrl.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="SpanshStarSystemDump61_Cyngi" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>SpanshStarSystemDump61_Cyngi.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="SpanshQueryStationFacilitator" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>SpanshQueryStationFacilitator.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="SpanshStarSystemDumpBarnards_Star" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>SpanshStarSystemDumpBarnards_Star.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="SpanshStarSystemDumpAlioth" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>SpanshStarSystemDumpAlioth.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="SpanshQueryStationGuardianTechBroker" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>SpanshQueryStationGuardianTechBroker.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="SpanshStarSystemDumpAltair" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>SpanshStarSystemDumpAltair.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="SpanshQueryStationHumanTechBroker" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>SpanshQueryStationHumanTechBroker.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="SpanshQueryStationScorpionSRV" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>SpanshQueryStationScorpionSRV.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="SpanshStarSystemDumpGendalla" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>SpanshStarSystemDumpGendalla.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="SpanshQueryBodyScoopableStar" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>SpanshQueryBodyScoopableStar.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="SpanshStarSystemDumpHIP_20277" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>SpanshStarSystemDumpHIP_20277.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="SpanshStarSystemDumpCarthage" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>SpanshStarSystemDumpCarthage.json;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
 </root>

@@ -9,12 +9,13 @@ namespace EddiSpanshService
 {
     public interface ISpanshRestClient
     {
-        Uri BuildUri(IRestRequest request);
-        IRestResponse<T> Execute<T>(IRestRequest request);
-        IRestResponse Get(IRestRequest request);
+        Uri BuildUri ( IRestRequest request );
+        IRestResponse<T> Execute<T> ( IRestRequest request );
+        IRestResponse Get ( IRestRequest request );
+        IRestResponse Post ( IRestRequest request );
     }
 
-    public partial class SpanshService : ISpanshService
+    public partial class SpanshService
     {
         private const string baseUrl = "https://spansh.co.uk/api/";
         private readonly ISpanshRestClient spanshRestClient;
@@ -34,18 +35,50 @@ namespace EddiSpanshService
                 };
             }
 
-            public Uri BuildUri(IRestRequest request) => restClient.BuildUri(request);
+            public Uri BuildUri ( IRestRequest request ) => restClient.BuildUri( request );
 
-            public IRestResponse<T> Execute<T>(IRestRequest request)
+            public IRestResponse<T> Execute<T> ( IRestRequest request )
             {
-                var response = restClient.Execute<T>(request);
+                var response = restClient.Execute<T>( request );
                 return response;
             }
 
-            public IRestResponse Get(IRestRequest request)
+            public IRestResponse Get ( IRestRequest request )
             {
-                var response = Execute<object>(request);
+                var response = Execute<object>( request );
                 return response;
+            }
+
+            /// <summary>
+            /// Post a search request with a json payload
+            /// </summary>
+            /// <param name="request"></param>
+            /// <returns></returns>
+            public IRestResponse Post ( IRestRequest request )
+            {
+                var response = Execute<object>( request );
+                if ( !IsResponseOk( response ) ) { return null; }
+                return response;
+            }
+
+            private static bool IsResponseOk ( IRestResponse response )
+            {
+                if ( response is null )
+                {
+                    Logging.Warn( "Spansh API is not responding" );
+                    return false;
+                }
+                if ( !response.IsSuccessful )
+                {
+                    Logging.Warn( $"Spansh API responded with: {response.StatusCode} - {response.StatusDescription}", response );
+                    return false;
+                }
+                if ( string.IsNullOrEmpty( response.Content ) )
+                {
+                    Logging.Warn( "Spansh API responded without providing any data", response );
+                    return false;
+                }
+                return true;
             }
         }
 

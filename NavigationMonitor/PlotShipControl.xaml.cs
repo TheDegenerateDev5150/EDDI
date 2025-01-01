@@ -2,7 +2,6 @@
 using EddiConfigService;
 using EddiCore;
 using EddiDataDefinitions;
-using EddiDataProviderService;
 using EddiNavigationService;
 using System;
 using System.Collections.Generic;
@@ -407,25 +406,25 @@ namespace EddiNavigationMonitor
 
         private void ConfigureSearchStationOptions(string system)
         {
-            List<string> SearchStationOptions = new List<string>
+            List<string> searchStationOptions = new List<string>
                 {
                     Properties.NavigationMonitor.no_station
                 };
 
             if (searchStationDropDown.Visibility == Visibility.Visible && !string.IsNullOrEmpty(system))
             {
-                StarSystem SearchSystem = StarSystemSqLiteRepository.Instance.GetOrFetchStarSystem(system, true, true, false, true, false);
-                if (SearchSystem?.stations != null)
+                var searchSystem = EDDI.Instance.DataProvider.GetOrFetchStarSystem(system);
+                if (searchSystem?.stations != null)
                 {
-                    foreach (Station station in SearchSystem.stations.Where(s => !s.IsCarrier() && !s.IsMegaShip()))
+                    foreach (var station in searchSystem.stations.Where(s => !s.IsCarrier() && !s.IsMegaShip()))
                     {
-                        SearchStationOptions.Add(station.name);
+                        searchStationOptions.Add(station.name);
                     }
                 }
             }
             // sort but leave "No Station" at the top
-            SearchStationOptions.Sort(1, SearchStationOptions.Count - 1, null);
-            searchStationDropDown.ItemsSource = SearchStationOptions;
+            searchStationOptions.Sort(1, searchStationOptions.Count - 1, null);
+            searchStationDropDown.ItemsSource = searchStationOptions;
         }
 
         private void searchStationDropDownUpdated(object sender, SelectionChangedEventArgs e)

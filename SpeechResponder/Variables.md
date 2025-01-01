@@ -446,9 +446,9 @@ An SRV or Fighter hangar.
 
 ---
 
-## Starsystem
+## Star system
 
-### Current starsystem
+### Current star system
 
 Information about your current starsystem is available under the *system* object.
 
@@ -461,24 +461,24 @@ Any values might be missing, depending on EDDI's configuration and the informati
   - *faction* - the name of the dominant faction in this starsystem
   - *factions* - the starsystem's factions (array of Faction objects)
   - *primaryeconomy* - the primary economy in this starsystem (High Technology, Agriculture, etc)
-  - *state* - the state of the starsystem (Boom, War, etc)
+  - *state* - the state of the star system's controlling faction (Boom, War, etc)
   - *security* - the level of security in the starsystem (Low, Medium, High)
-  - *power* - the power who is controlling the starsystem (Edmund Mahon, Zachary Hudson etc)
-  - *powerstate* - the state of the system for the power (controlled, contested etc)
+  - *power* - (When pledged) The localized powerplay power controlling the star system, if any. If the star system is `Contested`, this will be empty
+  - *powerstate* - (When pledged) The localized state of powerplay efforts within the star system
+  - *contestingpowers* - (When pledged) The localized names of powerplay powers contesting control of the star system, if any
   - *x* - the X co-ordinate of the starsystem
   - *y* - the Y co-ordinate of the starsystem
   - *z* - the Z co-ordinate of the starsystem
   - *stations* - the starsystem's stations (array of Station objects)
-  - *planetarystations* - the starsystem's stations, filtered to only return planetary stations (array of Station objects)
-  - *orbitalstations* - the starsystem's stations, filtered to only return orbital stations (array of Station objects)
+  - *planetarystations* - the starsystem's stations, filtered to only return dockable and permanent planetary stations (array of Station objects)
+  - *orbitalstations* - the starsystem's stations, filtered to only return dockable and permanent orbital stations (array of Station objects)
   - *bodies* - the starsystem's bodies (array of Body objects)
   - *visits* - the number of visits that the commander has made to this starsystem
   - *lastVisitSeconds* - the time that the commander last visited this starsystem, expressed as a Unix timestamp in seconds
   - *distancefromhome* - the distance in LY from the commander's home starsystem
   - *comment* - any comment the commander has made on the starsystem
   - *updatedat* - the timestamp at which the system information was last updated, expressed as a Unix timestamp in seconds
-  - *requirespermit* - (If using SystemDetails()) Whether this system requires a permit (as a boolean)
-  - *permitname* - (If using SystemDetails()) The name of the permit required for visiting this system, if any
+  - *requirespermit* - Whether this system requires a permit to enter (as a boolean)
   - *signalsources* - a list of signals detected within the starsystem (for the current starsystem only)
   - *carriersignalsources* - a list of signals detected within the starsystem, filtered  to only return fleet carrier signals (for the current star system only) 
   - *surfaceelements* - the elements available from bodies in this starsystem (as an array of material names)
@@ -588,6 +588,7 @@ In addition, stars have the following data:
   - *absolutemagnitude* - the absolute magnitude of the star (lower is brighter)
   - *chromaticity* - the colour of the star
   - *luminosity* - the calculated luminosity of the star
+  - *luminosityclass* - the luminosity class of the star
   - *estimatedhabzoneinner* - The estimated inner radius of the habitable zone of the star, in light seconds, not considering other stars in the system
   - *estimatedhabzoneouter* - The estimated outer radius of the habitable zone of the star, in light seconds, not considering other stars in the system
   - *ageprobability* - the cumulative probability describing the star's age, relative to other stars of the same stellar class.
@@ -704,7 +705,7 @@ An object describing the presence and state of a faction within a system
   - *PendingStates* - a list of FactionState objects and trend values
   - *RecoveringStates* - a list of FactionState objects and trend values
   - *influence* - the faction's influence level within the system, as a percentage
-  - *happiness* - the current happiness level within the faction
+  - *happiness* - the current happiness level of the faction within the system
 
 ### Conflict
 

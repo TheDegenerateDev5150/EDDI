@@ -7,45 +7,34 @@ namespace EddiDataDefinitions
 {
     public class Faction
     {
-        /// <summary> The faction's name </summary>
-        [PublicAPI]
+        [PublicAPI( "The name of the faction" )]
         public string name { get; set; }
 
-        /// <summary> The faction's allegiance (localized name) </summary>
-        [PublicAPI, JsonIgnore, Obsolete("Please use Allegiance instead")]
+        [PublicAPI( "The allegiance of the faction, if known, as an object" )]
+        public Superpower Allegiance { get; set; }
+
+        [PublicAPI( "The localized allegiance of the faction, if known" ), JsonIgnore, Obsolete("Please use Allegiance instead")]
         public string allegiance => (Allegiance ?? Superpower.None).localizedName;
 
-        /// <summary> The faction's government (localized name) </summary>
-        [PublicAPI, JsonIgnore, Obsolete("Please use Government instead")]
+        [PublicAPI( "The government of the faction, if known, as an object" )]
+        public Government Government { get; set; }
+
+        [PublicAPI( "The localized government of the faction, if known" ), JsonIgnore, Obsolete("Please use Government instead")]
         public string government => (Government ?? Government.None).localizedName;
 
-        /// <summary> The pilot's current reputation with the faction (as a percentage) </summary>
-        [PublicAPI]
+        [PublicAPI( "Your reputation with the faction, out of 100%" )]
         public decimal? myreputation { get; set; }
 
-        /// <summary> Whether the faction is the pilot's current squadron faction </summary>
-        [PublicAPI]
+        [PublicAPI( "True if the faction is the pilot's current squadron faction" )]
         public bool squadronfaction { get; set; }
 
         /// <summary> The faction's presence in various systems </summary>
         // As this is quite dynamic data and the data we receive at any given time is likely to be incomplete, 
         // we won't save it to the local database at this time.
-        [PublicAPI]
+        [PublicAPI( "A list of FactionPresence objects. Unless called from the *FactionDetails()* function, only details from the current system will be included here" )]
         public List<FactionPresence> presences { get; set; } = new List<FactionPresence>();
 
         // Not intended to be user facing
-
-        /// <summary> The faction's EDSM ID </summary>
-        public long? EDSMID { get; set; }
-
-        /// <summary> The faction's allegiance </summary>
-        public Superpower Allegiance { get; set; }
-
-        /// <summary> The faction's government </summary>
-        public Government Government { get; set; }
-
-        /// <summary> Whether the faction is a player faction </summary>
-        public bool? isplayer { get; set; }
 
         /// <summary> The last time the information present changed </summary> 
         public long? updatedat => Dates.fromDateTimeToSeconds(updatedAt);
@@ -69,54 +58,58 @@ namespace EddiDataDefinitions
 
     public class FactionPresence
     {
-        /// <summary> The star system beginning described for this faction </summary>
-        [PublicAPI]
+        [PublicAPI( "The system name where this faction hasa presence" )]
         public string systemName { get; set; }
 
-        [PublicAPI]
+        [PublicAPI( "The unique 64 bit system address where this faction has a presence" )]
         public ulong systemAddress { get; set; }
 
-        /// <summary> The faction's current system state (localized name) </summary>
-        [PublicAPI, JsonIgnore, Obsolete("Please use FactionState instead")]
-        public string state => (FactionState ?? FactionState.None).localizedName;
+        [PublicAPI( "The faction's current dominant state in this system, as an object" )]
+        public FactionState FactionState
+        {
+            get => _factionState ?? FactionState.None;
+            set => _factionState = value;
+        }
+        private FactionState _factionState;
 
-        /// <summary> The faction's current active states, if any </summary>
-        [PublicAPI]
-        public List<FactionState> ActiveStates { get; set; } = new List<FactionState>();
+        [PublicAPI( "The faction's current (localized) dominant state in this system" ), JsonIgnore, Obsolete("Please use FactionState instead")]
+        public string state => FactionState.localizedName;
 
-        /// <summary> The faction's pending states, if any </summary>
-        [PublicAPI]
-        public List<FactionTrendingState> PendingStates { get; set; } = new List<FactionTrendingState>();
-
-        /// <summary> The faction's recovering states, if any </summary>
-        [PublicAPI]
-        public List<FactionTrendingState> RecoveringStates { get; set; } = new List<FactionTrendingState>();
-
-        /// <summary> The faction's current influence in the system (as a percentage) </summary>
-        [PublicAPI]
+        [PublicAPI( "The faction's influence level within the system, as a percentage" )]
         public decimal? influence { get; set; }
 
-        [PublicAPI, JsonIgnore, Obsolete("Please use Happiness for code instead. This value is for use in Cottle only.")]
-        public string happiness => (Happiness ?? Happiness.None).localizedName;
+        [PublicAPI( "(For recently visited systems only) A list of FactionState objects" )]
+        public List<FactionState> ActiveStates { get; set; } = new List<FactionState>();
 
-        // Not intended to be user facing
+        [PublicAPI( "(For recently visited systems only) A list of pending FactionState objects and trend values" )]
+        public List<FactionTrendingState> PendingStates { get; set; } = new List<FactionTrendingState>();
 
-        /// <summary> The faction's current system state </summary>
-        public FactionState FactionState { get; set; } = FactionState.None;
+        [PublicAPI( "(For recently visited systems only) A list of recent prior FactionState objects and trend values" )]
+        public List<FactionTrendingState> RecoveringStates { get; set; } = new List<FactionTrendingState>();
 
-        /// <summary> The faction's current happiness within the system </summary>
-        public Happiness Happiness { get; set; }
+        [PublicAPI( "(For recently visited systems only) The current happiness level of the faction within the system, as an object" )]
+        public Happiness Happiness
+        {
+            get => _happiness ?? Happiness.None;
+            set => _happiness = value;
+        }
+        private Happiness _happiness;
 
-        /// <summary> The last time the information present changed </summary> 
-        public long? updatedat => Dates.fromDateTimeToSeconds(updatedAt);
-        public DateTime updatedAt { get; set; }
+        [PublicAPI ( "(For recently visited systems only) The current localized happiness level of the faction within the system" ), JsonIgnore, Obsolete("Please use Happiness for code instead. This value is for use in Cottle only.")]
+        public string happiness => Happiness.localizedName;
 
         // Pilot and squadron data
 
         /// <summary> Whether the system is the happiest system in the pilot's squadron's faction's control </summary>
         public bool squadronhappiestsystem { get; set; }
 
-        /// <summary> True for the squadron's home faction in their home system </summary>
+        [PublicAPI( "(For recently visited systems only) True if the faction is the pilot's current squadron faction" )]
         public bool squadronhomesystem { get; set; }
+
+        // Not intended to be user facing
+
+        /// <summary> The last time the information present changed </summary> 
+        public long? updatedat => Dates.fromDateTimeToSeconds(updatedAt);
+        public DateTime updatedAt { get; set; }
     }
 }

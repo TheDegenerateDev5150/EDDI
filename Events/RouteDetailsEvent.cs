@@ -43,14 +43,21 @@ namespace EddiEvents
         // Not intended to be user facing
         public NavWaypointCollection Route { get; private set; }
 
-        public RouteDetailsEvent(DateTime timestamp, string routetype, string system, string station, NavWaypointCollection route, long count, List<long> missionids) : base(timestamp, NAME)
+        public ulong? systemAddress { get; private set; }
+
+        public long? marketID { get; private set; }
+
+        public RouteDetailsEvent ( DateTime timestamp, string routetype, string systemName, ulong? systemAddress,
+            string stationName, long? marketId, NavWaypointCollection route, long count, List<long> missionIds ) : base(timestamp, NAME)
         {
             this.routetype = routetype;
-            this.system = system;
-            this.station = station;
+            this.system = systemName;
+            this.systemAddress = systemAddress;
+            this.station = stationName;
+            this.marketID = marketId;
             this.Route = route;
             this.count = count;
-            this.missionids = missionids ?? new List<long>();
+            this.missionids = missionIds ?? new List<long>();
         }
     }
 }

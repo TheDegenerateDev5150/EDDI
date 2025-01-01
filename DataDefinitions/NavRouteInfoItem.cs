@@ -21,9 +21,9 @@ namespace EddiDataDefinitions
         [JsonProperty("StarClass")]
         public string stellarclass { get; set; }
 
-        public decimal? x => starPos?[0];
-        public decimal? y => starPos?[1];
-        public decimal? z => starPos?[2];
+        public decimal x => starPos[0];
+        public decimal y => starPos[1];
+        public decimal z => starPos[2];
 
         // Default Constructor
         public NavRouteInfoItem()

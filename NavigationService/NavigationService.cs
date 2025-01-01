@@ -1,9 +1,7 @@
 ﻿using EddiConfigService;
 using EddiCore;
 using EddiDataDefinitions;
-using EddiDataProviderService;
 using EddiEvents;
-using EddiStarMapService;
 using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
@@ -17,8 +15,6 @@ namespace EddiNavigationService
 {
     public sealed class NavigationService : INotifyPropertyChanged
     {
-        internal readonly IEdsmService EdsmService;
-        internal readonly DataProviderService DataProviderService;
         private static NavigationService _instance;
         private static readonly object InstanceLock = new object();
 
@@ -85,11 +81,8 @@ namespace EddiNavigationService
         }
         private bool _isWorking;
 
-        public NavigationService(IEdsmService edsmService)
+        public NavigationService()
         {
-            this.EdsmService = edsmService;
-            DataProviderService = new DataProviderService(edsmService);
-
             // Populate our query resolvers list
             GetQueryResolvers();
 
@@ -144,7 +137,7 @@ namespace EddiNavigationService
                         if (_instance == null)
                         {
                             Logging.Debug("No Navigation instance: creating one");
-                            _instance = new NavigationService(new StarMapService());
+                            _instance = new NavigationService();
                         }
                     }
                 }
@@ -193,7 +186,7 @@ namespace EddiNavigationService
                             }
                             else
                             {
-                                var carrierLocation = StarSystemSqLiteRepository.Instance.GetOrFetchStarSystem( fleetCarrier.currentStarSystem );
+                                var carrierLocation = EDDI.Instance.DataProvider.GetOrFetchStarSystem( fleetCarrier.currentStarSystem );
                                 if ( carrierLocation is null )
                                 {
                                     Logging.Warn("Invalid query: unable to find fleet carrier location.");
@@ -259,17 +252,11 @@ namespace EddiNavigationService
                     ConfigService.Instance.navigationMonitorConfiguration = navConfig;
 
                     // Update the global `SearchSystem` and `SearchStation` variables
-                    UpdateSearchData(result.system, result.station);
+                    UpdateSearchData(result.systemAddress, result.marketID);
                 }
             }
 
             return result;
-        }
-
-        internal static decimal CalculateDistance(StarSystem curr, StarSystem dest)
-        {
-            if (curr is null || dest is null) { return 0; }
-            return Functions.StellarDistanceLy(curr.x, curr.y, curr.z, dest.x, dest.y, dest.z) ?? 0;
         }
 
         internal static List<long> GetSystemMissionIds(string system)
@@ -290,12 +277,12 @@ namespace EddiNavigationService
             return missionids;
         }
 
-        private void UpdateSearchData(string searchSystem, string searchStation)
+        private void UpdateSearchData(ulong? searchSystemAddress, long? marketID)
         {
             // Update search system data
-            if (!string.IsNullOrEmpty(searchSystem))
+            if ( searchSystemAddress > 0 )
             {
-                StarSystem system = StarSystemSqLiteRepository.Instance.GetOrFetchStarSystem(searchSystem);
+                var system = EDDI.Instance.DataProvider.GetOrFetchStarSystem( (ulong)searchSystemAddress );
 
                 //Ignore null & empty systems
                 if (system != null)
@@ -306,7 +293,7 @@ namespace EddiNavigationService
                         SearchStarSystem = system;
                     }
                     // Update search system distance
-                    SearchDistanceLy = CalculateDistance(EDDI.Instance.CurrentStarSystem, system);
+                    SearchDistanceLy = EDDI.Instance.CurrentStarSystem?.DistanceFromStarSystem(system) ?? 0;
                 }
             }
             else
@@ -315,17 +302,13 @@ namespace EddiNavigationService
             }
 
             // Update search station data
-            if (!string.IsNullOrEmpty(searchStation) && SearchStarSystem?.stations != null)
+            if ( marketID > 0 && SearchStarSystem?.stations != null )
             {
-                string searchStationName = searchStation.Trim();
-                Station station = SearchStarSystem.stations.FirstOrDefault(s => s.name == searchStationName);
-                if (station != null)
+                var station = SearchStarSystem.stations.FirstOrDefault(s => s.marketId == marketID);
+                if (station != null && station.marketId != SearchStation?.marketId)
                 {
-                    if (station.name != SearchStation?.name)
-                    {
-                        Logging.Debug("Search station is " + station.name);
-                        SearchStation = station;
-                    }
+                    Logging.Debug("Search station is " + station.name);
+                    SearchStation = station;
                 }
             }
             else
@@ -333,7 +316,6 @@ namespace EddiNavigationService
                 SearchStation = null;
             }
         }
-
         public event PropertyChangedEventHandler PropertyChanged;
 
         [NotifyPropertyChangedInvocator]

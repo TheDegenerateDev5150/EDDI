@@ -1,0 +1,73 @@
+{
+  "count": 2,
+  "query": "1183229809290",
+  "results": [
+    {
+      "record": {
+        "bodies": [],
+        "body_count": 11,
+        "estimated_mapping_value": 1959194,
+        "estimated_scan_value": 538528,
+        "government": "None",
+        "id64": 1183229809290,
+        "known_permit": false,
+        "landmark_value": 0,
+        "name": "Pleiades Sector GW-W c1-4",
+        "needs_permit": false,
+        "population": 0,
+        "primary_economy": "None",
+        "region": "Inner Orion Spur",
+        "secondary_economy": "None",
+        "security": "Anarchy",
+        "thargoid_war_failure_state": "None",
+        "thargoid_war_state": "None",
+        "thargoid_war_success_state": "None",
+        "updated_at": "2024-11-04 20:36:33+00",
+        "x": -81.625,
+        "y": -151.3125,
+        "z": -383.53125
+      },
+      "type": "system"
+    },
+    {
+      "record": {
+        "age": 5398,
+        "atmosphere": "No atmosphere",
+        "axis_tilt": 0,
+        "belts": [
+          {
+            "inner_radius": 1186400000,
+            "mass": 1843500000,
+            "name": "Pleiades Sector GW-W c1-4 A Belt",
+            "outer_radius": 2211300000,
+            "type": "Metallic"
+          }
+        ],
+        "body_id": 0,
+        "distance_to_arrival": 0,
+        "estimated_mapping_value": 4598,
+        "estimated_scan_value": 1213,
+        "id64": 1183229809290,
+        "is_main_star": true,
+        "is_rotational_period_tidally_locked": false,
+        "luminosity_class": "Vab",
+        "name": "Pleiades Sector GW-W c1-4",
+        "rotational_period": 4.78646710849537,
+        "solar_masses": 0.769531,
+        "solar_radius": 0.898315410496046,
+        "spectral_class": "K0",
+        "subtype": "K (Yellow-Orange) Star",
+        "surface_temperature": 5058,
+        "system_id64": 1183229809290,
+        "system_name": "Pleiades Sector GW-W c1-4",
+        "system_region": "Inner Orion Spur",
+        "system_x": -81.625,
+        "system_y": -151.3125,
+        "system_z": -383.53125,
+        "type": "Star",
+        "updated_at": "2024-11-04 20:36:26+00"
+      },
+      "type": "body"
+    }
+  ]
+}

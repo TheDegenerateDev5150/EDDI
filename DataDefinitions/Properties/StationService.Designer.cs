@@ -187,6 +187,24 @@ namespace EddiDataDefinitions.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Fleet Carrier Fuel.
+        /// </summary>
+        public static string FleetCarrierFuel {
+            get {
+                return ResourceManager.GetString("FleetCarrierFuel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fleet Carrier Management.
+        /// </summary>
+        public static string FleetCarrierManagement {
+            get {
+                return ResourceManager.GetString("FleetCarrierManagement", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Flight Controller.
         /// </summary>
         public static string FlightController {
@@ -219,6 +237,15 @@ namespace EddiDataDefinitions.Properties {
         public static string Livery {
             get {
                 return ResourceManager.GetString("Livery", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Market.
+        /// </summary>
+        public static string Market {
+            get {
+                return ResourceManager.GetString("Market", resourceCulture);
             }
         }
         

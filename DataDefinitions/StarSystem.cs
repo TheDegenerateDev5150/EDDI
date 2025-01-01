@@ -17,377 +17,70 @@ namespace EddiDataDefinitions
     public class StarSystem
     {
         // General information
-        [Utilities.PublicAPI, JsonProperty("name"), JsonRequired]
+
+        [ Utilities.PublicAPI( "The name of the star system" ), JsonProperty( "name" ), JsonRequired ]
         public string systemname { get; set; }
 
-        public long? EDSMID { get; set; } // The ID in EDSM
+        // This is a key for legacy json files that cannot be changed without breaking backwards compatibility. 
+        [JsonIgnore, Obsolete( "Please use systemname instead." )]
+        public string name => systemname;
 
-        /// <summary>X co-ordinate for this system</summary>
-        [Utilities.PublicAPI]
-        public decimal? x { get; set; }
-
-        /// <summary>Y co-ordinate for this system</summary>
-        [Utilities.PublicAPI]
-        public decimal? y { get; set; }
-
-        /// <summary>Z co-ordinate for this system</summary>
-        [Utilities.PublicAPI]
-        public decimal? z { get; set; }
-
-        /// <summary>Unique 64 bit id value for system</summary>
-        [Utilities.PublicAPI, JsonProperty, JsonRequired]
+        [Utilities.PublicAPI( "The unique 64 bit ID for the star system" ), JsonProperty, JsonRequired]
         public ulong systemAddress { get; set; }
 
-        /// <summary>Details of bodies (stars/planets/moons), kept sorted by ID</summary>
-        [Utilities.PublicAPI, JsonProperty] // Required to deserialize to the private setter
+        [Utilities.PublicAPI( "The 'X' coordinates of the star system" ) ]
+        public decimal? x { get; set; }
+
+        [Utilities.PublicAPI( "The 'Y' coordinates of the star system" )]
+        public decimal? y { get; set; }
+
+        [Utilities.PublicAPI( "The 'Z' coordinates of the star system" )]
+        public decimal? z { get; set; }
+
+        #region Exploration Properties
+
+        // Details of bodies (stars/planets/moons), kept sorted by ID
+        [Utilities.PublicAPI( "The star system's bodies (stars/planets/moons), as an array of Body objects" ), JsonProperty] // Required to deserialize to the private setter
         public ImmutableList<Body> bodies
         {
             get => _bodies;
-            private set { _bodies = value; OnPropertyChanged();}
+            private set { _bodies = value; OnPropertyChanged(); }
         }
         private ImmutableList<Body> _bodies;
 
-        public Body BodyWithID(long? bodyID)
+        // Discoverable bodies as reported by a discovery scan "honk"
+        [Utilities.PublicAPI( "The total number of discoverable bodies within the system (only available after a discovery scan)" ), JsonProperty( "discoverableBodies" )]
+        public int totalbodies
         {
-            if (bodyID is null) { return null; }
-            Body result = bodies.Find(b => b.bodyId == bodyID);
-            return result;
+            get => _totalbodies;
+            set { _totalbodies = value; OnPropertyChanged(); }
         }
+        private int _totalbodies;
 
-        public void AddOrUpdateBody(Body body)
-        {
-            var builder = bodies.ToBuilder();
-            internalAddOrUpdateBody(body, builder);
-            builder.Sort(Body.CompareById);
-            bodies = builder.ToImmutable();
-        }
+        [Utilities.PublicAPI( "The total number of bodies you have scanned within the system" ), JsonIgnore]
+        public int scannedbodies => bodies.Count( b => b.scannedDateTime != null );
 
-        public void AddOrUpdateBodies(IEnumerable<Body> newBodies)
-        {
-            var builder = bodies.ToBuilder();
-            foreach (Body body in newBodies)
-            {
-                internalAddOrUpdateBody(body, builder);
-            }
-            builder.Sort(Body.CompareById);
-            bodies = builder.ToImmutable();
-        }
+        [Utilities.PublicAPI( "The total number of bodies you have mapped within the system" ), JsonIgnore]
+        public int mappedbodies => bodies.Count( b => b.mappedDateTime != null );
 
-        private void internalAddOrUpdateBody(Body newOrUpdatedBody, ImmutableList<Body>.Builder builder)
-        {
-            if ( newOrUpdatedBody is null ) { return; }
+        [Utilities.PublicAPI( "True if a fuel scoop equipped ship can refuel at at least one star in this star system" )]
+        public bool scoopable => bodies.Any( b => b.scoopable );
 
-            int index = builder.FindIndex(b =>
-                (b.bodyId != null && newOrUpdatedBody.bodyId != null && b.bodyId == newOrUpdatedBody.bodyId) || // Matching bodyId
-                (!string.IsNullOrEmpty(b.bodyname) && !string.IsNullOrEmpty(newOrUpdatedBody.bodyname) && b.bodyname == newOrUpdatedBody.bodyname) || // Matching bodyName
-                (b.distance == 0M && b.distance == newOrUpdatedBody.distance)); // Matching distance (for the main entry star only)
-            if (index >= 0)
-            {
-                builder[index] = PreserveBodyData(builder[index], newOrUpdatedBody);
-            }
-            else
-            {
-                builder.Add(newOrUpdatedBody);
-            }
-
-            // Update the system reserve level, when appropriate
-            if (newOrUpdatedBody.reserveLevel != ReserveLevel.None)
-            {
-                Reserve = newOrUpdatedBody.reserveLevel;
-            }
-        }
-
-        public void ClearTemporaryStars()
-        {
-            var builder = bodies.ToBuilder();
-            var bodiesToRemove = builder
-                .Where( b => b.bodyId is null || string.IsNullOrEmpty( b.bodyname ) )
-                .ToList();
-            builder.RemoveRange(  bodiesToRemove );
-            builder.Sort( Body.CompareById );
-            bodies = builder.ToImmutable();
-        }
-
-        public void PreserveBodyData(List<Body> oldBodies, ImmutableList<Body> newBodies)
-        {
-            // Update `bodies` with new data, except preserve properties not available via the server
-            var newBodyBuilder = newBodies.ToBuilder();
-            foreach (Body oldBody in oldBodies)
-            {
-                if (newBodyBuilder.Any(b => b.bodyname == oldBody.bodyname))
-                {
-                    int index = newBodyBuilder.FindIndex(b => b.bodyname == oldBody.bodyname);
-                    newBodyBuilder[index] = PreserveBodyData(oldBody, newBodyBuilder[index]);
-                }
-                else
-                {
-                    // `newBodies` did not contain the `oldBody` so we add it here, provided we've
-                    // scanned the body ourselves so that we're confident that our old data is accurate. 
-                    if (oldBody.scannedDateTime != null)
-                    {
-                        newBodyBuilder.Add(oldBody);
-                    }
-                }
-            }
-            newBodyBuilder.Sort(Body.CompareById);
-            bodies = newBodyBuilder.ToImmutable();
-        }
-
-        private static Body PreserveBodyData(Body oldBody, Body updatedBody)
-        {
-            if ( ( oldBody.scannedDateTime ?? DateTime.MinValue) > ( updatedBody.scannedDateTime ?? DateTime.MinValue ) )
-            {
-                updatedBody.scannedDateTime = oldBody.scannedDateTime;
-            }
-
-            if (oldBody.alreadydiscovered is true && 
-                oldBody.alreadydiscovered != updatedBody.alreadydiscovered)
-            {
-                updatedBody.alreadydiscovered = oldBody.alreadydiscovered;
-            }
-
-            if ( ( oldBody.mappedDateTime ?? DateTime.MinValue ) > ( updatedBody.mappedDateTime ?? DateTime.MinValue ) )
-            {
-                updatedBody.mappedDateTime = oldBody.mappedDateTime;
-            }
-
-            if (oldBody.alreadymapped is true &&
-                oldBody.alreadymapped != updatedBody.alreadymapped)
-            {
-                updatedBody.alreadymapped = oldBody.alreadymapped;
-            }
-
-            if (oldBody.mappedEfficiently &&
-                oldBody.mappedEfficiently != updatedBody.mappedEfficiently)
-            {
-                updatedBody.mappedEfficiently = oldBody.mappedEfficiently;
-            }
-
-            if (oldBody.rings?.Any() ?? false)
-            {
-                if (updatedBody.rings is null)
-                {
-                    updatedBody.rings = new List<Ring>();
-                }
-
-                foreach (var oldRing in oldBody.rings)
-                {
-                    var newRing = updatedBody.rings.FirstOrDefault(r => r.name == oldRing.name);
-                    if (oldRing.mapped != null)
-                    {
-                        if (newRing != null)
-                        {
-                            newRing.mapped = oldRing.mapped;
-                            newRing.hotspots = oldRing.hotspots;
-                        }
-                        else
-                        {
-                            // Our data source didn't contain any data about a ring we've scanned.
-                            // We add it here because we scanned the ring ourselves and are confident that the data is accurate
-                            updatedBody.rings.Add(oldRing);
-                        }
-                    }
-                }
-            }
-            return updatedBody;
-        }
-
-        /// <summary>True if any star in the system is scoopable</summary>
-        [Utilities.PublicAPI]
-        public bool scoopable => bodies.Any(b => b.scoopable);
-
-        /// <summary>The reserve level applicable to the system's rings</summary>
+        [Utilities.PublicAPI( "The reserve level applicable to the system's rings, as an object" )]
         public ReserveLevel Reserve
         {
             get => _reserve;
-            set { _reserve = value; OnPropertyChanged();}
+            set { _reserve = value; OnPropertyChanged(); }
         }
         private ReserveLevel _reserve = ReserveLevel.None;
 
-        [Utilities.PublicAPI, JsonIgnore]
-        public string reserves => (Reserve ?? ReserveLevel.None).localizedName;
+        [Utilities.PublicAPI( "The localized reserve level applicable to the system's rings" ), JsonIgnore]
+        public string reserves => ( Reserve ?? ReserveLevel.None ).localizedName;
 
-        // Populated system data
-
-        [Utilities.PublicAPI]
-        public long? population { get; set; } = 0;
-
-        [Utilities.PublicAPI, JsonIgnore]
-        public string primaryeconomy => (Economies.FirstOrDefault() ?? Economy.None).localizedName;
-
-        public List<Economy> Economies
-        {
-            get => _economies;
-            set { _economies = value; OnPropertyChanged();}
-        }
-        private List<Economy> _economies = new List<Economy>();
-
-        /// <summary>The system's security level</summary>
-        public SecurityLevel securityLevel { get; set; } = SecurityLevel.None;
-
-        /// <summary>The system's security level (localized name)</summary>
-        [Utilities.PublicAPI, JsonIgnore]
-        public string security => (securityLevel ?? SecurityLevel.None).localizedName;
-
-        /// <summary> The powerplay power exerting influence within the system (null if contested)</summary>
-        [JsonIgnore]
-        public Power Power => Powers.Count > 1 ? null : Powers.FirstOrDefault();
-
-        /// <summary> The powerplay powers exerting influence within the system (may include multiple when the system is contested) </summary>
-        public List<Power> Powers { get; set; } = new List<Power>();
-
-        [Utilities.PublicAPI, JsonIgnore]
-        public string power => (Power ?? Power.None).localizedName;
-
-        /// <summary> The state of powerplay within the system </summary>
-        public PowerplayState powerState { get; set; }
-
-        [Utilities.PublicAPI, JsonIgnore]
-        public string powerstate => (powerState ?? PowerplayState.None).localizedName;
-
-        [Utilities.PublicAPI, JsonIgnore]
-        public string state => (Faction?.presences.FirstOrDefault(p => p.systemAddress == systemAddress )?.FactionState ?? FactionState.None).localizedName;
-
-        // Faction details
-        [CanBeNull	]
-        public Faction Faction
-        {
-            get => _faction;
-            set { _faction = value; OnPropertyChanged();}
-        }
-        private Faction _faction = new Faction();
-
-        [Utilities.PublicAPI]
-        public List<Faction> factions
-        {
-            get => _factions;
-            set { _factions = value; OnPropertyChanged();}
-        }
-        private List<Faction> _factions;
-
-        [Utilities.PublicAPI, JsonIgnore, Obsolete("Please use Faction instead")]
-        public string faction => Faction?.name;
-
-        [Utilities.PublicAPI, JsonIgnore, Obsolete("Please use Faction.Allegiance instead")]
-        public string allegiance => (Faction?.Allegiance ?? Superpower.None).localizedName;
-
-        [Utilities.PublicAPI, JsonIgnore, Obsolete("Please use Faction.Government instead")]
-        public string government => (Faction?.Government ?? Government.None).localizedName;
-
-        [Utilities.PublicAPI( "Faction conflicts data. Currently only available for recently visited star systems." ), JsonIgnore]
-        public List<Conflict> conflicts
-        {
-            get => _conflicts;
-            set { _conflicts = value; OnPropertyChanged(); }
-        }
-        private List<Conflict> _conflicts;
-
-        [ Utilities.PublicAPI("Thargoid war data. Currently only available for recently visited star systems." ), JsonIgnore ]
-        public ThargoidWar ThargoidWar
-        {
-            get => _thargoidWar;
-            set { _thargoidWar = value; OnPropertyChanged(); }
-        }
-        private ThargoidWar _thargoidWar;
-
-        /// <summary>Details of stations</summary>
-        [Utilities.PublicAPI]
-        public List<Station> stations
-        {
-            get => _stations;
-            set { _stations = value; OnPropertyChanged();}
-        }
-        private List<Station> _stations;
-
-        /// <summary>Summary info for stations</summary>
-        [Utilities.PublicAPI, JsonIgnore]
-        public List<Station> planetarystations => stations.FindAll(s => s.IsPlanetary());
-
-        [Utilities.PublicAPI, JsonIgnore]
-        public List<Station> orbitalstations => stations.FindAll(s => (s.hasdocking ?? false) 
-            && !s.IsPlanetary() 
-            && !s.IsCarrier() 
-            && !s.IsMegaShip());
-
-        /// <summary> Whether this system requires a permit for visiting </summary>
-        [Utilities.PublicAPI]
-        public bool requirespermit { get; set; }
-
-        /// <summary> The name of the permit required for visiting this system, if any </summary>
-        [Utilities.PublicAPI]
-        public string permitname { get; set; }
-
-        // Other data
-
-        /// <summary>Types of signals detected within the system</summary>
-        [JsonIgnore]
-        public ImmutableList<SignalSource> signalSources 
-        { 
-            get 
-            {
-                _signalSources = _signalSources.RemoveAll(s => s.expiry != null && s.expiry < DateTime.UtcNow);
-                return _signalSources; 
-            } 
-            set 
-            {
-                _signalSources = value; 
-                OnPropertyChanged();
-            } 
-        }
-
-        [JsonIgnore]
-        private ImmutableList<SignalSource> _signalSources = ImmutableList<SignalSource>.Empty;
-
-        [Utilities.PublicAPI, JsonIgnore]
-        public List<string> signalsources => signalSources.Select(s => s.localizedName).Distinct().ToList();
-
-        public void AddOrUpdateSignalSource(SignalSource signalSource)
-        {
-            var builder = signalSources.ToBuilder();
-            builder.Add(signalSource);
-            signalSources = builder.ToImmutable();
-        }
-
-        /// <summary> Signals filtered to only return results with a carrier callsign </summary>
-        [Utilities.PublicAPI, JsonIgnore]
-        public List<string> carriersignalsources => signalSources
-            .Where(s => new Regex("[[a-zA-Z0-9]{3}-[[a-zA-Z0-9]{3}$").IsMatch(s.invariantName) 
-                && (s.isStation ?? false))
-            .Select(s => s.localizedName)
-            .ToList();
-
-        /// <summary> Whether the system is a "green" system for exploration (containing all FSD synthesis elements) </summary>
-        [Utilities.PublicAPI, JsonIgnore]
-        public bool isgreen => materialsAvailable.IsSupersetOf(Material.jumponiumElements);
-
-        /// <summary> Whether the system is a "gold" system for exploration (containing all elements available from planetary surfaces) </summary>
-        [Utilities.PublicAPI, JsonIgnore]
-        public bool isgold => materialsAvailable.IsSupersetOf(Material.surfaceElements);
-
-        /// <summary>Number of visits</summary>
-        [Utilities.PublicAPI, JsonIgnore]
+        [Utilities.PublicAPI( "The estimated exploration value of the star system (including bonuses for fully scanning and mapping)" ), JsonIgnore]
         public long estimatedvalue => estimateSystemValue();
 
-        /// <summary>Number of visits</summary>
-        [Utilities.PublicAPI]
-        public int visits => visitLog.Count();
-
-        /// <summary>Time of last visit</summary>
-        public DateTime? lastvisit => visitLog.LastOrDefault();
-
-        /// <summary>Visit log</summary>
-        public readonly SortedSet<DateTime> visitLog = new SortedSet<DateTime>();
-
-        /// <summary>Time of last visit, expressed as a Unix timestamp in seconds</summary>
-        [Utilities.PublicAPI, JsonIgnore]
-        public long? lastVisitSeconds => lastvisit > DateTime.MinValue ? (long?)Dates.fromDateTimeToSeconds((DateTime)lastvisit) : null;
-
-        /// <summary>comment on this starsystem</summary>
-        [Utilities.PublicAPI]
-        public string comment;
-
-        /// <summary>distance from home</summary>
-        [Utilities.PublicAPI, JsonIgnore]
+        [Utilities.PublicAPI ("The distance in LY from the commander's home star system"), JsonIgnore]
         public decimal? distancefromhome;
 
         /// <summary>Whether a system scan has already been completed for this system in the current play session</summary>
@@ -397,32 +90,201 @@ namespace EddiDataDefinitions
         // Not intended to be user facing - materials available within the system
         [JsonIgnore]
         private HashSet<Material> materialsAvailable => bodies?
-            .SelectMany(b => b.materials)
-            .Select(m => m.definition)
-            .Where(m => m != null)
+            .SelectMany( b => b.materials )
+            .Select( m => m.definition )
+            .Where( m => m != null )
             .Distinct()
-            .OrderByDescending(m => m.Rarity.level)
+            .OrderByDescending( m => m.Rarity.level )
             .ToHashSet() ?? new HashSet<Material>();
 
         // Not intended to be user facing - materials available from system bodies
         [Utilities.PublicAPI, JsonIgnore]
         public HashSet<string> surfaceelements => materialsAvailable
-            .Select(m => m.localizedName).ToHashSet();
+            .Select( m => m.localizedName ).ToHashSet();
 
-        // Discoverable bodies as reported by a discovery scan "honk"
-        [Utilities.PublicAPI, JsonProperty("discoverableBodies")]
-        public int totalbodies
+        [Utilities.PublicAPI( "True if bodies in this star system contain all elements required for FSD synthesis" ), JsonIgnore]
+        public bool isgreen => materialsAvailable.IsSupersetOf( Material.jumponiumElements );
+
+        [Utilities.PublicAPI( "True if bodies in this star system contain all elements available from surface prospecting" ), JsonIgnore]
+        public bool isgold => materialsAvailable.IsSupersetOf( Material.surfaceElements );
+
+        #endregion
+
+        #region Populated System Properties
+
+        [Utilities.PublicAPI( "The population of the star system" )]
+        public long? population { get; set; } = 0;
+
+        [Utilities.PublicAPI( "The localized primary economy in this star system (High Technology, Agriculture, etc)" ), JsonIgnore]
+        public string primaryeconomy => ( Economies.FirstOrDefault() ?? Economy.None ).localizedName;
+
+        [Utilities.PublicAPI( "The economies in this star system (High Technology, Agriculture, etc), as objects" ), JsonIgnore]
+        public List<Economy> Economies
         {
-            get => _totalbodies;
-            set { _totalbodies = value; OnPropertyChanged();}
+            get => _economies;
+            set { _economies = value; OnPropertyChanged(); }
         }
-        private int _totalbodies;
+        private List<Economy> _economies = new List<Economy>();
 
-        [Utilities.PublicAPI, JsonIgnore]
-        public int scannedbodies => bodies.Count(b => b.scannedDateTime != null);
+        [Utilities.PublicAPI( "The security level in the star system, as an object" )]
+        public SecurityLevel securityLevel { get; set; } = SecurityLevel.None;
 
-        [Utilities.PublicAPI, JsonIgnore]
-        public int mappedbodies => bodies.Count(b => b.mappedDateTime != null);
+        [Utilities.PublicAPI( "The localized security level in the star system (Low, Medium, High)" ), JsonIgnore]
+        public string security => ( securityLevel ?? SecurityLevel.None ).localizedName;
+
+        [ Utilities.PublicAPI(
+              "(When pledged) The powerplay power controlling the star system, if any, as an object. If the star system is `Contested`, this will be empty" ),
+          JsonIgnore ]
+        public Power Power
+        {
+            get => _Power ?? Power.None;
+            set => _Power = value;
+        }
+        private Power _Power;
+
+        [Utilities.PublicAPI( "(When pledged) The localized powerplay power controlling the star system, if any. If the star system is `Contested`, this will be empty" ), JsonIgnore]
+        public string power => Power.localizedName;
+
+        [ Utilities.PublicAPI( "(When pledged) The state of powerplay efforts within the star system, as an object" ) ]
+        public PowerplayState powerState
+        {
+            get => _powerState ?? PowerplayState.None;
+            set => _powerState = value;
+        }
+        private PowerplayState _powerState;
+
+        [Utilities.PublicAPI( "(When pledged) The localized state of powerplay efforts within the star system" ), JsonIgnore]
+        public string powerstate => powerState.localizedName;
+
+        [Utilities.PublicAPI( "(When pledged) Powerplay powers contesting control of the star system, if any, as objects" )]
+        public List<Power> ContestingPowers { get; set; } = new List<Power>();
+
+        [Utilities.PublicAPI( "(When pledged) The localized names of powerplay powers contesting control of the star system, if any" )]
+        public List<string> contestingpowers => ContestingPowers?
+            .Select( p => p.localizedName )
+            .ToList();
+
+        // Faction details
+        [Utilities.PublicAPI( "The star system controlling faction, if any, as an object" ), CanBeNull]
+        public Faction Faction
+        {
+            get => _faction;
+            set { _faction = value; OnPropertyChanged(); }
+        }
+        private Faction _faction = new Faction();
+
+        [Utilities.PublicAPI( "The star system's factions, if any, as objects" )]
+        public List<Faction> factions
+        {
+            get => _factions;
+            set { _factions = value; OnPropertyChanged(); }
+        }
+        private List<Faction> _factions;
+
+        [Utilities.PublicAPI( "The name of the star system controlling faction, if any" ), JsonIgnore, Obsolete( "Please use Faction instead" )]
+        public string faction => Faction?.name;
+
+        [Utilities.PublicAPI( "The localized superpower alleginace of the star system controlling faction, if any" ), JsonIgnore, Obsolete( "Please use Faction.Allegiance instead" )]
+        public string allegiance => ( Faction?.Allegiance ?? Superpower.None ).localizedName;
+
+        [Utilities.PublicAPI( "The localized government of the star system controlling faction, if any" ), JsonIgnore, Obsolete( "Please use Faction.Government instead" )]
+        public string government => ( Faction?.Government ?? Government.None ).localizedName;
+
+        [Utilities.PublicAPI( "The state of the star system's controlling faction (Boom, War, etc)" ), JsonIgnore]
+        public string state => ( Faction?.presences.FirstOrDefault( p => p.systemAddress == systemAddress )?.FactionState ?? FactionState.None ).localizedName;
+
+        [Utilities.PublicAPI( "Faction conflicts data. Currently only available for recently visited star systems." ), JsonIgnore]
+        public List<Conflict> conflicts
+        {
+            get => _conflicts;
+            set { _conflicts = value; OnPropertyChanged(); }
+        }
+        private List<Conflict> _conflicts;
+
+        [Utilities.PublicAPI( "The star system's stations (as an array of Station objects)" )]
+        public List<Station> stations
+        {
+            get => _stations;
+            set { _stations = value; OnPropertyChanged(); }
+        }
+        private List<Station> _stations;
+
+        /// <summary>Summary info for stations</summary>
+        [Utilities.PublicAPI( "The star system's stations, filtered to only return dockable and permanent planetary stations (array of Station objects)" ), JsonIgnore]
+        public List<Station> planetarystations => stations.FindAll( s => ( s.hasdocking ?? false )
+                                                                         && s.IsPlanetary() );
+
+        [Utilities.PublicAPI( "The star system's stations, filtered to only return dockable and permanent orbital stations (array of Station objects)" ), JsonIgnore]
+        public List<Station> orbitalstations => stations.FindAll( s => ( s.hasdocking ?? false )
+                                                                       && !s.IsPlanetary()
+                                                                       && !s.IsCarrier()
+                                                                       && !s.IsMegaShip() );
+
+
+        #endregion
+
+        #region Signals
+
+        /// <summary>Types of signals detected within the system</summary>
+        [Utilities.PublicAPI( "(For the current star system only) A list of signals detected within the star system, as objects" ), JsonIgnore]
+        public ImmutableList<SignalSource> signalSources
+        {
+            get
+            {
+                _signalSources = _signalSources.RemoveAll( s => s.expiry != null && s.expiry < DateTime.UtcNow );
+                return _signalSources;
+            }
+            set
+            {
+                _signalSources = value;
+                OnPropertyChanged();
+            }
+        }
+        private ImmutableList<SignalSource> _signalSources = ImmutableList<SignalSource>.Empty;
+
+        [Utilities.PublicAPI( "(For the current star system only) A localized list of signals detected within the star system" ), JsonIgnore]
+        public List<string> signalsources => signalSources.Select( s => s.localizedName ).Distinct().ToList();
+
+        // Filtered by carrier callsign
+        [Utilities.PublicAPI( "(For the current star system only) A list of fleet carrier signals detected within the star system" ), JsonIgnore]
+        public List<string> carriersignalsources => signalSources
+            .Where( s => new Regex( "[[a-zA-Z0-9]{3}-[[a-zA-Z0-9]{3}$" ).IsMatch( s.invariantName )
+                && ( s.isStation ?? false ) )
+            .Select( s => s.localizedName )
+            .ToList();
+
+        #endregion
+
+        #region Visits
+
+        [Utilities.PublicAPI( "The number of visits that the commander has made to this star system" )]
+        public int visits => visitLog.Count();
+
+        /// <summary>Time of last visit</summary>
+        public DateTime? lastvisit => visitLog.LastOrDefault();
+
+        /// <summary>Visit log</summary>
+        public readonly SortedSet<DateTime> visitLog = new SortedSet<DateTime>();
+
+        [Utilities.PublicAPI( "The time that the commander last visited this star system, expressed as a Unix timestamp in seconds" ), JsonIgnore]
+        public long? lastVisitSeconds => lastvisit > DateTime.MinValue ? (long?)Dates.fromDateTimeToSeconds( (DateTime)lastvisit ) : null;
+
+        #endregion
+        
+        [Utilities.PublicAPI("Thargoid war data. Currently only available for recently visited star systems." ), JsonIgnore ]
+        public ThargoidWar ThargoidWar
+        {
+            get => _thargoidWar;
+            set { _thargoidWar = value; OnPropertyChanged(); }
+        }
+        private ThargoidWar _thargoidWar;
+
+        /// <summary> Whether this system requires a permit for visiting </summary>
+        [ Utilities.PublicAPI ( "Whether this system requires a permit to enter (as a boolean)" ), JsonIgnore ]
+        public bool requirespermit => StarSystemPermits.IsPermitRequired( systemname, x, y, z );
+        
+        [Utilities.PublicAPI("Any comment the commander has made on the starsystem (via VoiceAttack or EDSM entry)")]
+        public string comment;
 
         // Not intended to be user facing - the last time the information present changed
         [Utilities.PublicAPI]
@@ -431,65 +293,224 @@ namespace EddiDataDefinitions
         // Not intended to be user facing - the last time the data about this system was obtained from remote repository
         public DateTime lastupdated;
 
-        // Deprecated properties (preserved for backwards compatibility with Cottle and database stored values)
-
-        // This is a key for legacy json files that cannot be changed without breaking backwards compatibility. 
-        [JsonIgnore, Obsolete("Please use systemname instead.")]
-        public string name => systemname;
-
-        [JsonExtensionData]
-        private IDictionary<string, JToken> additionalJsonData;
-
-        [OnDeserialized]
-        private void OnDeserialized(StreamingContext context)
-        {
-            OnFactionDeserialized();
-            additionalJsonData = null;
-        }
-
-        private void OnFactionDeserialized()
-        {
-            if (Faction == null) { Faction = new Faction(); }
-            var factionPresence = Faction.presences.FirstOrDefault(p => p.systemAddress == systemAddress) ?? new FactionPresence();
-            if (factionPresence.FactionState == null)
-            {
-                // Convert legacy data
-                if (additionalJsonData.TryGetValue("state", out var fState))
-                {
-                    string factionState = (string)fState;
-                    if (factionState != null)
-                    {
-                        factionPresence.FactionState = FactionState.FromEDName(factionState) ?? FactionState.None;
-                    }
-                }
-            }
-            else
-            {
-                // get the canonical FactionState object for the given EDName
-                factionPresence.FactionState =
-                    FactionState.FromEDName(Faction.presences.FirstOrDefault(p => p.systemAddress == systemAddress)?.FactionState.edname) ?? FactionState.None;
-            }
-        }
-
-        public StarSystem()
+        public StarSystem ()
         {
             bodies = ImmutableList.Create<Body>();
             factions = new List<Faction>();
             stations = new List<Station>();
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        #region Deserialization
 
-        private void OnPropertyChanged([CallerMemberName] string propName = null)
+        [JsonExtensionData]
+        private IDictionary<string, JToken> additionalJsonData;
+
+        [OnDeserialized]
+        private void OnDeserialized ( StreamingContext context )
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
+            OnFactionDeserialized();
+            additionalJsonData = null;
         }
 
-        private long estimateSystemValue()
+        private void OnFactionDeserialized ()
+        {
+            if ( Faction == null )
+            { Faction = new Faction(); }
+            var factionPresence = Faction.presences.FirstOrDefault(p => p.systemAddress == systemAddress) ?? new FactionPresence();
+            if ( factionPresence.FactionState == null )
+            {
+                // Convert legacy data
+                if ( additionalJsonData.TryGetValue( "state", out var fState ) )
+                {
+                    string factionState = (string)fState;
+                    if ( factionState != null )
+                    {
+                        factionPresence.FactionState = FactionState.FromEDName( factionState );
+                    }
+                }
+            }
+            else
+            {
+                // get the canonical FactionState object for the given EDName
+                factionPresence.FactionState = FactionState.FromEDName( Faction.presences
+                    .FirstOrDefault( p => p.systemAddress == systemAddress )?.FactionState.edname );
+            }
+        }
+
+        #endregion
+
+        #region INotifyPropertyChanged
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void OnPropertyChanged ( [CallerMemberName] string propName = null )
+        {
+            PropertyChanged?.Invoke( this, new PropertyChangedEventArgs( propName ) );
+        }
+
+        #endregion
+
+        #region Methods
+
+        public Body BodyWithID ( long? bodyID )
+        {
+            if ( bodyID is null )
+            { return null; }
+            Body result = bodies.Find(b => b.bodyId == bodyID);
+            return result;
+        }
+
+        public void AddOrUpdateBody ( Body body )
+        {
+            var builder = bodies.ToBuilder();
+            internalAddOrUpdateBody( body, builder );
+            builder.Sort( Body.CompareById );
+            bodies = builder.ToImmutable();
+        }
+
+        public void AddOrUpdateBodies ( IEnumerable<Body> newBodies )
+        {
+            var builder = bodies.ToBuilder();
+            foreach ( Body body in newBodies )
+            {
+                internalAddOrUpdateBody( body, builder );
+            }
+            builder.Sort( Body.CompareById );
+            bodies = builder.ToImmutable();
+        }
+
+        private void internalAddOrUpdateBody ( Body newOrUpdatedBody, ImmutableList<Body>.Builder builder )
+        {
+            if ( newOrUpdatedBody is null )
+            { return; }
+
+            int index = builder.FindIndex(b =>
+                (b.bodyId != null && newOrUpdatedBody.bodyId != null && b.bodyId == newOrUpdatedBody.bodyId) || // Matching bodyId
+                (!string.IsNullOrEmpty(b.bodyname) && !string.IsNullOrEmpty(newOrUpdatedBody.bodyname) && b.bodyname == newOrUpdatedBody.bodyname) || // Matching bodyName
+                (b.distance == 0M && b.distance == newOrUpdatedBody.distance)); // Matching distance (for the main entry star only)
+            if ( index >= 0 )
+            {
+                builder[ index ] = PreserveBodyData( builder[ index ], newOrUpdatedBody );
+            }
+            else
+            {
+                builder.Add( newOrUpdatedBody );
+            }
+
+            // Update the system reserve level, when appropriate
+            if ( newOrUpdatedBody.reserveLevel != ReserveLevel.None )
+            {
+                Reserve = newOrUpdatedBody.reserveLevel;
+            }
+        }
+
+        public void ClearTemporaryStars ()
+        {
+            var builder = bodies.ToBuilder();
+            var bodiesToRemove = builder
+                .Where( b => b.bodyId is null || string.IsNullOrEmpty( b.bodyname ) )
+                .ToList();
+            builder.RemoveRange( bodiesToRemove );
+            builder.Sort( Body.CompareById );
+            bodies = builder.ToImmutable();
+        }
+
+        public void PreserveBodyData ( List<Body> oldBodies, ImmutableList<Body> newBodies )
+        {
+            // Update `bodies` with new data, except preserve properties not available via the server
+            var newBodyBuilder = newBodies.ToBuilder();
+            foreach ( Body oldBody in oldBodies )
+            {
+                if ( newBodyBuilder.Any( b => b.bodyname == oldBody.bodyname ) )
+                {
+                    int index = newBodyBuilder.FindIndex(b => b.bodyname == oldBody.bodyname);
+                    newBodyBuilder[ index ] = PreserveBodyData( oldBody, newBodyBuilder[ index ] );
+                }
+                else
+                {
+                    // `newBodies` did not contain the `oldBody` so we add it here, provided we've
+                    // scanned the body ourselves so that we're confident that our old data is accurate. 
+                    if ( oldBody.scannedDateTime != null )
+                    {
+                        newBodyBuilder.Add( oldBody );
+                    }
+                }
+            }
+            newBodyBuilder.Sort( Body.CompareById );
+            bodies = newBodyBuilder.ToImmutable();
+        }
+
+        private static Body PreserveBodyData ( Body oldBody, Body updatedBody )
+        {
+            if ( ( oldBody.scannedDateTime ?? DateTime.MinValue ) > ( updatedBody.scannedDateTime ?? DateTime.MinValue ) )
+            {
+                updatedBody.scannedDateTime = oldBody.scannedDateTime;
+            }
+
+            if ( oldBody.alreadydiscovered is true &&
+                oldBody.alreadydiscovered != updatedBody.alreadydiscovered )
+            {
+                updatedBody.alreadydiscovered = oldBody.alreadydiscovered;
+            }
+
+            if ( ( oldBody.mappedDateTime ?? DateTime.MinValue ) > ( updatedBody.mappedDateTime ?? DateTime.MinValue ) )
+            {
+                updatedBody.mappedDateTime = oldBody.mappedDateTime;
+            }
+
+            if ( oldBody.alreadymapped is true &&
+                oldBody.alreadymapped != updatedBody.alreadymapped )
+            {
+                updatedBody.alreadymapped = oldBody.alreadymapped;
+            }
+
+            if ( oldBody.mappedEfficiently &&
+                oldBody.mappedEfficiently != updatedBody.mappedEfficiently )
+            {
+                updatedBody.mappedEfficiently = oldBody.mappedEfficiently;
+            }
+
+            if ( oldBody.rings?.Any() ?? false )
+            {
+                if ( updatedBody.rings is null )
+                {
+                    updatedBody.rings = new List<Ring>();
+                }
+
+                foreach ( var oldRing in oldBody.rings )
+                {
+                    var newRing = updatedBody.rings.FirstOrDefault(r => r.name == oldRing.name);
+                    if ( oldRing.mapped != null )
+                    {
+                        if ( newRing != null )
+                        {
+                            newRing.mapped = oldRing.mapped;
+                            newRing.hotspots = oldRing.hotspots;
+                        }
+                        else
+                        {
+                            // Our data source didn't contain any data about a ring we've scanned.
+                            // We add it here because we scanned the ring ourselves and are confident that the data is accurate
+                            updatedBody.rings.Add( oldRing );
+                        }
+                    }
+                }
+            }
+            return updatedBody;
+        }
+
+        public void AddOrUpdateSignalSource ( SignalSource signalSource )
+        {
+            var builder = signalSources.ToBuilder();
+            builder.Add( signalSource );
+            signalSources = builder.ToImmutable();
+        }
+
+        private long estimateSystemValue ()
         {
             // Credit to MattG's thread at https://forums.frontier.co.uk/showthread.php/232000-Exploration-value-formulae for scan value formulas
 
-            if (bodies == null || bodies.Count == 0)
+            if ( bodies == null || bodies.Count == 0 )
             {
                 return 0;
             }
@@ -497,19 +518,19 @@ namespace EddiDataDefinitions
             long value = 0;
 
             // Add the estimated value for each body
-            foreach (Body body in bodies)
+            foreach ( Body body in bodies )
             {
                 value += body.estimatedvalue;
             }
 
             // Bonus for fully discovering a system
-            if (totalbodies == bodies.Count(b => b.scannedDateTime != null))
+            if ( totalbodies == bodies.Count( b => b.scannedDateTime != null ) )
             {
                 value += totalbodies * 1000;
 
                 // Bonus for fully mapping a system
                 int mappableBodies = bodies.Count(b => b.bodyType.invariantName != "Star");
-                if (mappableBodies == bodies.Count(b => b.mappedDateTime != null))
+                if ( mappableBodies == bodies.Count( b => b.mappedDateTime != null ) )
                 {
                     value += mappableBodies * 10000;
                 }
@@ -518,10 +539,13 @@ namespace EddiDataDefinitions
             return value;
         }
 
-        public decimal? DistanceFromStarSystem(StarSystem other)
+        public decimal? DistanceFromStarSystem ( StarSystem other )
         {
-            if (other is null) { return null; }
-            return Functions.StellarDistanceLy(x, y, z, other.x, other.y, other.z);
+            if ( other is null )
+            { return null; }
+            return Functions.StellarDistanceLy( x, y, z, other.x, other.y, other.z );
         }
+
+        #endregion
     }
 }

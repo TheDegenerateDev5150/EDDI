@@ -1,5 +1,4 @@
 ﻿using EddiDataDefinitions;
-using EddiStarMapService;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using System;
@@ -8,19 +7,16 @@ using System.Collections.Immutable;
 using System.Data.SQLite;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using Utilities;
 
 namespace EddiDataProviderService
 {
-    public class StarSystemSqLiteRepository : SqLiteBaseRepository, IStarSystemRepository
+    public class StarSystemSqLiteRepository : SqLiteBaseRepository
     {
         private const string TABLE_GET_SCHEMA_VERSION_SQL = @"PRAGMA user_version;";
         private const string TABLE_SET_SCHEMA_VERSION_SQL = @"PRAGMA user_version = ";
 
-        public static bool unitTesting;
-
-        public long SCHEMA_VERSION { get; private set; }
+        private long SCHEMA_VERSION { get; set; }
 
         // Append new table columns to the end of the list to maximize compatibility with schema version 0.
         // systemaddress. 
@@ -102,17 +98,7 @@ namespace EddiDataProviderService
         private const string WHERE_SYSTEMADDRESS = @"WHERE systemaddress = @systemaddress; PRAGMA optimize;";
         private const string WHERE_NAME = @"WHERE name = @name; PRAGMA optimize;";
 
-        private readonly IEdsmService edsmService;
-        private readonly DataProviderService dataProviderService;
         private static StarSystemSqLiteRepository instance;
-        private readonly StarSystemCache starSystemCache;
-
-        private StarSystemSqLiteRepository(IEdsmService edsmService)
-        {
-            this.edsmService = edsmService;
-            dataProviderService = new DataProviderService(edsmService);
-            starSystemCache = new StarSystemCache(300); // Keep a cache of star systems for 5 minutes
-        }
 
         private static readonly object instanceLock = new object();
         public static StarSystemSqLiteRepository Instance
@@ -126,7 +112,7 @@ namespace EddiDataProviderService
                         if (instance == null)
                         {
                             Logging.Debug("No StarSystemSqLiteRepository instance: creating one");
-                            instance = new StarSystemSqLiteRepository(new StarMapService());
+                            instance = new StarSystemSqLiteRepository();
                             CreateOrUpdateDatabase();
                         }
                     }
@@ -135,269 +121,43 @@ namespace EddiDataProviderService
             }
         }
 
-        public StarSystem GetOrCreateStarSystem(string name, bool fetchIfMissing = true, bool refreshIfOutdated = true, bool showBodies = true, bool showStations = true, bool showFactions = true )
+        public DatabaseStarSystem GetSqlStarSystem ( ulong systemAddress )
         {
-            if (name == string.Empty) { return null; }
-            return GetOrCreateStarSystems(new[] { name }, fetchIfMissing, refreshIfOutdated, showBodies, showStations, showFactions).FirstOrDefault();
+            if ( systemAddress <= 0 ) { return null; }
+
+            return GetSqlStarSystems( new[] { systemAddress } )?.FirstOrDefault();
         }
 
-        public List<StarSystem> GetOrCreateStarSystems(string[] names, bool fetchIfMissing = true, bool refreshIfOutdated = true, bool showBodies = true, bool showStations = true, bool showFactions = true )
+        public List<DatabaseStarSystem> GetSqlStarSystems ( ulong[] systemAddresses )
         {
-            if (!names.Any()) { return new List<StarSystem>(); }
-            List<StarSystem> systems = GetOrFetchStarSystems(names, fetchIfMissing, refreshIfOutdated, showBodies, showStations, showFactions) ?? new List<StarSystem>();
+            var results = new List<DatabaseStarSystem>();
+            if ( !File.Exists( DbFile ) ) { return results; }
 
-            // Create a new system object for each name that isn't in the database and couldn't be fetched from a server
-            foreach (string name in names)
+            if ( !systemAddresses.Any() ) { return results; }
+
+            results = Instance.ReadStarSystems( systemAddresses );
+            foreach ( var dbStarSystem in results )
             {
-                if (systems?.Find(s => s?.systemname == name) == null)
-                {
-                    systems?.Add(new StarSystem() { systemname = name });
-                }
-            }
-
-            return systems;
-        }
-
-        public StarSystem GetOrFetchStarSystem(string name, bool fetchIfMissing = true, bool refreshIfOutdated = true, bool showBodies = true, bool showStations = true, bool showFactions = true )
-        {
-            if (name == string.Empty) { return null; }
-            return GetOrFetchStarSystems(new[] { name }, fetchIfMissing, refreshIfOutdated, showBodies, showStations, showFactions)?.FirstOrDefault();
-        }
-
-        public List<StarSystem> GetOrFetchStarSystems(string[] names, bool fetchIfMissing = true, bool refreshIfOutdated = true, bool showBodies = true, bool showStations = true, bool showFactions = true )
-        {
-            if (!names.Any()) { return new List<StarSystem>(); }
-            List<StarSystem> systems = GetStarSystems(names, refreshIfOutdated) ?? new List<StarSystem>();
-
-            // If a system isn't found after we've read our local database, we need to fetch it.
-            List<string> fetchSystems = new List<string>();
-            foreach (string name in names)
-            {
-                if (fetchIfMissing && systems.All( s => s.systemname != name ) )
-                {
-                    fetchSystems.Add(name);
-                }
-            }
-
-            List<StarSystem> fetchedSystems = dataProviderService.GetSystemsData(fetchSystems.ToArray(), true, showBodies, showStations, showFactions);
-            if (fetchedSystems?.Count > 0)
-            {
-                Instance.SaveStarSystems(fetchedSystems);
-                systems.AddRange(fetchedSystems);
-            }
-
-            return systems;
-        }
-
-        public StarSystem GetStarSystem(string name, bool refreshIfOutdated = true)
-        {
-            if (String.IsNullOrEmpty(name)) { return null; }
-            return GetStarSystems(new[] { name }, refreshIfOutdated)?.FirstOrDefault();
-        }
-
-        public List<StarSystem> GetStarSystems(string[] names, bool refreshIfOutdated = true)
-        {
-            List<StarSystem> results = new List<StarSystem>();
-            if (!File.Exists(DbFile)) { return results; }
-            if (!names.Any()) { return results; }
-
-            List<DatabaseStarSystem> systemsToUpdate = new List<DatabaseStarSystem>();
-            List<DatabaseStarSystem> dataSets = Instance.ReadStarSystems(names);
-
-            bool needToUpdate = false;
-
-            for (int i = 0; i < dataSets.Count; i++)
-            {
-                DatabaseStarSystem dbStarSystem = dataSets[i];
-                if (!string.IsNullOrEmpty(dbStarSystem.systemJson))
+                if ( !string.IsNullOrEmpty( dbStarSystem.systemJson ) )
                 {
                     // Old versions of the data could have a string "No volcanism" for volcanism.  If so we remove it
-                    dbStarSystem.systemJson = dbStarSystem.systemJson?
-                        .Replace(@"""No volcanism""", "null");
+                    dbStarSystem.systemJson = dbStarSystem.systemJson?.Replace( @"""No volcanism""", "null" );
 
                     // Old versions of the data could have a string "InterstellarFactorsContact" for the facilitator station service.  If so we update it
-                    dbStarSystem.systemJson = dbStarSystem.systemJson?
-                        .Replace(@"""InterstellarFactorsContact""", @"""Facilitator""");
-                }
-
-                if (refreshIfOutdated)
-                {
-                    if (dbStarSystem.lastUpdated < DateTime.UtcNow.AddHours(-1))
-                    {
-                        // Data is stale or we have no record of ever updating this star system
-                        needToUpdate = true;
-                    }
-                    else if (SCHEMA_VERSION >= 2 && dbStarSystem.systemAddress is 0)
-                    {
-                        // Obtain data for optimized data searches starting with schema version 2
-                        needToUpdate = true;
-                    }
-                }
-
-                if (needToUpdate)
-                {
-                    // We want to update this star system (don't deserialize the old result at this time)
-                    systemsToUpdate.Add(dbStarSystem);
-                }
-                else
-                {
-                    // Deserialize the old result
-                    var result = DeserializeStarSystem(dbStarSystem.systemAddress, dbStarSystem.systemJson, ref needToUpdate);
-                    if (result != null)
-                    {
-                        results.Add(result);
-                    }
-                    else
-                    {
-                        // Something went wrong... retrieve new data.
-                        systemsToUpdate.Add(dbStarSystem);
-                    }
+                    dbStarSystem.systemJson =
+                        dbStarSystem.systemJson?.Replace( @"""InterstellarFactorsContact""", @"""Facilitator""" );
                 }
             }
 
-            if (systemsToUpdate.Count > 0)
-            {
-                List<StarSystem> updatedSystems = dataProviderService.GetSystemsData(systemsToUpdate.Select(s => s.systemName).ToArray());
-                if (updatedSystems == null) { return results; }
-
-                // If the newly fetched star system is an empty object except (for the object name), reject it
-                // Return old results when new results have been rejected
-                List<string> systemsToRevert = new List<string>();
-                foreach (StarSystem starSystem in updatedSystems)
-                {
-                    if (starSystem.x == null || starSystem.y == null || starSystem.z == null )
-                    {
-                        systemsToRevert.Add(starSystem.systemname);
-                    }
-                }
-                updatedSystems.RemoveAll(s => systemsToRevert.Contains(s.systemname));
-                foreach (string systemName in systemsToRevert)
-                {
-                    results.Add(GetStarSystem(systemName, false));
-                }
-
-                // Synchronize EDSM visits and comments
-                updatedSystems = dataProviderService.syncFromStarMapService(updatedSystems);
-
-                // Update properties that aren't synced from the server and that we want to preserve
-                updatedSystems = PreserveUnsyncedProperties(updatedSystems, systemsToUpdate);
-
-                // Update the `lastupdated` timestamps for the systems we have updated
-                foreach (StarSystem starSystem in updatedSystems) { starSystem.lastupdated = DateTime.UtcNow; }
-
-                // Add our updated systems to our results
-                results.AddRange(updatedSystems);
-
-                // Save changes to our star systems
-                Instance.updateStarSystems(updatedSystems.ToImmutableList());
-            }
             return results;
         }
 
-        private static List<StarSystem> PreserveUnsyncedProperties(List<StarSystem> updatedSystems, List<DatabaseStarSystem> systemsToUpdate)
-        {
-            if (updatedSystems is null) { return new List<StarSystem>(); }
-            foreach (StarSystem updatedSystem in updatedSystems)
-            {
-                foreach (DatabaseStarSystem systemToUpdate in systemsToUpdate)
-                {
-                    if (updatedSystem.systemAddress == systemToUpdate.systemAddress)
-                    {
-                        IDictionary<string, object> oldStarSystem = Deserializtion.DeserializeData(systemToUpdate.systemJson);
-
-                        if (oldStarSystem != null)
-                        {
-                            PreserveSystemProperties(updatedSystem, oldStarSystem);
-                            PreserveBodyProperties(updatedSystem, oldStarSystem);
-                            PreserveFactionProperties(updatedSystem, oldStarSystem);
-                            // No station data needs to be carried over at this time.
-                        }
-                    }
-                }
-            }
-            return updatedSystems;
-        }
-
-        private static void PreserveSystemProperties(StarSystem updatedSystem, IDictionary<string, object> oldStarSystem)
-        {
-            // Carry over StarSystem properties that we want to preserve
-            updatedSystem.totalbodies = JsonParsing.getOptionalInt(oldStarSystem, "discoverableBodies") ?? 0;
-            if (oldStarSystem.TryGetValue("visitLog", out object visitLogObj))
-            {
-                // Visits should sync from EDSM, but in case there is a problem with the connection we will also seed back in our old star system visit data
-                if (visitLogObj is List<object> oldVisitLog)
-                {
-                    foreach (var obj in oldVisitLog)
-                    {
-                        if ( obj is DateTime visit )
-                        {
-                            // The SortedSet<T> class does not accept duplicate elements so we can safely add timestamps which may be duplicates of visits already reported from EDSM.
-                            // If an item is already in the set, processing continues and no exception is thrown.
-                            updatedSystem.visitLog.Add(visit);                            
-                        }
-                    }
-                }
-            }
-        }
-
-        private static void PreserveBodyProperties(StarSystem updatedSystem, IDictionary<string, object> oldStarSystem)
-        {
-            // Carry over Body properties that we want to preserve (e.g. exploration data)
-            oldStarSystem.TryGetValue("bodies", out object bodiesVal);
-            try
-            {
-                if (bodiesVal != null)
-                {
-                    var oldBodiesString = JsonConvert.SerializeObject(bodiesVal);
-                    Logging.Debug($"Reading old body properties from {updatedSystem.systemname} from database", oldBodiesString);
-                    List<Body> oldBodies = JsonConvert.DeserializeObject<List<Body>>(oldBodiesString);
-                    updatedSystem.PreserveBodyData(oldBodies, updatedSystem.bodies);
-                }
-            }
-            catch (Exception e) when (e is JsonReaderException || e is JsonWriterException || e is JsonException)
-            {
-                Logging.Error($"Failed to read exploration data for bodies in {updatedSystem.systemname} from database.", e);
-            }
-        }
-
-        private static void PreserveFactionProperties(StarSystem updatedSystem, IDictionary<string, object> oldStarSystem)
-        {
-            // Carry over Faction properties that we want to preserve (e.g. reputation data)
-            oldStarSystem.TryGetValue("factions", out object factionsVal);
-            try
-            {
-                if (factionsVal != null)
-                {
-                    var oldFactionsString = JsonConvert.SerializeObject(factionsVal);
-                    Logging.Debug($"Reading old faction properties from {updatedSystem.systemname} from database", oldFactionsString);
-                    List<Faction> oldFactions = JsonConvert.DeserializeObject<List<Faction>>(oldFactionsString);
-                    if (oldFactions?.Count > 0)
-                    {
-                        foreach (var updatedFaction in updatedSystem.factions)
-                        {
-                            foreach (var oldFaction in oldFactions)
-                            {
-                                if (updatedFaction.name == oldFaction.name)
-                                {
-                                    updatedFaction.myreputation = oldFaction.myreputation;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception e) when (e is JsonReaderException || e is JsonWriterException || e is JsonException)
-            {
-                Logging.Error("Failed to read commander faction reputation data for " + updatedSystem.systemname + " from database.", e);
-            }
-        }
-
         [NotNull, ItemNotNull]
-        private List<DatabaseStarSystem> ReadStarSystems(string[] names)
+        private List<DatabaseStarSystem> ReadStarSystems(ulong[] systemAddresses)
         {
-            if (!names.Any()) { return new List<DatabaseStarSystem>(); }
+            if (!systemAddresses.Any()) { return new List<DatabaseStarSystem>(); }
 
-            List<DatabaseStarSystem> results = new List<DatabaseStarSystem>();
+            var results = new List<DatabaseStarSystem>();
             using (var con = SimpleDbConnection())
             {
                 con.Open();
@@ -405,25 +165,22 @@ namespace EddiDataProviderService
                 {
                     using (var transaction = con.BeginTransaction())
                     {
-                        foreach (string name in names)
+                        foreach (var systemAddress in systemAddresses.Where( systemAddress => systemAddress > 0 ) )
                         {
-                            if (string.IsNullOrEmpty(name)) { continue; }
                             try
                             {
                                 cmd.Prepare();
-                                cmd.Parameters.AddWithValue("@name", name);
-                                cmd.CommandText = SELECT_SQL + WHERE_NAME;
+                                cmd.Parameters.AddWithValue("@systemaddress", systemAddress );
+                                cmd.CommandText = SELECT_SQL + WHERE_SYSTEMADDRESS;
                                 var result = ReadStarSystemEntry( cmd );
                                 if ( result != null )
                                 {
                                     results.Add(result);
                                 }
                             }
-                            catch (SQLiteException)
+                            catch (SQLiteException sqle )
                             {
-                                Logging.Warn("Problem reading data for star system '" + name + "' from database, refreshing database and re-obtaining from source.");
-                                RecoverStarSystemDB();
-                                Instance.GetStarSystem(name);
+                                Logging.Warn($"Problem reading data for star system '{systemAddress}' from database.", sqle );
                             }
                         }
                         transaction.Commit();
@@ -453,11 +210,9 @@ namespace EddiDataProviderService
                                     cmd.CommandText = SELECT_SQL + WHERE_SYSTEMADDRESS;
                                 results.Add(ReadStarSystemEntry(cmd) ?? new DatabaseStarSystem(starSystem.systemname, starSystem.systemAddress, string.Empty));
                             }
-                            catch (SQLiteException)
+                            catch (SQLiteException sqle)
                             {
-                                Logging.Warn("Problem reading data for star system '" + starSystem.systemname + "' from database, refreshing database and re-obtaining from source.");
-                                RecoverStarSystemDB();
-                                Instance.GetStarSystem(starSystem.systemname);
+                                Logging.Warn("Problem reading data for star system '" + starSystem.systemname + "' from database.", sqle );
                             }
                         }
                         transaction.Commit();
@@ -527,52 +282,6 @@ namespace EddiDataProviderService
             };
         }
 
-        private StarSystem DeserializeStarSystem(ulong systemAddress, string data, ref bool needToUpdate)
-        {
-            if ( systemAddress == 0 || data == string.Empty) { return null; }
-
-            // Check our short term star system cache for a previously deserialized star system and return that if it is available.
-            if (starSystemCache.Contains( systemAddress ) )
-            {
-                return starSystemCache.Get(systemAddress);
-            }
-
-            // Not found in memory, proceed with deserialization
-            StarSystem result;
-            try
-            {
-                result = JsonConvert.DeserializeObject<StarSystem>(data);
-                if (result == null)
-                {
-                    Logging.Info("Failed to obtain system for address " + systemAddress + " from the SQLiteRepository");
-                    needToUpdate = true;
-                }
-            }
-            catch (Exception)
-            {
-                Logging.Warn($"Problem reading data for star system address {systemAddress} from database, re-obtaining from source.");
-                try
-                {
-                    result = dataProviderService.GetSystemData( systemAddress );
-                    result = dataProviderService.syncFromStarMapService(new List<StarSystem> { result })?.FirstOrDefault(); // Synchronize EDSM visits and comments
-                    needToUpdate = true;
-                }
-                catch (Exception ex)
-                {
-                    Logging.Warn("Problem obtaining data from source: " + ex);
-                    result = null;
-                }
-            }
-
-            // Save the deserialized star system to our short term star system cache for reference
-            if (result != null)
-            {
-                starSystemCache.Add(result);
-            }
-
-            return result;
-        }
-
         public void SaveStarSystem(StarSystem starSystem)
         {
             if (starSystem == null) { return; }
@@ -581,15 +290,6 @@ namespace EddiDataProviderService
 
         public void SaveStarSystems(List<StarSystem> starSystems)
         {
-            if (!starSystems.Any() || unitTesting) { return; }
-
-            // Update any star systems in our short term star system cache to minimize repeat deserialization
-            foreach (var starSystem in starSystems)
-            {
-                starSystemCache.Remove(starSystem.systemAddress);
-                starSystemCache.Add(starSystem);
-            }
-
             // Determine whether we need to delete, insert, or update each system
             var delete = new List<StarSystem>();
             var update = new List<StarSystem>();
@@ -632,13 +332,6 @@ namespace EddiDataProviderService
 
             // Update applicable systems
             Instance.updateStarSystems(update.ToImmutableList() );
-        }
-
-        // Triggered when leaving a starsystem - just save the star system
-        public void LeaveStarSystem(StarSystem system)
-        {
-            if (system?.systemname == null) { return; }
-            SaveStarSystem(system);
         }
 
         private void insertStarSystems(ImmutableList<StarSystem> systems)
@@ -686,7 +379,7 @@ namespace EddiDataProviderService
             }
         }
 
-        private void updateStarSystems(ImmutableList<StarSystem> systems)
+        internal void updateStarSystems(IImmutableList<StarSystem> systems)
         {
             if (systems.Count == 0)
             {
@@ -925,29 +618,6 @@ namespace EddiDataProviderService
                     }
                 }
             }
-        }
-
-        public void RecoverStarSystemDB()
-        {
-            lock ( nameof(SimpleDbConnection) ) // Lock before writing to the database
-            {
-                using ( var con = SimpleDbConnection() )
-                {
-                    try
-                    {
-                        con.Close();
-                        SQLiteConnection.ClearAllPools();
-                        File.Delete( Constants.DATA_DIR + @"\EDDI.sqlite" );
-                    }
-                    catch ( SQLiteException ex )
-                    {
-                        handleSqlLiteException( con, ex );
-                    }
-                }
-            }
-
-            CreateOrUpdateDatabase();
-            Task.Run(() => dataProviderService.syncFromStarMapService());
         }
 
         private static void handleSqlLiteException(SQLiteConnection con, SQLiteException ex)

@@ -595,6 +595,32 @@ namespace EddiShipMonitor
                 updatedAt = @event.timestamp;
                 if (@event.shipyard != null)
                 {
+                    //Update ship location data in the event
+                    var quickSystems =
+                        EDDI.Instance?.DataProvider.GetOrFetchQuickStarSystems(
+                            @event.shipyard.Select( sh => sh.starsystem ).Distinct().ToArray(), false ) ??
+                        new List<StarSystem>();
+                    foreach ( var ship in @event.shipyard )
+                    {
+                        if ( !string.IsNullOrEmpty( ship.starsystem ) )
+                        {
+                            var systemData = quickSystems.FirstOrDefault( sys => sys.systemname == @event.system);
+                            ship.station = systemData?.stations?.FirstOrDefault( s => s.marketId == ship.marketid )?.name;
+                            ship.x = systemData?.x;
+                            ship.y = systemData?.y;
+                            ship.z = systemData?.z;
+                            ship.distance = ship.Distance( EDDI.Instance?.CurrentStarSystem?.x, EDDI.Instance?.CurrentStarSystem?.y, EDDI.Instance?.CurrentStarSystem?.z );
+                        }
+                        else
+                        {
+                            ship.station = EDDI.Instance?.CurrentStation?.name;
+                            ship.x = EDDI.Instance?.CurrentStarSystem?.x;
+                            ship.y = EDDI.Instance?.CurrentStarSystem?.y;
+                            ship.z = EDDI.Instance?.CurrentStarSystem?.z;
+                            ship.distance = 0;
+                        }
+                    }
+
                     //Check for ships missing from the shipyard
                     foreach (var shipInEvent in @event.shipyard)
                     {
@@ -649,13 +675,23 @@ namespace EddiShipMonitor
             }
         }
 
-        private void handleStoredModulesEvent(StoredModulesEvent @event)
+        internal void handleStoredModulesEvent(StoredModulesEvent @event)
         {
             if (@event.timestamp > updatedAt)
             {
                 updatedAt = @event.timestamp;
                 if (@event.storedmodules != null)
                 {
+                    var quickSystems =
+                        EDDI.Instance?.DataProvider.GetOrFetchQuickStarSystems(
+                            @event.storedmodules.Select( m => m.system ).Distinct().ToArray(), false ) ?? new List<StarSystem>();
+                    foreach ( var module in @event.storedmodules )
+                    {
+                        var moduleSystem = quickSystems.FirstOrDefault( system => system.systemname == module.system );
+                        module.station = moduleSystem?.stations
+                            ?.FirstOrDefault( station => station.marketId == module.marketid )?.name;
+                    }
+
                     storedmodules = @event.storedmodules;
                     if (!@event.fromLoad) { writeShips(); }
                 }

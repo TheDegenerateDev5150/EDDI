@@ -4,7 +4,6 @@ using EddiConfigService.Configurations;
 using EddiCore;
 using EddiCore.Upgrader;
 using EddiDataDefinitions;
-using EddiDataProviderService;
 using EddiSpeechService;
 using System;
 using System.Collections.Generic;
@@ -204,7 +203,7 @@ namespace Eddi
             // Setup home system & station from config file
             homeSystemDropDown.ItemsSource = new List<string> { eddiConfiguration.HomeSystem ?? string.Empty };
             homeSystemDropDown.SelectedItem = eddiConfiguration.HomeSystem ?? string.Empty;
-            ConfigureHomeStationOptions(eddiConfiguration.HomeSystem);
+            ConfigureHomeStationOptions();
             homeStationDropDown.SelectedItem = eddiConfiguration.HomeStation ?? Properties.MainWindow.no_station;
 
             eddiVerboseLogging.IsChecked = eddiConfiguration.Debug;
@@ -490,7 +489,7 @@ namespace Eddi
                 {
                     eddiConfiguration.HomeStation = null;
                     homeStationDropDown.SelectedItem = Properties.MainWindow.no_station;
-                    ConfigureHomeStationOptions(null);
+                    ConfigureHomeStationOptions();
                     ConfigService.Instance.eddiConfiguration = eddiConfiguration;
                 }
             }
@@ -504,13 +503,10 @@ namespace Eddi
             void changeHandler(string newValue)
             {
                 // Update configuration to new home system
-                EDDIConfiguration eddiConfiguration = ConfigService.Instance.eddiConfiguration;
-                eddiConfiguration.HomeSystem = newValue;
-                eddiConfiguration = EDDI.Instance.updateHomeSystem(eddiConfiguration);
-                ConfigService.Instance.eddiConfiguration = eddiConfiguration;
+                EDDI.Instance.setHomeSystem(null, newValue);
 
                 // Update station options for new system
-                ConfigureHomeStationOptions(eddiConfiguration.HomeSystem);
+                ConfigureHomeStationOptions();
             }
             homeSystemDropDown.SelectionDidChange(changeHandler);
         }
@@ -523,27 +519,18 @@ namespace Eddi
             homeSystemDropDown.DidLoseFocus(oldValue: eddiConfiguration.HomeSystem);
         }
 
-        private void ConfigureHomeStationOptions(string system)
+        private void ConfigureHomeStationOptions()
         {
-            List<string> HomeStationOptions = new List<string>
-                {
-                    Properties.MainWindow.no_station
-                };
-
-            if (system != null)
+            var homeStationOptions = new List<string> { Properties.MainWindow.no_station };
+            if ( EDDI.Instance.HomeStarSystem?.stations != null )
             {
-                StarSystem HomeSystem = StarSystemSqLiteRepository.Instance.GetOrFetchStarSystem(system, true, true, false, true, false);
-                if (HomeSystem?.stations != null)
-                {
-                    foreach (Station station in HomeSystem.stations)
-                    {
-                        HomeStationOptions.Add(station.name);
-                    }
-                }
+                var systemStations = EDDI.Instance.HomeStarSystem.stations
+                    .OrderBy(s => s.name).Select( s => s.name );
+                homeStationOptions.AddRange( systemStations );
             }
+
             // sort but leave "No Station" at the top
-            HomeStationOptions.Sort(1, HomeStationOptions.Count - 1, null);
-            homeStationDropDown.ItemsSource = HomeStationOptions;
+            homeStationDropDown.ItemsSource = homeStationOptions;
         }
 
         private void homeStationDropDownUpdated(object sender, SelectionChangedEventArgs e)
@@ -553,7 +540,7 @@ namespace Eddi
             if (eddiConfiguration.HomeStation != homeStationName)
             {
                 eddiConfiguration.HomeStation = homeStationName == Properties.MainWindow.no_station ? null : homeStationName;
-                eddiConfiguration = EDDI.Instance.updateHomeStation(eddiConfiguration);
+                eddiConfiguration = EDDI.Instance.setHomeStation(eddiConfiguration);
                 ConfigService.Instance.eddiConfiguration = eddiConfiguration;
             }
         }
@@ -747,7 +734,7 @@ namespace Eddi
                     ConfigService.Instance.eddiConfiguration = eddiConfiguration;
 
                     squadronFactionDropDown.SelectedItem = Power.None.localizedName;
-                    ConfigureSquadronFactionOptions(eddiConfiguration);
+                    ConfigureSquadronFactionOptions();
                     squadronPowerDropDown.SelectedItem = eddiConfiguration.SquadronPower.localizedName;
                     ConfigureSquadronPowerOptions(eddiConfiguration);
 
@@ -768,15 +755,16 @@ namespace Eddi
             void changeHandler(string newValue)
             {
                 // Update configuration to new squadron system
-                EDDIConfiguration eddiConfiguration = ConfigService.Instance.eddiConfiguration;
-                eddiConfiguration.SquadronSystem = newValue;
-                eddiConfiguration = EDDI.Instance.updateSquadronSystem(eddiConfiguration);
-                ConfigService.Instance.eddiConfiguration = eddiConfiguration;
+                EDDI.Instance.setSquadronSystem(null, newValue);
 
                 // Update squadron faction options for new system
-                ConfigureSquadronFactionOptions(eddiConfiguration);
+                ConfigureSquadronFactionOptions();
             }
-            squadronSystemDropDown.SelectionDidChange(changeHandler);
+
+            if ( sender is StarSystemComboBox comboBox && comboBox.IsLoaded )
+            {
+                squadronSystemDropDown.SelectionDidChange( changeHandler );
+            }
         }
 
         private void SquadronSystemDropDown_LostFocus(object sender, RoutedEventArgs e)
@@ -801,7 +789,7 @@ namespace Eddi
                 
                 if (squadronFaction != Power.None.localizedName)
                 {
-                    StarSystem system = StarSystemSqLiteRepository.Instance.GetOrFetchStarSystem(eddiConfiguration.SquadronSystem, true);
+                    var system = EDDI.Instance.SquadronStarSystem;
                     Faction faction = system?.factions.Find(f => f.name == squadronFaction);
 
                     if (faction != null && eddiConfiguration.SquadronAllegiance != faction.Allegiance)
@@ -868,27 +856,16 @@ namespace Eddi
             squadronRankDropDown.ItemsSource = SquadronRankOptions;
         }
 
-        public void ConfigureSquadronFactionOptions(EDDIConfiguration configuration)
+        public void ConfigureSquadronFactionOptions()
         {
-            List<string> SquadronFactionOptions = new List<string>
+            var squadronFactionOptions = new List<string> { Power.None.localizedName };
+            if ( EDDI.Instance.SquadronStarSystem != null)
             {
-                Power.None.localizedName
-            };
-
-            if (configuration.SquadronSystem != null)
-            {
-                var system = StarSystemSqLiteRepository.Instance.GetOrFetchStarSystem(configuration.SquadronSystem, true, true, false, false, true );
-                if (system?.factions != null)
-                {
-                    foreach (Faction faction in system.factions)
-                    {
-                        SquadronFactionOptions.Add(faction.name);
-                    }
-                }
+                var starSystemFactions = EDDI.Instance.SquadronStarSystem.factions
+                    .OrderBy( s => s.name ).Select( s => s.name );
+                squadronFactionOptions.AddRange( starSystemFactions );
             }
-            // sort but leave "None" at the top
-            SquadronFactionOptions.Sort(1, SquadronFactionOptions.Count - 1, null);
-            squadronFactionDropDown.ItemsSource = SquadronFactionOptions;
+            squadronFactionDropDown.ItemsSource = squadronFactionOptions;
         }
 
         public void ConfigureSquadronPowerOptions(EDDIConfiguration configuration)
@@ -1231,7 +1208,7 @@ namespace Eddi
             }
             Logging.Info("Commander name: " + (EDDI.Instance.Cmdr != null ? EDDI.Instance.Cmdr.name : "null"));
             Logging.Info("Default UI culture: " + (CultureInfo.DefaultThreadCurrentUICulture?.IetfLanguageTag ?? "automatic"));
-            Logging.Info("Current UI culture: " + (CultureInfo.CurrentUICulture?.IetfLanguageTag));
+            Logging.Info("Current UI culture: " + (CultureInfo.CurrentUICulture.IetfLanguageTag));
 
             // Prepare a truncated log file for export if verbose logging is enabled
             if (eddiVerboseLogging.IsChecked ?? false)

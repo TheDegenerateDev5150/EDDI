@@ -1,7 +1,6 @@
 ﻿using Cottle;
 using EddiCore;
 using EddiDataDefinitions;
-using EddiDataProviderService;
 using EddiSpeechResponder.ScriptResolverService;
 using JetBrains.Annotations;
 using System;
@@ -22,24 +21,24 @@ namespace EddiSpeechResponder.CustomFunctions
             var numVal = values[0].Type == ValueContent.Number;
             var stringVal = values[0].Type == ValueContent.String;
 
-            StarSystem curr = null;
-            StarSystem dest = null;
+            NavWaypoint curr = null;
+            NavWaypoint dest = null;
             if (values.Count == 1 && stringVal)
             {
-                curr = EDDI.Instance?.CurrentStarSystem;
-                dest = StarSystemSqLiteRepository.Instance.GetOrFetchStarSystem(values[0].AsString, true);
+                curr = new NavWaypoint( EDDI.Instance.CurrentStarSystem );
+                dest = EDDI.Instance.DataProvider.GetOrFetchSystemWaypoint(values[0].AsString);
             }
             else if (values.Count == 2 && stringVal)
             {
-                curr = StarSystemSqLiteRepository.Instance.GetOrFetchStarSystem(values[0].AsString, true);
-                dest = StarSystemSqLiteRepository.Instance.GetOrFetchStarSystem(values[1].AsString, true);
+                curr = EDDI.Instance.DataProvider.GetOrFetchSystemWaypoint( values[0].AsString);
+                dest = EDDI.Instance.DataProvider.GetOrFetchSystemWaypoint( values[1].AsString);
             }
             if (curr != null && dest != null)
             {
-                var result = curr.DistanceFromStarSystem(dest);
+                var result = dest.DistanceFromStarSystem(curr);
                 if (result is null)
                 {
-                    return $"Unable to calculate distance between {curr.systemname} and {dest.systemname}. Could not obtain system coordinates.";
+                    return $"Unable to calculate distance between {curr.systemName} and {dest.systemName}. Could not obtain system coordinates.";
                 }
                 return Value.FromReflection( result, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic );
             }

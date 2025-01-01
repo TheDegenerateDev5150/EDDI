@@ -1,4 +1,5 @@
 ﻿using EddiDataDefinitions;
+using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace EddiBgsService
     partial class BgsService
     {
         /// <summary> The endpoint we will use for faction queries (using the BGS rest client) </summary>
-        public const string factionEndpoint = "v5/factions?";
+        public const string factionEndpoint = "v5/factions";
 
         public static class FactionParameters
         {
@@ -52,40 +53,39 @@ namespace EddiBgsService
 
         // Faction data from EliteBGS (allows search by faction name - EDSM can only search by system name). 
         // If a systemName is provided, we can filter factions that share a name according to whether they have a presence in a known system
+        [CanBeNull]
         public Faction GetFactionByName(string factionName, string systemName = null)
         {
             if (string.IsNullOrEmpty(factionName)) { return null; }
 
-            List<KeyValuePair<string, object>> queryList = new List<KeyValuePair<string, object>>()
+            var queryList = new List<KeyValuePair<string, object>>()
             {
                 new KeyValuePair<string, object>(FactionParameters.factionName, factionName)
             };
-            List<Faction> factions = GetFactions(factionEndpoint, queryList);
+            var factions = GetFactions(factionEndpoint, queryList);
 
             // If a systemName is provided, we can filter factions that share a name according to whether they have a presence in a known system
             if (systemName != null && factions?.Count > 1)
             {
-                foreach (Faction faction in factions)
-                {
-                    faction.presences = faction.presences.Where(f => f.systemName == systemName)?.ToList();
-                }
+                factions = factions.Where( f =>
+                        f.presences.Any(
+                            p => p.systemName.Equals( systemName, StringComparison.InvariantCultureIgnoreCase ) ) )
+                    .ToList();
             }
 
-            return factions?.FirstOrDefault(f => f.name == factionName) ?? new Faction()
-            {
-                name = factionName
-            };
+            return factions?.FirstOrDefault( f =>
+                f.name.Equals( factionName, StringComparison.InvariantCultureIgnoreCase ) );
         }
 
         public List<Faction> GetFactions(string endpoint, List<KeyValuePair<string, object>> queryList)
         {
             if (queryList.Count > 0)
             {
-                List<object> responses = GetData(bgsRestClient, endpoint, queryList);
+                var responses = GetData(bgsRestClient, endpoint, queryList);
 
                 if (responses?.Count > 0)
                 {
-                    List<Faction> factions = ParseFactionsParallel(responses);
+                    var factions = ParseFactionsParallel(responses);
                     return factions?.OrderBy(x => x.name).ToList();
                 }
             }
@@ -95,7 +95,7 @@ namespace EddiBgsService
         private List<Faction> ParseFactionsParallel(List<object> responses)
         {
             // it is OK to allow nulls into this list; they will be handled upstream
-            List<Faction> factions = responses.AsParallel().Select(ParseFaction).ToList();
+            var factions = responses.AsParallel().Select(ParseFaction).ToList();
             return factions;
         }
 
@@ -105,8 +105,8 @@ namespace EddiBgsService
             {
                 Logging.Debug($"Response from EliteBGS bgsRestClient endpoint {factionEndpoint} is: ", response);
 
-                IDictionary<string, object> factionJson = Deserializtion.DeserializeData(response.ToString());
-                Faction faction = new Faction
+                var factionJson = Deserializtion.DeserializeData(response.ToString());
+                var faction = new Faction
                 {
                     name = (string)factionJson["name"],
                     updatedAt = (DateTime)factionJson["updated_at"],
@@ -114,10 +114,10 @@ namespace EddiBgsService
                     Allegiance = Superpower.FromName((string)factionJson["allegiance"])
                 };
 
-                foreach (object presence in (List<object>)factionJson["faction_presence"])
+                foreach (var presence in (List<object>)factionJson["faction_presence"])
                 {
-                    IDictionary<string, object> presenceJson = (IDictionary<string, object>)presence;
-                    FactionPresence factionPresence = new FactionPresence
+                    var presenceJson = (IDictionary<string, object>)presence;
+                    var factionPresence = new FactionPresence
                     {
                         systemName = JsonParsing.getString(presenceJson, "system_name"),
                         influence = (JsonParsing.getOptionalDecimal(presenceJson, "influence") ?? 0) * 100, // Convert from a 0-1 range to a percentage
@@ -154,7 +154,7 @@ namespace EddiBgsService
                         {
                             if ( obj is IDictionary<string, object> pendingState )
                             {
-                                FactionTrendingState pTrendingState = new FactionTrendingState(
+                                var pTrendingState = new FactionTrendingState(
                                     FactionState.FromEDName(JsonParsing.getString(pendingState, "state")) ?? FactionState.None,
                                     JsonParsing.getOptionalInt(pendingState, "trend")
                                 );
@@ -172,7 +172,7 @@ namespace EddiBgsService
                         {
                             if ( obj is IDictionary<string, object> recoveringState )
                             {
-                                FactionTrendingState rTrendingState = new FactionTrendingState(
+                                var rTrendingState = new FactionTrendingState(
                                     FactionState.FromEDName(JsonParsing.getString(recoveringState, "state")) ?? FactionState.None,
                                     JsonParsing.getOptionalInt(recoveringState, "trend")
                                 );

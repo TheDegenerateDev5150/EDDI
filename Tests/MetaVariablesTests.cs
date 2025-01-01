@@ -188,7 +188,7 @@ namespace UnitTests
         {
             dynamic mockVaProxy = new MockVAProxy();
             var entry = new KeyValuePair<string, Type>( "Route details", typeof(RouteDetailsEvent) );
-            var vars = new MetaVariables( entry.Value, new RouteDetailsEvent(DateTime.MinValue, "set", "Shinrarta Dezhra", "Jameson Memorial", new NavWaypointCollection(), 0, null ) ).Results;
+            var vars = new MetaVariables( entry.Value, new RouteDetailsEvent(DateTime.MinValue, "set", "Shinrarta Dezhra", 3932277478106U, "Jameson Memorial", 128666762, new NavWaypointCollection(), 0, null ) ).Results;
             var vaVars = vars.AsVoiceAttackVariables( string.Empty, entry.Key );
             try
             {

@@ -1,13 +1,10 @@
-﻿using EddiDataDefinitions;
+﻿using EddiCore;
+using EddiDataDefinitions;
 using EddiDataProviderService;
-using EddiStarMapService;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Tests.Properties;
 using Utilities;
 
@@ -16,33 +13,32 @@ namespace UnitTests
     [TestClass]
     public class DataProviderTests : TestBase
     {
-        FakeEdsmRestClient fakeEdsmRestClient;
-        StarMapService fakeEdsmService;
-        private DataProviderService dataProviderService;
-
         [TestInitialize]
         public void start()
         {
-            fakeEdsmRestClient = new FakeEdsmRestClient();
-            fakeEdsmService = new StarMapService(fakeEdsmRestClient);
-            dataProviderService = new DataProviderService(fakeEdsmService);
             MakeSafe();
         }
         
         [TestMethod]
         public void TestSqlRepositoryPresent()
         {
-            IStarSystemRepository starSystemRepository = StarSystemSqLiteRepository.Instance;
-            StarSystem DBData = starSystemRepository.GetOrFetchStarSystem("Sol", true);
+            var starSystemRepository = StarSystemSqLiteRepository.Instance;
+
+            var DBData = starSystemRepository.GetSqlStarSystem( 10477373803U );
+            if ( DBData is null )
+            {
+                starSystemRepository.SaveStarSystem( DeserializeJsonResource<StarSystem>( Resources.sqlStarSystem6 ) );
+                DBData = starSystemRepository.GetSqlStarSystem( 10477373803U );
+            }
             Assert.IsNotNull(DBData);
-            Assert.AreEqual("Sol", DBData.systemname);
+            Assert.AreEqual("Sol", DBData.systemName);
         }
 
         [TestMethod]
         public void TestSqlRepositoryMissing()
         {
-            IStarSystemRepository starSystemRepository = StarSystemSqLiteRepository.Instance;
-            StarSystem DBData = starSystemRepository.GetStarSystem("Not here");
+            var starSystemRepository = StarSystemSqLiteRepository.Instance;
+            var DBData = starSystemRepository.GetSqlStarSystem(0);
             Assert.IsNull(DBData);
         }
 
@@ -50,18 +46,15 @@ namespace UnitTests
         public void TestVolcanismConversion()
         {
             // Fetch a star system with various types of volcanism
-            //IStarSystemRepository starSystemRepository = StarSystemSqLiteRepository.Instance;
-            //StarSystem sol = starSystemRepository.GetOrFetchStarSystem("Sol", true);
-            //Assert.IsNotNull(sol);
             var sol = DeserializeJsonResource<StarSystem>(Resources.sqlStarSystem6);
 
             // Ariel has no volcanism
-            Body ariel = sol.bodies.Find(b => b.bodyname == "Ariel");
+            var ariel = sol.bodies.Find(b => b.bodyname == "Ariel");
             Assert.IsNotNull(ariel);
             Assert.IsNull(ariel.volcanism);
 
             // Europa has water magma
-            Body europa = sol.bodies.Find(b => b.bodyname == "Europa");
+            var europa = sol.bodies.Find(b => b.bodyname == "Europa");
             Assert.IsNotNull(europa);
             Assert.IsNotNull(europa.volcanism);
             Assert.AreEqual("Major", europa.volcanism.invariantAmount);
@@ -89,45 +82,6 @@ namespace UnitTests
             Assert.AreEqual("Major", body.volcanism.invariantAmount);
             Assert.AreEqual("Iron", body.volcanism.invariantComposition);
             Assert.AreEqual("Geysers", body.volcanism.invariantType);
-        }
-
-        [TestMethod]
-        public void TestDataProviderEmptySystem()
-        {
-            // Setup
-            string resource = "api-v1/systems";
-            string json = "{}";
-            List<JObject> data = new List<JObject>();
-            fakeEdsmRestClient.Expect(resource, json, data);
-
-            StarSystem starSystem = dataProviderService.GetSystemData("Lagoon Sector GW-V b2-6");
-            Assert.IsNotNull(starSystem.population);
-        }
-
-        [TestMethod]
-        public void TestDataProviderMalformedSystem()
-        {
-            // Setup
-            string resource = "api-v1/systems";
-            string json = "{}";
-            List<JObject> data = new List<JObject>();
-            fakeEdsmRestClient.Expect(resource, json, data);
-
-            StarSystem starSystem = dataProviderService.GetSystemData("Malformed with quote\" and backslash\\. So evil");
-            Assert.IsNotNull(starSystem);
-        }
-
-        [TestMethod]
-        public void TestDataProviderUnknown()
-        {
-            // Setup
-            string resource = "api-v1/systems";
-            string json = "{}";
-            List<JObject> data = new List<JObject>();
-            fakeEdsmRestClient.Expect(resource, json, data);
-
-            StarSystem starSystem = dataProviderService.GetSystemData("Not appearing in this galaxy");
-            Assert.IsNotNull(starSystem);
         }
 
         [TestMethod]
@@ -190,68 +144,36 @@ namespace UnitTests
         }
 
         [TestMethod]
-        public void TestStarSystemData()
-        {
-            // Setup
-            string solJson = Encoding.UTF8.GetString(Resources.Sol);
-            fakeEdsmRestClient.Expect("api-v1/systems", solJson, new List<JObject>());
-
-            string solBodiesJson = Encoding.UTF8.GetString(Resources.SolBodies);
-            fakeEdsmRestClient.Expect("api-system-v1/bodies", solBodiesJson, new Dictionary<string, object>());
-
-            string solFactionsJson = Encoding.UTF8.GetString(Resources.SolFactions);
-            fakeEdsmRestClient.Expect("api-system-v1/factions", solFactionsJson, new JObject());
-
-            string solStationsJson = Encoding.UTF8.GetString(Resources.SolStations);
-            fakeEdsmRestClient.Expect("api-system-v1/stations", solStationsJson, new JObject());
-
-            // Test system & body data in a complete star system
-            StarSystem starSystem = dataProviderService.GetSystemData("Sol");
-
-            Assert.AreEqual("Sol", starSystem.systemname);
-            Assert.AreEqual(0M, starSystem.x);
-            Assert.AreEqual(0M, starSystem.y);
-            Assert.AreEqual(0M, starSystem.z);
-            Assert.IsNotNull(starSystem.population);
-            Assert.IsNotNull(starSystem.Faction);
-            Assert.IsNotNull(starSystem.Faction.Allegiance.invariantName);
-            Assert.IsNotNull(starSystem.Faction.Government.invariantName);
-            Assert.IsNotNull(starSystem.Faction.presences.FirstOrDefault(p => p.systemAddress == starSystem.systemAddress)?.FactionState?.invariantName);
-            Assert.IsNotNull(starSystem.Faction.name);
-            Assert.IsNotNull(starSystem.securityLevel.invariantName);
-            Assert.IsNotNull(starSystem.primaryeconomy);
-            Assert.AreEqual("Common", starSystem.Reserve.invariantName);
-            Assert.IsNotNull(starSystem.stations.Count);
-            Assert.IsNotNull(starSystem);
-            Assert.IsNotNull(starSystem.bodies);
-            Assert.AreNotEqual(0, starSystem.bodies.Count);
-        }
-
-        [TestMethod]
         public void TestPreservedProperties()
         {
+            EDDI.Instance.DataProvider = ConfigureTestDataProvider();
+
             // Set up our original star systems
-            StarSystem system = DeserializeJsonResource<StarSystem>(Resources.sqlStarSystem5);
-            List<DatabaseStarSystem> systemsToUpdate = new List<DatabaseStarSystem>() { new DatabaseStarSystem(system.systemname, system.systemAddress, JsonConvert.SerializeObject(system)) };
+            var system = DeserializeJsonResource<StarSystem>(Resources.sqlStarSystem5);
+            var systemsToUpdate = new List<DatabaseStarSystem>
+            {
+                new DatabaseStarSystem(system.systemname, system.systemAddress, JsonConvert.SerializeObject(system))
+            };
 
             // Set up a copy where we mimic missing data not recovered from the server
-            StarSystem systemCopy = system.Copy();
-            systemCopy.totalbodies = 0;
-            systemCopy.visitLog.Clear();
-            systemCopy.bodies.Clear();
-            List<StarSystem> updatedSystems = new List<StarSystem>() { systemCopy };
+            var systemCopy = new StarSystem()
+            {
+                systemname = system.systemname,
+                systemAddress = system.systemAddress,
+                x = system.x,
+                y = system.y,
+                z = system.z
+            };
+            var updatedSystems = new List<StarSystem>() { systemCopy };
 
             // Invoke the method under test
-            PrivateType privateType = new PrivateType(typeof(StarSystemSqLiteRepository));
-            var results = ((List<StarSystem>)privateType
-                .InvokeStatic("PreserveUnsyncedProperties", new object[] { updatedSystems, systemsToUpdate }));
+            var results = DataProviderService.PreserveUnsyncedProperties( updatedSystems, systemsToUpdate );
             var result = results[0];
 
             // Evaluate the results. The result must include the preserved data.
             Assert.AreEqual(3, result.scannedbodies);
             Assert.AreEqual(1, result.mappedbodies);
             Assert.AreEqual(20, result.totalbodies);
-            Assert.AreEqual(8557, result.bodies?.FirstOrDefault(b => b?.bodyId == 0)?.EDSMID);
             Assert.AreEqual(17, result.visits);
             Assert.AreEqual("2017-12-11T06:17:06Z", Dates.FromDateTimeToString(result.lastvisit));
 
@@ -264,7 +186,6 @@ namespace UnitTests
             Assert.AreEqual( "2017-12-11T06:17:06Z", Dates.FromDateTimeToString( body2?.scannedDateTime ) );
             Assert.AreEqual( string.Empty, Dates.FromDateTimeToString( body2?.mappedDateTime ) );
             Assert.AreEqual( false, body2?.mappedEfficiently ?? false );
-
         }
     }
 }

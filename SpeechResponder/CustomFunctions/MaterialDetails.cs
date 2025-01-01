@@ -1,6 +1,6 @@
 ﻿using Cottle;
+using EddiCore;
 using EddiDataDefinitions;
-using EddiDataProviderService;
 using EddiSpeechResponder.ScriptResolverService;
 using JetBrains.Annotations;
 using System;
@@ -20,7 +20,7 @@ namespace EddiSpeechResponder.CustomFunctions
             var result = Material.FromName(values[0].AsString);
             if (result?.edname != null && values.Count == 2)
             {
-                var starSystem = StarSystemSqLiteRepository.Instance.GetOrFetchStarSystem(values[1].AsString, true);
+                var starSystem = EDDI.Instance.DataProvider.GetOrFetchStarSystem( values[1].AsString, true, false );
                 if (starSystem != null)
                 {
                     var body = Material.highestPercentBody(result.edname, starSystem.bodies);

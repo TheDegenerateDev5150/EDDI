@@ -1,9 +1,11 @@
 ﻿using JetBrains.Annotations;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Utilities;
 
 namespace EddiDataDefinitions
 {
@@ -16,9 +18,9 @@ namespace EddiDataDefinitions
 
         public string systemName { get; set; }
         public ulong systemAddress { get; set; }
-        public decimal? x { get; set; }
-        public decimal? y { get; set; }
-        public decimal? z { get; set; }
+        public decimal x { get; set; }
+        public decimal y { get; set; }
+        public decimal z { get; set; }
 
         /// <summary>
         /// Distance to this waypoint (from the last waypoint)
@@ -38,6 +40,8 @@ namespace EddiDataDefinitions
         public int index { get; set; }
 
         public string stationName { get; set; }
+
+        public long? marketID { get; set; }
 
         // NavRoute only
         public string stellarclass { get; set; }
@@ -85,9 +89,10 @@ namespace EddiDataDefinitions
 
         // Default constructor
         [JsonConstructor]
-        public NavWaypoint(string systemName, decimal x, decimal y, decimal z)
+        public NavWaypoint ( string systemName, ulong systemAddress, decimal x, decimal y, decimal z )
         {
             this.systemName = systemName;
+            this.systemAddress = systemAddress;
             this.x = x;
             this.y = y;
             this.z = z;
@@ -97,9 +102,9 @@ namespace EddiDataDefinitions
         {
             this.systemName = starSystem.systemname;
             this.systemAddress = starSystem.systemAddress;
-            this.x = starSystem.x;
-            this.y = starSystem.y;
-            this.z = starSystem.z;
+            this.x = Convert.ToDecimal( starSystem.x );
+            this.y = Convert.ToDecimal( starSystem.y );
+            this.z = Convert.ToDecimal( starSystem.z );
             var closeStars = starSystem.bodies.Where(b => b.bodyType == BodyType.Star && b.distance < 100).ToList();
             stellarclass = closeStars.FirstOrDefault(b => b.mainstar ?? false)?.stellarclass;
             isScoopable = closeStars.Any(b => !string.IsNullOrEmpty(b.stellarclass) && "KGBFOAM".Contains(b.stellarclass));
@@ -117,6 +122,12 @@ namespace EddiDataDefinitions
             stellarclass = navRouteItem.stellarclass;
             isScoopable = !string.IsNullOrEmpty(navRouteItem.stellarclass) && "KGBFOAM".Contains(navRouteItem.stellarclass);
             hasNeutronStar = !string.IsNullOrEmpty(navRouteItem.stellarclass) && "N".Contains(navRouteItem.stellarclass);
+        }
+
+        public decimal? DistanceFromStarSystem ( NavWaypoint other )
+        {
+            if ( other is null ) { return null; }
+            return Functions.StellarDistanceLy( x, y, z, other.x, other.y, other.z );
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

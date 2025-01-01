@@ -1,7 +1,6 @@
 ﻿using Cottle;
 using EddiCore;
 using EddiDataDefinitions;
-using EddiDataProviderService;
 using EddiSpeechResponder.ScriptResolverService;
 using JetBrains.Annotations;
 using System;
@@ -35,7 +34,7 @@ namespace EddiSpeechResponder.CustomFunctions
                 else
                 {
                     // Named system
-                    system = StarSystemSqLiteRepository.Instance.GetOrFetchStarSystem(values[1].AsString, true);
+                    system = EDDI.Instance.DataProvider.GetOrFetchStarSystem( values[1].AsString );
                 }
                 result = system != null && system.stations != null ? system.stations.FirstOrDefault(v => v.name?.ToLowerInvariant() == values[0].AsString.ToLowerInvariant()) : null;
             }

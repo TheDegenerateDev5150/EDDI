@@ -29,7 +29,9 @@ namespace EddiDataDefinitions
         public LandingPadSize() : this("", 0)
         { }
 
-        private LandingPadSize(string edname, int index) : base(edname, edname)
-        { }
+        private LandingPadSize ( string edname, int sizeIndex ) : base( edname, edname )
+        {
+            this.sizeIndex = sizeIndex;
+        }
     }
 }

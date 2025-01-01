@@ -1,7 +1,6 @@
 ﻿using Cottle;
 using EddiCore;
 using EddiDataDefinitions;
-using EddiDataProviderService;
 using EddiSpeechResponder.ScriptResolverService;
 using JetBrains.Annotations;
 using System;
@@ -43,7 +42,7 @@ namespace EddiSpeechResponder.CustomFunctions
             else if (values.Count == 3)
             {
                 // Named commodity, named station, named system 
-                var system = StarSystemSqLiteRepository.Instance.GetOrFetchStarSystem(values[2].AsString);
+                var system = EDDI.Instance.DataProvider.GetOrFetchStarSystem(values[2].AsString, true, true, true );
                 var stationName = values[1].AsString;
                 var station = system?.stations?.FirstOrDefault(v => v.name == stationName);
                 result = CommodityDetails(values[0].AsString, station);

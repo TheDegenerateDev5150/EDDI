@@ -18,10 +18,10 @@ namespace EddiSpanshService
             if (!fromUIquery)
             {
                 // The Spansh Carrier Plotter uses case sensitive system names. Use the TypeAhead API to normalize casing.
-                currentSystem = GetTypeAheadStarSystems(currentSystem).Values.FirstOrDefault();
+                currentSystem = GetWaypointsBySystemName(currentSystem).FirstOrDefault()?.systemName;
                 for (int i = 0; i < targetSystems.Length; i++)
                 {
-                    targetSystems[i] = GetTypeAheadStarSystems(targetSystems[i]).Values.FirstOrDefault();
+                    targetSystems[i] = GetWaypointsBySystemName(targetSystems[i]).FirstOrDefault()?.systemName;
                 }                
             }
 
@@ -85,10 +85,9 @@ namespace EddiSpanshService
             {
                 if ( jump[ "id64" ] != null && jump["x"] != null && jump["y"] != null && jump["z"] != null)
                 {
-                    var waypoint = new NavWaypoint(jump["name"]?.ToObject<string>(), jump["x"].ToObject<decimal>(),
+                    var waypoint = new NavWaypoint(jump["name"]?.ToObject<string>(), jump["id64"].ToObject<ulong>(), jump["x"].ToObject<decimal>(),
                         jump["y"].ToObject<decimal>(), jump["z"].ToObject<decimal>())
                     {
-                        systemAddress = jump["id64"].ToObject<ulong>(),
                         fuelUsed = jump["fuel_used"]?.ToObject<int>(),
                         hasIcyRing = jump["has_icy_ring"]?.ToObject<bool>(),
                         hasPristineMining = jump["is_system_pristine"]?.ToObject<bool>(),

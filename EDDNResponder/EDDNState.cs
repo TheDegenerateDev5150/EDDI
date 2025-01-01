@@ -1,5 +1,4 @@
-﻿using EddiDataProviderService;
-using EddiEddnResponder.Toolkit;
+﻿using EddiEddnResponder.Toolkit;
 
 namespace EddiEddnResponder
 {
@@ -11,10 +10,10 @@ namespace EddiEddnResponder
 
         public readonly PersonalDataStripper PersonalData;
 
-        public EDDNState(IStarSystemRepository starSystemRepository)
+        public EDDNState()
         {
             GameVersion = new GameVersionAugmenter();
-            Location = new LocationAugmenter(starSystemRepository);
+            Location = new LocationAugmenter();
             PersonalData = new PersonalDataStripper();
         }
 

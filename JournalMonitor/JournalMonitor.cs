@@ -1,7 +1,6 @@
 ﻿using EddiConfigService;
 using EddiCore;
 using EddiDataDefinitions;
-using EddiDataProviderService;
 using EddiEvents;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
@@ -391,7 +390,7 @@ namespace EddiJournalMonitor
                                     var bodyType = BodyType.FromEDName(JsonParsing.getString(data, "BodyType")) ?? BodyType.None;
                                     if ( bodyType == BodyType.Planet )
                                     {
-                                        bodyType = StarSystemSqLiteRepository.Instance.GetOrFetchStarSystem( systemName )?
+                                        bodyType = EDDI.Instance.DataProvider.GetOrFetchStarSystem( systemAddress )?
                                                        .bodies.FirstOrDefault( b => b.bodyId != null && b.bodyId == bodyId )?.bodyType ??
                                                    bodyType;
                                     }
@@ -1313,25 +1312,8 @@ namespace EddiJournalMonitor
                                                     ship.transferprice = JsonParsing.getOptionalLong(shipData, "TransferPrice");
                                                     ship.transfertime = JsonParsing.getOptionalLong(shipData, "TransferTime");
 
-                                                    string starSystem = JsonParsing.getString(shipData, "StarSystem");
-                                                    ship.starsystem = starSystem ?? system;
-                                                    if (starSystem != null)
-                                                    {
-                                                        StarSystem systemData = StarSystemSqLiteRepository.Instance.GetStarSystem(starSystem, true);
-                                                        ship.station = systemData?.stations?.FirstOrDefault(s => s.marketId == ship.marketid)?.name;
-                                                        ship.x = systemData?.x;
-                                                        ship.y = systemData?.y;
-                                                        ship.z = systemData?.z;
-                                                        ship.distance = ship.Distance(EDDI.Instance?.CurrentStarSystem?.x, EDDI.Instance?.CurrentStarSystem?.y, EDDI.Instance?.CurrentStarSystem?.z);
-                                                    }
-                                                    else
-                                                    {
-                                                        ship.station = station;
-                                                        ship.x = EDDI.Instance?.CurrentStarSystem?.x;
-                                                        ship.y = EDDI.Instance?.CurrentStarSystem?.y;
-                                                        ship.z = EDDI.Instance?.CurrentStarSystem?.z;
-                                                        ship.distance = 0;
-                                                    }
+                                                    var systemName = JsonParsing.getString(shipData, "StarSystem");
+                                                    ship.starsystem = systemName ?? system;
                                                     shipyard.Add(ship);
                                                 }
                                             }
@@ -1378,24 +1360,6 @@ namespace EddiJournalMonitor
                                                 transfertime = JsonParsing.getOptionalLong(item, "TransferTime")
                                             };
                                             storedModules.Add(storedModule);
-                                        }
-
-                                        string[] systemNames = storedModules.Where(s => !string.IsNullOrEmpty(s.system)).Select(s => s.system).Distinct().ToArray();
-                                        List<StarSystem> systemsData = StarSystemSqLiteRepository.Instance.GetOrFetchStarSystems(systemNames);
-                                        if (systemsData?.Any() ?? false)
-                                        {
-                                            List<StoredModule> storedModulesHolder = new List<StoredModule>();
-                                            foreach (StoredModule storedModule in storedModules)
-                                            {
-                                                if (!storedModule.intransit)
-                                                {
-                                                    StarSystem systemData = systemsData.FirstOrDefault(s => s.systemname == storedModule.system);
-                                                    Station stationData = systemData?.stations?.FirstOrDefault(s => s.marketId == storedModule.marketid);
-                                                    storedModule.station = stationData?.name;
-                                                }
-                                                storedModulesHolder.Add(storedModule);
-                                            }
-                                            storedModules = storedModulesHolder;
                                         }
                                     }
                                     events.Add(new StoredModulesEvent(timestamp, marketId, station, system, storedModules) { raw = line, fromLoad = fromLogLoad });
@@ -3416,20 +3380,19 @@ namespace EddiJournalMonitor
                                         if ( destinationsystem != null && destinationsystem.Contains( "$MISSIONUTIL_MULTIPLE" ) )
                                         {
                                             // If 'chained' mission, get the destination systems
-                                            string[] systems = destinationsystem
+                                            var destinationSystems = destinationsystem
                                                 .Replace("$MISSIONUTIL_MULTIPLE_INNER_SEPARATOR;", "#")
                                                 .Replace("$MISSIONUTIL_MULTIPLE_FINAL_SEPARATOR;", "#")
                                                 .Split('#');
 
-                                            var starSystems = StarSystemSqLiteRepository.Instance.GetOrFetchStarSystems(systems, true, false);
-                                            foreach ( var system in starSystems )
+                                            var starSystems = EDDI.Instance.DataProvider.GetOrFetchSystemWaypoints(destinationSystems);
+                                            foreach ( var dest in starSystems )
                                             {
-                                                if ( !string.IsNullOrEmpty( system.systemname ) &&
-                                                     system.x is decimal sx &&
-                                                     system.y is decimal sy &&
-                                                     system.z is decimal sz )
+                                                if ( !string.IsNullOrEmpty( dest.systemName ) &&
+                                                     dest.x is decimal sx &&
+                                                     dest.y is decimal sy &&
+                                                     dest.z is decimal sz )
                                                 {
-                                                    var dest = new NavWaypoint( system.systemname, sx, sy, sz );
                                                     dest.missionids.Add( mission.missionid );
                                                     mission.destinationsystems.Add( dest );
                                                 }
@@ -4074,7 +4037,7 @@ namespace EddiJournalMonitor
                                         {
                                             ring.mapped = timestamp;
                                             ring.hotspots = hotspots;
-                                            StarSystemSqLiteRepository.Instance.SaveStarSystem(EDDI.Instance.CurrentStarSystem);
+                                            EDDI.Instance.DataProvider.SaveStarSystem(EDDI.Instance.CurrentStarSystem);
                                         }
 
                                         events.Add(new RingHotspotsEvent(timestamp, systemAddress, bodyName, bodyId, hotspots) { raw = line, fromLoad = fromLogLoad });
@@ -4350,8 +4313,8 @@ namespace EddiJournalMonitor
                                                    BodyType.None;
                                     if ( bodyType == BodyType.Planet )
                                     {
-                                        bodyType = StarSystemSqLiteRepository.Instance
-                                                       .GetOrFetchStarSystem( systemName )?
+                                        bodyType = EDDI.Instance.DataProvider
+                                                       .GetOrFetchStarSystem( systemAddress )?
                                                        .bodies.FirstOrDefault( b =>
                                                            b.bodyId != null && b.bodyId == bodyId )?.bodyType ??
                                                    bodyType;
@@ -4468,7 +4431,7 @@ namespace EddiJournalMonitor
                                     // There is a bug in the journal output where "Body" can be missing but "BodyID" can be present. Try to Work around that here.
                                     if (string.IsNullOrEmpty(bodyName) && systemAddress > 0)
                                     {
-                                        var starSystem = StarSystemSqLiteRepository.Instance.GetOrFetchStarSystem(systemName, true, true, true, false, false);
+                                        var starSystem = EDDI.Instance.DataProvider.GetOrFetchStarSystem(systemAddress, systemName, true, true);
                                         bodyName = starSystem?.bodies?.FirstOrDefault(b => b?.bodyId == bodyId)?.bodyname;
                                     }
 
@@ -4700,15 +4663,14 @@ namespace EddiJournalMonitor
                                         if (edType == "Backpack")
                                         {
                                             events.Add(new BackpackEvent(timestamp, inventory) { raw = line, fromLoad = fromLogLoad });
-                                            handled = true;
                                         }
                                         else if (edType == "ShipLocker")
                                         {
                                             events.Add(new ShipLockerEvent(timestamp, inventory) { raw = line, fromLoad = fromLogLoad });
-                                            handled = true;
                                         }
                                     }
                                 }
+                                handled = true;
                                 break;
                             case "BackpackChange":
                                 {
@@ -5186,22 +5148,24 @@ namespace EddiJournalMonitor
             return events;
         }
 
-        private static Dictionary<LandingPadSize, int> GetLandingPads(IDictionary<string, object> data)
+        private static StationLandingPads GetLandingPads (IDictionary<string, object> data)
         {
-            var landingPads = new Dictionary<LandingPadSize, int>();
+            var landingPads = new StationLandingPads();
             if ( data.TryGetValue( "LandingPads", out var landingPadsObj ) && landingPadsObj is Dictionary<string, object> landingPadsDict )
             {
-                landingPads.Add( LandingPadSize.Small,
-                    landingPadsDict.TryGetValue( LandingPadSize.Small.invariantName, out var smallPads )
-                        ? Convert.ToInt32( smallPads ) : 0 );
-                landingPads.Add( LandingPadSize.Medium,
-                    landingPadsDict.TryGetValue( LandingPadSize.Medium.invariantName, out var mediumPads )
-                        ? Convert.ToInt32( mediumPads ) : 0 );
-                landingPads.Add( LandingPadSize.Large,
-                    landingPadsDict.TryGetValue( LandingPadSize.Large.invariantName, out var largePads )
-                        ? Convert.ToInt32( largePads ) : 0 );
+                if ( landingPadsDict.TryGetValue( "Small", out var smallPads ) )
+                {
+                    landingPads.Small = Convert.ToInt32( smallPads );
+                }
+                if ( landingPadsDict.TryGetValue( "Medium", out var mediumPads ) )
+                {
+                    landingPads.Medium = Convert.ToInt32( mediumPads );
+                }
+                if ( landingPadsDict.TryGetValue( "Large", out var largePads ) )
+                {
+                    landingPads.Large = Convert.ToInt32( largePads );
+                }
             }
-
             return landingPads;
         }
 

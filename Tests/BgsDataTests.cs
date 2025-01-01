@@ -2,11 +2,9 @@
 using EddiDataDefinitions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
-using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Text;
 using Tests.Properties;
 using Utilities;
@@ -14,49 +12,12 @@ using Utilities;
 namespace UnitTests
 {
     // Tests for the EliteBGS Service
-    internal class FakeBgsRestClient : IBgsRestClient
-    {
-        public Dictionary<string, string> CannedContent = new Dictionary<string, string>();
-        public Dictionary<string, object> CannedData = new Dictionary<string, object>();
-
-        public Uri BuildUri(IRestRequest request)
-        {
-            return new Uri("fakeBGS://" + request.Resource);
-        }
-
-        public IRestResponse<T> Execute<T>(IRestRequest request) where T : new()
-        {
-            // this will throw if given a resource not in the canned dictionaries: that's OK
-            string content = CannedContent[request.Resource];
-            T data = (T)CannedData[request.Resource];
-            IRestResponse<T> restResponse = new RestResponse<T>
-            {
-                Content = content,
-                Data = data,
-                ResponseStatus = ResponseStatus.Completed,
-                StatusCode = HttpStatusCode.OK,
-            };
-            return restResponse;
-        }
-
-        public void Expect(string resource, string content, object data)
-        {
-            CannedContent[resource] = content;
-            CannedData[resource] = data;
-        }
-    }
-
     [TestClass]
     public class BgsDataTests : TestBase
     {
-        FakeBgsRestClient fakeBgsRestClient;
-        BgsService fakeBgsService;
-
         [TestInitialize]
         public void start()
         {
-            fakeBgsRestClient = new FakeBgsRestClient();
-            fakeBgsService = new BgsService(fakeBgsRestClient);
             MakeSafe();
         }
 
@@ -64,21 +25,17 @@ namespace UnitTests
         public void TestFaction()
         {
             // Test faction data
-            JObject response = DeserializeJsonResource<JObject>(Resources.bgsFaction);
-            Faction faction = fakeBgsService.ParseFaction(response);
+            var response = DeserializeJsonResource<JObject>(Resources.bgsFaction);
+            var faction = fakeBgsService.ParseFaction(response);
 
             Assert.IsNotNull(faction);
 
             // Test The Dark Wheel core data
             Assert.AreEqual("Independent", faction.Allegiance.invariantName);
             Assert.AreEqual("Democracy", faction.Government.invariantName);
-            Assert.IsNull(faction.isplayer);
             Assert.AreEqual("2019-04-13T03:37:17Z", Dates.FromDateTimeToString(faction.updatedAt));
 
-            // Test The Dark Wheel faction presence data
-            string systemName = "Shinrarta Dezhra";
-            FactionPresence factionPresence = faction.presences.FirstOrDefault(p => p.systemName == systemName);
-
+            var factionPresence = faction.presences.FirstOrDefault( p => p.systemName == "Shinrarta Dezhra" );
             Assert.AreEqual(28.9M, factionPresence?.influence);
             Assert.AreEqual("Boom", factionPresence?.FactionState?.invariantName);
             Assert.AreEqual("Happy", factionPresence?.Happiness.invariantName);
@@ -88,9 +45,7 @@ namespace UnitTests
             Assert.AreEqual(0, factionPresence?.RecoveringStates.Count());
             Assert.AreEqual("2019-04-13T03:37:17Z", Dates.FromDateTimeToString(factionPresence?.updatedAt));
 
-            systemName = "LFT 926";
-            factionPresence = faction.presences.FirstOrDefault(p => p.systemName == systemName);
-
+            factionPresence = faction.presences.FirstOrDefault( p => p.systemName == "LFT 926" );
             Assert.AreEqual(11.2983M, factionPresence?.influence);
             Assert.AreEqual("Boom", factionPresence?.FactionState?.invariantName);
             Assert.AreEqual("Happy", factionPresence?.Happiness.invariantName);
@@ -106,13 +61,13 @@ namespace UnitTests
         public void TestBgsFactionFromName()
         {
             // Setup
-            string resource = "v5/factions?";
-            string json = Encoding.UTF8.GetString(Resources.bgsFactionResponse);
-            RestRequest data = new RestRequest();
-            fakeBgsRestClient.Expect(resource, json, data);
-
+            fakeBgsRestClient.Expect( "v5/factions?name=The Dark Wheel&page=1", Encoding.UTF8.GetString( Resources.bgsFactionResponse ) );
+            fakeBgsRestClient.Expect( "v5/factions?name=No such faction&page=1", @"{""docs"":[],""total"":0,""limit"":10,""page"":1,""pages"":1,""pagingCounter"":1,""hasPrevPage"":false,""hasNextPage"":false,""prevPage"":null,""nextPage"":null}" );
+           
             // Act
-            Faction faction1 = fakeBgsService.GetFactionByName("The Dark Wheel");
+            var faction1 = fakeBgsService.GetFactionByName( "The Dark Wheel" );
+            var faction2 = fakeBgsService.GetFactionByName( "No such faction" );
+            var faction3 = fakeBgsService.GetFactionByName( null );
 
             // Assert
             Assert.IsNotNull(faction1);
@@ -131,31 +86,25 @@ namespace UnitTests
             Assert.AreEqual(0, presence.PendingStates.Count);
             Assert.AreEqual(0, presence.RecoveringStates.Count);
 
-            // Even if the faction does not exist, we should return a basic object
-            Faction faction2 = fakeBgsService.GetFactionByName("No such faction");
-            Assert.IsNotNull(faction2);
-            Assert.AreEqual("No such faction", faction2.name);
-            Assert.IsNull(faction2.Government);
-            Assert.IsNull(faction2.Allegiance);
-            Assert.AreEqual(DateTime.MinValue, faction2.updatedAt);
-            Assert.AreEqual(0, faction2.presences.Count);
+            // Return null if the faction cannot be found
+            Assert.IsNull(faction2);
+            Assert.IsNull( faction3 );
         }
 
         [TestMethod]
         public void TestParseNoFactions()
         {
             // Setup
-            string endpoint = "v5/factions?";
-            string json = "";
-            RestRequest data = new RestRequest();
-            fakeBgsRestClient.Expect(endpoint, json, data);
+            var endpoint = "v5/factions";
+            var json = "";
+            fakeBgsRestClient.Expect(endpoint, json);
             var queryList = new List<KeyValuePair<string, object>>()
             {
                 new KeyValuePair<string, object>(BgsService.FactionParameters.factionName, "")
             };
 
             // Act
-            List<Faction> factions = fakeBgsService.GetFactions(endpoint, queryList);
+            var factions = fakeBgsService.GetFactions(endpoint, queryList);
 
             // Assert
             Assert.IsNull(factions);
