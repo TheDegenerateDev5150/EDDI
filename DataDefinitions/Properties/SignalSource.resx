@@ -147,7 +147,7 @@
   </data>
   <data name="USS_Type_Aftermath" xml:space="preserve">
     <value>Combat Aftermath</value>
-    <comment>Aftermatch signal</comment>
+    <comment>Combat Aftermath signal</comment>
   </data>
   <data name="USS_Type_Anomaly" xml:space="preserve">
     <value>Anomaly</value>
@@ -435,6 +435,10 @@
   </data>
   <data name="USS_Type_PowerplayConvoyDistressSignal" xml:space="preserve">
     <value>Power Convoy Distress Signal</value>
+    <comment>Powerplay</comment>
+  </data>
+  <data name="USS_Type_PowerWeaponsFire" xml:space="preserve">
+    <value>Power Weapons Fire Signature</value>
     <comment>Powerplay</comment>
   </data>
 </root>

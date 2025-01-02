@@ -48,8 +48,9 @@ namespace EddiDataDefinitions
             var TradingBeacon = new SignalSource("USS_Type_TradingBeacon", "USS_TradingBeacon");
             var WeaponsFire = new SignalSource("USS_Type_WeaponsFire", "USS_WeaponsFire");
             var PowerConvoy = new SignalSource( "USS_Type_PowerConvoy", "USS_PowerConvoy" );
-            var __ = new SignalSource( "USS_Type_PowerplayConvoyDistressSignal", "USS_PowerplayConvoyDistressSignal" );
             var PowerEmmissions = new SignalSource( "USS_Type_PowerEmissions", "USS_PowerEmissions" );
+            var PowerplayConvoyDistressSignal = new SignalSource( "USS_Type_PowerplayConvoyDistressSignal", "USS_PowerplayConvoyDistressSignal" );
+            var PowerWeaponsFire = new SignalSource( "USS_Type_PowerWeaponsFire", "USS_PowerWeaponsFire" );
 
             var UnregisteredCommsBeacon = new SignalSource("NumberStation");
             var ListeningPost = new SignalSource("ListeningPost");
@@ -165,7 +166,7 @@ namespace EddiDataDefinitions
                 return new SignalSource(from) { fallbackInvariantName = from, fallbackLocalizedName = from };
             }
 
-            SignalSource result = null;
+            SignalSource result;
             int? threatLvl = null;
             int indexResult = 0;
 

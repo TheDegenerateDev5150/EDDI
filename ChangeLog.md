@@ -42,7 +42,7 @@ Full details of the variables available for each noted event, and VoiceAttack in
       * `Power preparation vote cast` obsolete script removed.
       * `Power micro resources collected` script added.
       * `Power micro resources delivered` script added.
-      * `Signal detected` script updated to incorporate new Powerplay details. 
+      * `Signal detected` script updated to incorporate additional signal types and Powerplay details. 
       
 ## 4.1.0-b3
   * Core
