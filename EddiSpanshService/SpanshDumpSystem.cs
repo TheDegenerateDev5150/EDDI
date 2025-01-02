@@ -295,8 +295,9 @@ namespace EddiSpanshService
                 return new SolidComposition( sldComp.Name, sldComp.Value.ToObject<decimal>() );
             } ).OrderByDescending( x => x.percent ).ToList() ?? new List<SolidComposition>();
 
-            starSystem.stations.AddRange( planetData[ "stations" ]?.AsParallel().Select( s =>
-                ParseStation( starSystem, s, planetData, showMarketDetails ) ).ToList() ?? new List<Station>() );
+            var surfaceStations = planetData[ "stations" ]?.AsParallel().Select( s =>
+                ParseStation( starSystem, s, planetData, showMarketDetails ) ).ToList() ?? new List<Station>();
+            starSystem.stations.AddRange( surfaceStations );
 
             var terraformState = TerraformState.FromName( planetData[ "terraformingState" ]?.ToString() ) ??
                                  TerraformState.NotTerraformable;
