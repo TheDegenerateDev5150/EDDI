@@ -390,11 +390,11 @@ namespace EddiCore
         {
             get
             {
-                if ( fleetCarrier is null )
+                if ( _fleetCarrier is null )
                 {
                     RefreshFleetCarrierFromFrontierAPI( true );
                 }
-                return fleetCarrier;
+                return _fleetCarrier;
             }
             set
             {
@@ -402,14 +402,14 @@ namespace EddiCore
                 {
                     OnPropertyChanged();
                 }
-                if (fleetCarrier != null) { fleetCarrier.PropertyChanged -= childPropertyChangedHandler; }
+                if (_fleetCarrier != null) { _fleetCarrier.PropertyChanged -= childPropertyChangedHandler; }
                 if (value != null) { value.PropertyChanged += childPropertyChangedHandler; }
 
-                fleetCarrier = value;
+                _fleetCarrier = value;
                 OnPropertyChanged();
             }
         }
-        private FleetCarrier fleetCarrier;
+        private FleetCarrier _fleetCarrier;
 
         [CanBeNull]
         public Ship CurrentShip
@@ -3194,18 +3194,18 @@ namespace EddiCore
                     var timestamp = frontierApiCarrierJson["timestamp"]?.ToObject<DateTime>() ?? DateTime.MinValue;
 
                     // Update our Fleet Carrier object
-                    if ( FleetCarrier is null )
+                    if ( _fleetCarrier is null )
                     {
                         LockManager.GetLock( nameof( FleetCarrier ), () =>
                         {
-                            FleetCarrier = new FleetCarrier( frontierApiCarrierJson, timestamp );
+                            _fleetCarrier = new FleetCarrier( frontierApiCarrierJson, timestamp );
                         } );
                     }
                     else
                     {
                         LockManager.GetLock( nameof( FleetCarrier ), () =>
                         {
-                            FleetCarrier.UpdateFrom( frontierApiCarrierJson, timestamp );
+                            _fleetCarrier?.UpdateFrom( frontierApiCarrierJson, timestamp );
                         } );
                     }
                     UpdateFleetCarrierConfig();
