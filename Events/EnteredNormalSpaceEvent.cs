@@ -18,7 +18,7 @@ namespace EddiEvents
         public string bodytype => (bodyType ?? BodyType.None).localizedName;
 
         [PublicAPI("The invariant type of the nearest body to the commander when entering normal space")]
-        public string bodytype_invariant => (bodyType ?? BodyType.None).localizedName;
+        public string bodytype_invariant => (bodyType ?? BodyType.None).invariantName;
 
         [PublicAPI("The nearest body to the commander when entering normal space")]
         public string bodyname { get; private set; }
