@@ -19,11 +19,11 @@ namespace EddiDataProviderService
     /// <summary>Access data services. Prefer our cache and local database wherever possible.</summary>
     public class DataProviderService
     {
-        private readonly BgsService bgsService;
-        private readonly StarMapService edsmService;
-        private readonly SpanshService spanshService;
-        private readonly StarSystemSqLiteRepository starSystemRepository;
-        private readonly StarSystemCache starSystemCache;
+        internal readonly BgsService bgsService;
+        internal readonly StarMapService edsmService;
+        internal readonly SpanshService spanshService;
+        internal readonly StarSystemSqLiteRepository starSystemRepository;
+        internal readonly StarSystemCache starSystemCache;
 
         public static bool unitTesting;
 
@@ -184,6 +184,81 @@ namespace EddiDataProviderService
             results.AddRange( waypoints );
 
             return results;
+        }
+
+        /// <summary>
+        /// Find the station with the given system and station names from the Spansh Station Search API.
+        /// </summary>
+        /// <param name="fromSystemAddress"></param>
+        /// <param name="fromMarketId"></param>
+        /// <returns></returns>
+        public NavWaypoint GetOrFetchStationWaypoint ( ulong fromSystemAddress, long fromMarketId )
+        {
+            // Try to fetch from cached systems
+            if ( starSystemCache.TryGet( fromSystemAddress, out var cachedStarSystem ) )
+            {
+                var cachedStation = cachedStarSystem.stations.FirstOrDefault( s => s.marketId == fromMarketId );
+                if ( cachedStation != null )
+                {
+                    return new NavWaypoint( cachedStarSystem )
+                    {
+                        stationName = cachedStation.name,
+                        marketID = cachedStation.marketId
+                    };
+                }
+            }
+
+            var system = GetOrFetchQuickStarSystem( fromSystemAddress );
+            var station = system?.stations.FirstOrDefault( s => s.marketId == fromMarketId );
+            if ( station != null )
+            {
+                return new NavWaypoint( system )
+                {
+                    stationName = station?.name,
+                    marketID = station?.marketId
+                };
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Find the station with the given system and station names from the Spansh Station Search API.
+        /// </summary>
+        /// <param name="fromSystemName"></param>
+        /// <param name="fromMarketId"></param>
+        /// <returns></returns>
+        public NavWaypoint GetOrFetchStationWaypoint ( string fromSystemName, long fromMarketId )
+        {
+            // Try to fetch from cached systems
+            if ( !string.IsNullOrEmpty( fromSystemName ) && starSystemCache.TryGet( fromSystemName, out var cachedStarSystem ) )
+            {
+                var cachedStation = cachedStarSystem.stations.FirstOrDefault( s => s.marketId == fromMarketId );
+                if ( cachedStation != null )
+                {
+                    return new NavWaypoint( cachedStarSystem )
+                    {
+                        stationName = cachedStation.name,
+                        marketID = cachedStation.marketId
+                    };
+                }
+            }
+
+            // Fetch from Spansh
+            var systemAddress = GetOrFetchSystemWaypoint( fromSystemName )?.systemAddress;
+            if ( systemAddress != null )
+            {
+
+                var system = GetOrFetchQuickStarSystem( (ulong)systemAddress );
+                var station = system?.stations.FirstOrDefault( s => s.marketId == fromMarketId );
+                return new NavWaypoint( system )
+                {
+                    stationName = station?.name,
+                    marketID = station?.marketId
+                };
+            }
+
+            return null;
         }
 
         #region StarSystemSqlLiteRepository
@@ -425,24 +500,7 @@ namespace EddiDataProviderService
                 Logging.Warn( "Spansh API responded with: " + data[ "error" ] );
                 return null;
             }
-            return ParseQuickStation( data?[ "results" ]?.FirstOrDefault() );
-
-            NavWaypoint ParseQuickStation ( JToken stationData )
-            {
-                if ( stationData is null ) { return null; }
-
-                var systemName = stationData[ "system_name" ]?.ToString();
-                var systemAddress = stationData[ "system_id64" ]?.ToObject<ulong>() ?? 0;
-                var systemX = stationData[ "system_x" ]?.ToObject<decimal>() ?? 0;
-                var systemY = stationData[ "system_y" ]?.ToObject<decimal>() ?? 0;
-                var systemZ = stationData[ "system_z" ]?.ToObject<decimal>() ?? 0;
-
-                return new NavWaypoint( systemName, systemAddress, systemX, systemY, systemZ )
-                {
-                    stationName = stationData[ "name" ]?.ToString(),
-                    marketID = stationData[ "market_id" ]?.ToObject<long>()
-                };
-            }
+            return spanshService.ParseQuickStation( data?[ "results" ]?.FirstOrDefault() );
         }
 
         /// <summary>
