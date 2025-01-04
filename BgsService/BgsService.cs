@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using JetBrains.Annotations;
+using Newtonsoft.Json;
 using RestSharp;
 using System;
 using System.Collections.Generic;
@@ -39,24 +40,24 @@ namespace EddiBgsService
         }
 
         /// <summary> Specify the endpoint (e.g. EddiBgsService.Endpoint.factions) and a list of queries as KeyValuePairs </summary>
-        public List<object> GetData(IBgsRestClient restClient, string endpoint, List<KeyValuePair<string, object>> queries)
+        public List<object> GetData( [NotNull] IBgsRestClient restClient, [NotNull] string endpoint, [NotNull] List<KeyValuePair<string, object>> queries)
         {
-            if ( ( !queries?.Any() ?? false ) || ( queries?.Any( q => 
-                                                       string.IsNullOrEmpty( q.Key ) || 
-                                                       string.IsNullOrEmpty( q.Value.ToString() ) ) ?? false ) ) 
+            if ( !queries.Any() || queries.Any( q => 
+                    string.IsNullOrEmpty( q.Key ) || 
+                    string.IsNullOrEmpty( q.Value.ToString() ) ) ) 
             { return null; }
 
             var docs = new List<object>();
             var currentPage = 1;
 
-            RestRequest request = new RestRequest(endpoint, Method.GET);
+            var request = new RestRequest(endpoint, Method.GET);
             foreach (KeyValuePair<string, object> query in queries)
             {
                 request.AddParameter(query.Key, query.Value);
             }
 
             // Make our initial request
-            PageResponse response = PageRequest(restClient, request, currentPage);
+            var response = PageRequest(restClient, request, currentPage);
             if (response != null)
             {
                 docs.AddRange(response.docs);
@@ -65,7 +66,7 @@ namespace EddiBgsService
                 // Make additional requests as needed
                 while (currentPage < totalPages)
                 {
-                    PageResponse pageResponse = PageRequest(restClient, request, ++currentPage);
+                    var pageResponse = PageRequest(restClient, request, ++currentPage);
                     if (pageResponse != null)
                     {
                         docs.AddRange(pageResponse.docs);
