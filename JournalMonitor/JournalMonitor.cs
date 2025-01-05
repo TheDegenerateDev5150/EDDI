@@ -5697,7 +5697,7 @@ namespace EddiJournalMonitor
             return compartment;
         }
 
-        private static readonly string[] ignoredLogLoadEvents = new string[]
+        private static readonly string[] ignoredLogLoadEvents =
         {
             // We ignore these events when parsing / loading a log for a game session already in process.
             "AfmuRepairs",
@@ -5729,7 +5729,6 @@ namespace EddiJournalMonitor
             "MaterialDiscovered",
             "Music",
             "NpcCrewRank",
-            "Powerplay",
             "ReceiveText",
             "Scanned",
             "SendText",
