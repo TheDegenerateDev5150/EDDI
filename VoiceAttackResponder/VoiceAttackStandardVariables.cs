@@ -342,7 +342,7 @@ namespace EddiVoiceAttackResponder
             for ( int i = 0; i < 16; i++ ) 
             {
                 var Compartment = i <= (filledCompartments - 1) ? ship?.compartments[i] : null;
-                string baseCompartmentName = $"{prefix} compartment {i + 1}";
+                string baseCompartmentName = $"{prefix} compartment {i}";
                 vaProxy.SetInt( baseCompartmentName + " size", Compartment?.size );
                 vaProxy.SetBoolean( baseCompartmentName + " occupied", Compartment?.module != null );
                 setShipModuleValues( Compartment?.module, baseCompartmentName + " module", ref vaProxy );
@@ -363,7 +363,7 @@ namespace EddiVoiceAttackResponder
                     // We want to overshoot the maximum number of hardpoints for each hardpoint size
                     // and overwrite any previously written values with null values
                 {
-                    var baseHardpointName = $"{prefix} {invariantSizeNames[i]} hardpoint {j + 1}";
+                    var baseHardpointName = $"{prefix} {invariantSizeNames[i]} hardpoint {j}";
                     var Hardpoint = j <= (hardpointsAtSize.Count - 1) ? hardpointsAtSize[j] : null;
                     vaProxy.SetBoolean( baseHardpointName + " occupied", Hardpoint?.module != null );
                     setShipModuleValues( Hardpoint?.module, baseHardpointName + " module", ref vaProxy );

@@ -356,7 +356,7 @@ namespace UnitTests
             Assert.AreEqual( 8, mockVAProxy.GetInt("Ship compartments") );
             Assert.AreEqual( 6, mockVAProxy.GetInt("Ship compartment 1 size") );
             Assert.AreEqual( true, mockVAProxy.GetBoolean( "Ship compartment 1 occupied" ) );
-            Assert.AreEqual( 6, mockVAProxy.GetInt("Ship compartment 1 module class") );
+            Assert.AreEqual( 5, mockVAProxy.GetInt("Ship compartment 1 module class") );
             Assert.AreEqual( "C", mockVAProxy.GetText("Ship compartment 1 module grade") );
             Assert.AreEqual( 100M, mockVAProxy.GetDecimal("Ship compartment 1 module health") );
             Assert.AreEqual( 2234799, mockVAProxy.GetDecimal("Ship compartment 1 module cost") );
