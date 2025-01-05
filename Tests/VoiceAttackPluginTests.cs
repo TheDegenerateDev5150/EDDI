@@ -354,20 +354,20 @@ namespace UnitTests
             Assert.AreEqual( 100M, mockVAProxy.GetDecimal("Ship health") );
             Assert.AreEqual( 16, mockVAProxy.GetInt( "Ship cargo capacity" ) );
             Assert.AreEqual( 8, mockVAProxy.GetInt("Ship compartments") );
-            Assert.AreEqual( 6, mockVAProxy.GetInt("Ship compartment 1 size") );
-            Assert.AreEqual( true, mockVAProxy.GetBoolean( "Ship compartment 1 occupied" ) );
-            Assert.AreEqual( 5, mockVAProxy.GetInt("Ship compartment 1 module class") );
-            Assert.AreEqual( "C", mockVAProxy.GetText("Ship compartment 1 module grade") );
-            Assert.AreEqual( 100M, mockVAProxy.GetDecimal("Ship compartment 1 module health") );
-            Assert.AreEqual( 2234799, mockVAProxy.GetDecimal("Ship compartment 1 module cost") );
-            Assert.AreEqual( 2696600, mockVAProxy.GetDecimal("Ship compartment 1 module value") );
+            Assert.AreEqual( 6, mockVAProxy.GetInt("Ship compartment 0 size") );
+            Assert.AreEqual( true, mockVAProxy.GetBoolean( "Ship compartment 0 occupied" ) );
+            Assert.AreEqual( 6, mockVAProxy.GetInt("Ship compartment 0 module class") );
+            Assert.AreEqual( "C", mockVAProxy.GetText("Ship compartment 0 module grade") );
+            Assert.AreEqual( 100M, mockVAProxy.GetDecimal("Ship compartment 0 module health") );
+            Assert.AreEqual( 2234799, mockVAProxy.GetDecimal("Ship compartment 0 module cost") );
+            Assert.AreEqual( 2696600, mockVAProxy.GetDecimal("Ship compartment 0 module value") );
             Assert.AreEqual( 9, mockVAProxy.GetInt("Ship hardpoints") );
-            Assert.AreEqual( true, mockVAProxy.GetBoolean( "Ship large hardpoint 1 occupied" ) );
-            Assert.AreEqual( 2, mockVAProxy.GetInt("Ship large hardpoint 1 module class") );
-            Assert.AreEqual( "B", mockVAProxy.GetText("Ship large hardpoint 1 module grade") );
-            Assert.AreEqual( 100M, mockVAProxy.GetDecimal("Ship large hardpoint 1 module health") );
-            Assert.AreEqual( 310425, mockVAProxy.GetDecimal("Ship large hardpoint 1 module cost") );
-            Assert.AreEqual( 344916, mockVAProxy.GetDecimal("Ship large hardpoint 1 module value") );
+            Assert.AreEqual( true, mockVAProxy.GetBoolean( "Ship large hardpoint 0 occupied" ) );
+            Assert.AreEqual( 2, mockVAProxy.GetInt("Ship large hardpoint 0 module class") );
+            Assert.AreEqual( "B", mockVAProxy.GetText("Ship large hardpoint 0 module grade") );
+            Assert.AreEqual( 100M, mockVAProxy.GetDecimal("Ship large hardpoint 0 module health") );
+            Assert.AreEqual( 310425, mockVAProxy.GetDecimal("Ship large hardpoint 0 module cost") );
+            Assert.AreEqual( 344916, mockVAProxy.GetDecimal("Ship large hardpoint 0 module value") );
 
             VoiceAttackVariables.setShipValues( cobraMk3, "Ship", ref vaProxy );
             Assert.AreEqual( "Cobra Mk. III", mockVAProxy.GetText("Ship model") );
@@ -379,20 +379,20 @@ namespace UnitTests
             Assert.AreEqual( 100M, mockVAProxy.GetDecimal("Ship health") );
             Assert.AreEqual( 0, mockVAProxy.GetInt("Ship cargo capacity") );
             Assert.AreEqual( 0, mockVAProxy.GetInt("Ship compartments") );
-            Assert.AreEqual( null, mockVAProxy.GetInt("Ship compartment 1 size") );
-            Assert.AreEqual( false, mockVAProxy.GetBoolean("Ship compartment 1 occupied") );
-            Assert.AreEqual( null, mockVAProxy.GetInt("Ship compartment 1 module class") );
-            Assert.AreEqual( null, mockVAProxy.GetText("Ship compartment 1 module grade") );
-            Assert.AreEqual( null, mockVAProxy.GetDecimal("Ship compartment 1 module health") );
-            Assert.AreEqual( null, mockVAProxy.GetDecimal("Ship compartment 1 module cost") );
-            Assert.AreEqual( null, mockVAProxy.GetDecimal("Ship compartment 1 module value") );
+            Assert.AreEqual( null, mockVAProxy.GetInt("Ship compartment 0 size") );
+            Assert.AreEqual( false, mockVAProxy.GetBoolean("Ship compartment 0 occupied") );
+            Assert.AreEqual( null, mockVAProxy.GetInt("Ship compartment 0 module class") );
+            Assert.AreEqual( null, mockVAProxy.GetText("Ship compartment 0 module grade") );
+            Assert.AreEqual( null, mockVAProxy.GetDecimal("Ship compartment 0 module health") );
+            Assert.AreEqual( null, mockVAProxy.GetDecimal("Ship compartment 0 module cost") );
+            Assert.AreEqual( null, mockVAProxy.GetDecimal("Ship compartment 0 module value") );
             Assert.AreEqual( 0, mockVAProxy.GetInt("Ship hardpoints") );
-            Assert.AreEqual( false, mockVAProxy.GetBoolean("Ship large hardpoint 1 occupied") );
-            Assert.AreEqual( null, mockVAProxy.GetInt("Ship large hardpoint 1 module class") );
-            Assert.AreEqual( null, mockVAProxy.GetText("Ship large hardpoint 1 module grade") );
-            Assert.AreEqual( null, mockVAProxy.GetDecimal("Ship large hardpoint 1 module health") );
-            Assert.AreEqual( null, mockVAProxy.GetDecimal("Ship large hardpoint 1 module cost") );
-            Assert.AreEqual( null, mockVAProxy.GetDecimal("Ship large hardpoint 1 module value") );
+            Assert.AreEqual( false, mockVAProxy.GetBoolean("Ship large hardpoint 0 occupied") );
+            Assert.AreEqual( null, mockVAProxy.GetInt("Ship large hardpoint 0 module class") );
+            Assert.AreEqual( null, mockVAProxy.GetText("Ship large hardpoint 0 module grade") );
+            Assert.AreEqual( null, mockVAProxy.GetDecimal("Ship large hardpoint 0 module health") );
+            Assert.AreEqual( null, mockVAProxy.GetDecimal("Ship large hardpoint 0 module cost") );
+            Assert.AreEqual( null, mockVAProxy.GetDecimal("Ship large hardpoint 0 module value") );
         }
     }
 }
