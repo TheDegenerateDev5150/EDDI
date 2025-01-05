@@ -98,9 +98,10 @@ namespace EddiDataProviderService
         private const string WHERE_SYSTEMADDRESS = @"WHERE systemaddress = @systemaddress; PRAGMA optimize;";
         private const string WHERE_NAME = @"WHERE name = @name; PRAGMA optimize;";
 
-        public StarSystemSqLiteRepository ( SQLiteConnection connection = null )
+        public StarSystemSqLiteRepository ( bool unitTesting = false )
         {
-            CreateOrUpdateDatabase( connection );
+            SqLiteBaseRepository.unitTesting = unitTesting;
+            CreateOrUpdateDatabase();
         }
 
         public DatabaseStarSystem GetSqlStarSystem ( ulong systemAddress )
@@ -468,11 +469,11 @@ namespace EddiDataProviderService
             }
         }
 
-        private void CreateOrUpdateDatabase( SQLiteConnection connection = null )
+        private void CreateOrUpdateDatabase()
         {
             lock ( nameof(SimpleDbConnection) ) // Lock before writing to the database
             {
-                using ( var con = connection ?? SimpleDbConnection() )
+                using ( var con = SimpleDbConnection() )
                 {
                     try
                     {
@@ -554,7 +555,7 @@ namespace EddiDataProviderService
         }
 
         /// <summary> Valid columnNames are "systemaddress" and "comment" </summary>
-        private static void AddColumnIfMissing(SQLiteConnection con, string columnName)
+        private void AddColumnIfMissing(SQLiteConnection con, string columnName )
         {
             // Parameters like `DISTINCT` cannot be set on columns by this method
             string command = string.Empty;
@@ -567,16 +568,17 @@ namespace EddiDataProviderService
                     command = @"ALTER TABLE starsystems ADD COLUMN comment TEXT;";
                     break;
             }
-            if (!string.IsNullOrEmpty(command))
+
+            if ( !string.IsNullOrEmpty( command ) )
             {
                 bool columnExists = false;
-                using (var cmd = new SQLiteCommand(TABLE_INFO_SQL, con))
+                using ( var cmd = new SQLiteCommand( TABLE_INFO_SQL, con ) )
                 {
-                    using (SQLiteDataReader rdr = cmd.ExecuteReader())
+                    using ( SQLiteDataReader rdr = cmd.ExecuteReader() )
                     {
-                        while (rdr.Read())
+                        while ( rdr.Read() )
                         {
-                            if (columnName == rdr.GetString(1))
+                            if ( columnName == rdr.GetString( 1 ) )
                             {
                                 columnExists = true;
                                 break;
@@ -584,25 +586,26 @@ namespace EddiDataProviderService
                         }
                     }
                 }
-                if (!columnExists)
+
+                if ( !columnExists )
                 {
-                    Logging.Debug("Updating starsystem repository with new column " + columnName);
+                    Logging.Debug( "Updating starsystem repository with new column " + columnName );
                     try
                     {
-                        using (var cmd = new SQLiteCommand(command, con))
+                        using ( var cmd = new SQLiteCommand( command, con ) )
                         {
                             cmd.ExecuteNonQuery();
                         }
                     }
-                    catch (SQLiteException ex)
+                    catch ( SQLiteException ex )
                     {
-                        handleSqlLiteException(con, ex);
+                        handleSqlLiteException( con, ex );
                     }
                 }
             }
         }
 
-        private static void handleSqlLiteException(SQLiteConnection con, SQLiteException ex)
+        private void handleSqlLiteException( SQLiteConnection con, SQLiteException ex )
         {
             Logging.Warn("SQLite error: ", ex.ToString());
 

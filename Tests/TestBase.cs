@@ -8,7 +8,6 @@ using EddiStarMapService;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Data.SQLite;
 using System.IO;
 
 // Number of worker threads is automatic because `Workers` is set to 0.
@@ -33,9 +32,7 @@ namespace UnitTests
         internal static readonly FakeEdsmRestClient fakeEdsmRestClient = new FakeEdsmRestClient();
         internal static readonly StarMapService fakeEdsmService = new StarMapService(fakeEdsmRestClient);
 
-        private static readonly string testDatabaseDir = @"C:\Temp";
-        internal static SQLiteConnection fakeSqLiteConnection;
-        internal static StarSystemSqLiteRepository fakeStarSystemSqLiteRepository;
+        internal static StarSystemSqLiteRepository fakeStarSystemSqLiteRepository = new StarSystemSqLiteRepository( true );
 
         internal void MakeSafe()
         {
@@ -54,11 +51,6 @@ namespace UnitTests
 
         internal DataProviderService ConfigureTestDataProvider ()
         {
-            // Create a temporary database for testing
-            Directory.CreateDirectory( testDatabaseDir );
-            fakeSqLiteConnection = new SQLiteConnection( $@"Data Source={testDatabaseDir}\EDDI_TEST.sqlite" );
-            fakeStarSystemSqLiteRepository = new StarSystemSqLiteRepository( fakeSqLiteConnection );
-
             return new DataProviderService( fakeBgsService, fakeEdsmService, fakeSpanshService, fakeStarSystemSqLiteRepository );
         }
 

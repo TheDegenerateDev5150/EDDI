@@ -34,7 +34,7 @@ namespace EddiDataProviderService
             this.bgsService = bgsService ?? new BgsService();
             this.edsmService = edsmService ?? new StarMapService();
             this.spanshService = spanshService ?? new SpanshService();
-            this.starSystemRepository = starSystemRepository ?? new StarSystemSqLiteRepository();
+            this.starSystemRepository = starSystemRepository ?? new StarSystemSqLiteRepository(unitTesting);
         }
 
         public List<string> GetTypeAheadSystems ( string systemName )
