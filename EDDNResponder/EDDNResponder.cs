@@ -100,11 +100,8 @@ namespace EddiEddnResponder
 
             if (string.IsNullOrEmpty(edType) || data == null) { return; }
 
-            // Attempt to obtain available game version data from the active event 
-            eddnState.GameVersion.GetVersionInfo(edType, data);
-
-            // Except as noted above, always attempt to obtain available location data from the active event 
-            eddnState.Location.GetLocationInfo(edType, data);
+            // Collect and hold necessary state data
+            eddnState.GetStateInfo( edType, data );
 
             if (theEvent.fromLoad)
             {

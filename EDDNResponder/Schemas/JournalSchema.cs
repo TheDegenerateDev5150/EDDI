@@ -32,9 +32,10 @@ namespace EddiEddnResponder.Schemas
                 data = eddnState.PersonalData.Strip(data, edType);
 
                 // Apply data augments
-                data = eddnState.Location.AugmentStarPos(data);
-                data = eddnState.Location.AugmentStarSystemName(data);
-                data = eddnState.GameVersion.AugmentVersion(data);
+                data = eddnState.GameVersion.AugmentVersion( data );
+                data = eddnState.Location.AugmentStarPos( data );
+                data = eddnState.Location.AugmentStarSystemName( data );
+                data = eddnState.PowerPlay.AugmentPledgeState( data );
 
                 EDDNSender.SendToEDDN("https://eddn.edcd.io/schemas/journal/1", data, eddnState);
                 return true;
