@@ -1,6 +1,7 @@
 ﻿using EddiCore;
 using EddiEddnResponder;
 using EddiEddnResponder.Schemas;
+using EddiEddnResponder.Toolkit;
 using EddiEvents;
 using EddiJournalMonitor;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -409,8 +410,7 @@ namespace UnitTests
             }";
 
             var data = Deserializtion.DeserializeData(line);
-            var responder = makeTestEDDNResponder();
-            data = responder.eddnState.PersonalData.Strip( data, "Location" );
+            data = PersonalDataStripper.Strip( data, "Location" );
 
             if ( data == null )
             {
@@ -466,8 +466,7 @@ namespace UnitTests
                 }
             };
 
-            var responder = makeTestEDDNResponder();
-            data = responder.eddnState.PersonalData.Strip( data );
+            data = PersonalDataStripper.Strip( data );
 
             void testKeyValuePair(KeyValuePair<string, object> kvp)
             {

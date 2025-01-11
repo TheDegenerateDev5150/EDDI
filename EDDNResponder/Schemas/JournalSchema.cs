@@ -1,4 +1,5 @@
 ﻿using EddiEddnResponder.Sender;
+using EddiEddnResponder.Toolkit;
 using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
@@ -29,7 +30,7 @@ namespace EddiEddnResponder.Schemas
                 if (!eddnState.Location.CheckLocationData(edType, data) || !CheckSanity(edType, data)) return false;
 
                 // Remove personal data
-                data = eddnState.PersonalData.Strip(data, edType);
+                data = PersonalDataStripper.Strip(data, edType);
 
                 // Apply data augments
                 data = eddnState.GameVersion.AugmentVersion( data );

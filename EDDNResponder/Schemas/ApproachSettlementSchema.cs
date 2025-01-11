@@ -1,4 +1,5 @@
 ﻿using EddiEddnResponder.Sender;
+using EddiEddnResponder.Toolkit;
 using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
@@ -26,7 +27,7 @@ namespace EddiEddnResponder.Schemas
                 }
 
                 // Strip any localized properties
-                data = eddnState.PersonalData.Strip(data, edType);
+                data = PersonalDataStripper.Strip(data, edType);
 
                 // Apply data augments
                 data = eddnState.Location.AugmentStarSystemName(data);

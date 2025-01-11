@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace EddiEddnResponder.Toolkit
 {
-    public class PersonalDataStripper
+    public static class PersonalDataStripper
     {
         // We will strip these personal keys (plus any localized properties) before sending data to EDDN
 
@@ -29,7 +29,7 @@ namespace EddiEddnResponder.Toolkit
             { "Wanted", new []{ "CarrierJump", "Docked", "FSDJump", "Location" }}
         };
 
-        protected internal IDictionary<string, object> Strip(IDictionary<string, object> data, string edType = null)
+        internal static IDictionary<string, object> Strip(IDictionary<string, object> data, string edType = null)
         {
             // Need to strip a number of personal entries
             foreach (var kv in disallowedKeysDictionary)

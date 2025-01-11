@@ -11,14 +11,11 @@ namespace EddiEddnResponder
 
         public readonly PowerPlayAugmenter PowerPlay;
 
-        public readonly PersonalDataStripper PersonalData;
-
         public EDDNState()
         {
             GameVersion = new GameVersionAugmenter();
             Location = new LocationAugmenter();
             PowerPlay = new PowerPlayAugmenter();
-            PersonalData = new PersonalDataStripper();
         }
 
         /// <summary>

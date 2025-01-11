@@ -1,4 +1,5 @@
 ﻿using EddiEddnResponder.Sender;
+using EddiEddnResponder.Toolkit;
 using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
@@ -19,7 +20,7 @@ namespace EddiEddnResponder.Schemas
                 if (eddnState.GameVersion is null) { return false; }
 
                 // No personal data to remove
-                data = eddnState.PersonalData.Strip(data, edType);
+                data = PersonalDataStripper.Strip(data, edType);
 
                 // Apply data augments
                 data = eddnState.GameVersion.AugmentVersion(data);

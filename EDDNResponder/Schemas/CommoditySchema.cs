@@ -1,4 +1,5 @@
 ﻿using EddiEddnResponder.Sender;
+using EddiEddnResponder.Toolkit;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -58,7 +59,7 @@ namespace EddiEddnResponder.Schemas
                     }
 
                     // Remove localized names
-                    handledData = eddnState.PersonalData.Strip(handledData, edType);
+                    handledData = PersonalDataStripper.Strip(handledData, edType);
 
                     // Apply data augments
                     handledData = eddnState.GameVersion.AugmentVersion(handledData);
@@ -144,7 +145,7 @@ namespace EddiEddnResponder.Schemas
                     }
 
                     // Remove localized names
-                    data = eddnState.PersonalData.Strip(data);
+                    data = PersonalDataStripper.Strip(data);
 
                     // Apply data augments
                     data = eddnState.GameVersion.AugmentVersion(data);
