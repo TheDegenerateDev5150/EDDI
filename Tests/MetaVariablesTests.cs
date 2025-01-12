@@ -7,9 +7,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Utilities;
 
-namespace UnitTests
+namespace Tests
 {
-    [TestClass]
+    [TestClass, TestCategory("UnitTests")]
     public class MetaVariablesTests : TestBase
     {
         [TestInitialize]
@@ -37,13 +37,27 @@ namespace UnitTests
 
             var vaVars = vars.AsVoiceAttackVariables("EDDI", entry.Key);
             Assert.AreEqual(7, vaVars.Count);
-            Assert.AreEqual(typeof(string), vaVars.FirstOrDefault(k => k.key == @"EDDI galnet news published items \<index\> category")?.variableType);
-            Assert.AreEqual(typeof(string), vaVars.FirstOrDefault(k => k.key == @"EDDI galnet news published items \<index\> content")?.variableType);
-            Assert.AreEqual(typeof(string), vaVars.FirstOrDefault(k => k.key == @"EDDI galnet news published items \<index\> id")?.variableType);
-            Assert.AreEqual(typeof(DateTime), vaVars.FirstOrDefault(k => k.key == @"EDDI galnet news published items \<index\> published")?.variableType);
-            Assert.AreEqual(typeof(bool), vaVars.FirstOrDefault(k => k.key == @"EDDI galnet news published items \<index\> read")?.variableType);
-            Assert.AreEqual(typeof(string), vaVars.FirstOrDefault(k => k.key == @"EDDI galnet news published items \<index\> title")?.variableType);
-            Assert.AreEqual(typeof( int ), vaVars.FirstOrDefault(k => k.key == @"EDDI galnet news published items")?.variableType);
+            var category = vaVars.FirstOrDefault( k => k.key == @"EDDI galnet news published items \<index\> category" );
+            Assert.IsNotNull( category );
+            Assert.AreEqual(typeof(string), category.variableType);
+            var content = vaVars.FirstOrDefault( k => k.key == @"EDDI galnet news published items \<index\> content" );
+            Assert.IsNotNull( content );
+            Assert.AreEqual(typeof(string), content.variableType);
+            var id = vaVars.FirstOrDefault( k => k.key == @"EDDI galnet news published items \<index\> id" );
+            Assert.IsNotNull( id );
+            Assert.AreEqual(typeof(string), id.variableType);
+            var publishedDate = vaVars.FirstOrDefault( k => k.key == @"EDDI galnet news published items \<index\> published" );
+            Assert.IsNotNull( publishedDate );
+            Assert.AreEqual(typeof(DateTime), publishedDate.variableType);
+            var read = vaVars.FirstOrDefault( k => k.key == @"EDDI galnet news published items \<index\> read" );
+            Assert.IsNotNull( read );
+            Assert.AreEqual(typeof(bool), read.variableType);
+            var title = vaVars.FirstOrDefault( k => k.key == @"EDDI galnet news published items \<index\> title" );
+            Assert.IsNotNull( title );
+            Assert.AreEqual(typeof(string), title.variableType);
+            var items = vaVars.FirstOrDefault( k => k.key == @"EDDI galnet news published items" );
+            Assert.IsNotNull( items );
+            Assert.AreEqual(typeof( int ), items.variableType);
             Assert.IsTrue(vaVars.TrueForAll(v => v.value == null));
         }
 
@@ -60,7 +74,9 @@ namespace UnitTests
 
             var vaVars = vars.AsVoiceAttackVariables("EDDI", entry.Key);
             Assert.AreEqual(1, vaVars.Count);
-            Assert.AreEqual(typeof(bool), vaVars.FirstOrDefault(k => k.key == @"EDDI srv turret deployable")?.variableType);
+            var var = vaVars.FirstOrDefault( k => k.key == @"EDDI srv turret deployable" );
+            Assert.IsNotNull(var);
+            Assert.AreEqual(typeof(bool), var.variableType);
             Assert.IsTrue(vaVars.TrueForAll(v => v.value == null));
         }
 
@@ -80,11 +96,21 @@ namespace UnitTests
 
             var vaVars = vars.AsVoiceAttackVariables("EDDI", entry.Key);
             Assert.AreEqual(5, vaVars.Count);
-            Assert.AreEqual(typeof(string), vaVars.FirstOrDefault(k => k.key == "EDDI exploration data sold systems \\<index\\>")?.variableType);
-            Assert.AreEqual(typeof( int ), vaVars.FirstOrDefault(k => k.key == "EDDI exploration data sold systems")?.variableType);
-            Assert.AreEqual(typeof(decimal), vaVars.FirstOrDefault(k => k.key == "EDDI exploration data sold reward")?.variableType);
-            Assert.AreEqual(typeof(decimal), vaVars.FirstOrDefault(k => k.key == "EDDI exploration data sold bonus")?.variableType);
-            Assert.AreEqual(typeof(decimal), vaVars.FirstOrDefault(k => k.key == "EDDI exploration data sold total")?.variableType);
+            var index = vaVars.FirstOrDefault( k => k.key == "EDDI exploration data sold systems \\<index\\>" );
+            Assert.IsNotNull( index );
+            Assert.AreEqual(typeof(string), index.variableType);
+            var systems = vaVars.FirstOrDefault( k => k.key == "EDDI exploration data sold systems" );
+            Assert.IsNotNull( systems );
+            Assert.AreEqual(typeof( int ), systems.variableType);
+            var reward = vaVars.FirstOrDefault( k => k.key == "EDDI exploration data sold reward" );
+            Assert.IsNotNull( reward );
+            Assert.AreEqual(typeof(decimal), reward.variableType);
+            var bonus = vaVars.FirstOrDefault( k => k.key == "EDDI exploration data sold bonus" );
+            Assert.IsNotNull( bonus );
+            Assert.AreEqual(typeof(decimal), bonus.variableType);
+            var total = vaVars.FirstOrDefault( k => k.key == "EDDI exploration data sold total" );
+            Assert.IsNotNull( total );
+            Assert.AreEqual(typeof(decimal), total.variableType);
         }
 
         [TestMethod]
@@ -102,8 +128,12 @@ namespace UnitTests
 
             var vaVars = vars.AsVoiceAttackVariables("EDDI", entry.Key);
             Assert.AreEqual(2, vaVars.Count);
-            Assert.AreEqual(typeof(int), vaVars.FirstOrDefault(k => k.key == "EDDI discovery scan totalbodies")?.variableType);
-            Assert.AreEqual(typeof(int), vaVars.FirstOrDefault(k => k.key == "EDDI discovery scan nonbodies")?.variableType);
+            var totalbodies = vaVars.FirstOrDefault( k => k.key == "EDDI discovery scan totalbodies" );
+            Assert.IsNotNull( totalbodies );
+            Assert.AreEqual(typeof(int), totalbodies.variableType);
+            var nonbodies = vaVars.FirstOrDefault( k => k.key == "EDDI discovery scan nonbodies" );
+            Assert.IsNotNull( nonbodies );
+            Assert.AreEqual(typeof(int), nonbodies.variableType);
             Assert.IsNull(vaVars.FirstOrDefault(k => k.key == "EDDI discovery scan progress")?.variableType);
         }
 
@@ -124,12 +154,24 @@ namespace UnitTests
 
             var vaVars = vars.AsVoiceAttackVariables("EDDI", entry.Key);
             Assert.AreEqual(6, vaVars.Count);
-            Assert.AreEqual(typeof(string), vaVars.FirstOrDefault(k => k.key == "EDDI asteroid prospected commodities \\<index\\> commodity")?.variableType);
-            Assert.AreEqual(typeof(decimal), vaVars.FirstOrDefault(k => k.key == "EDDI asteroid prospected commodities \\<index\\> percentage")?.variableType);
-            Assert.AreEqual(typeof(int), vaVars.FirstOrDefault(k => k.key == "EDDI asteroid prospected commodities")?.variableType);
-            Assert.AreEqual(typeof(string), vaVars.FirstOrDefault(k => k.key == "EDDI asteroid prospected materialcontent")?.variableType);
-            Assert.AreEqual(typeof(decimal), vaVars.FirstOrDefault(k => k.key == "EDDI asteroid prospected remaining")?.variableType);
-            Assert.AreEqual(typeof(string), vaVars.FirstOrDefault(k => k.key == "EDDI asteroid prospected motherlode")?.variableType);
+            var commodity = vaVars.FirstOrDefault( k => k.key == "EDDI asteroid prospected commodities \\<index\\> commodity" );
+            Assert.IsNotNull( commodity );
+            Assert.AreEqual(typeof(string), commodity.variableType);
+            var percentage = vaVars.FirstOrDefault( k => k.key == "EDDI asteroid prospected commodities \\<index\\> percentage" );
+            Assert.IsNotNull( percentage );
+            Assert.AreEqual(typeof(decimal), percentage.variableType);
+            var commodities = vaVars.FirstOrDefault( k => k.key == "EDDI asteroid prospected commodities" );
+            Assert.IsNotNull( commodities );
+            Assert.AreEqual(typeof(int), commodities.variableType);
+            var materialcontent = vaVars.FirstOrDefault( k => k.key == "EDDI asteroid prospected materialcontent" );
+            Assert.IsNotNull( materialcontent );
+            Assert.AreEqual(typeof(string), materialcontent.variableType);
+            var remaining = vaVars.FirstOrDefault( k => k.key == "EDDI asteroid prospected remaining" );
+            Assert.IsNotNull( remaining );
+            Assert.AreEqual(typeof(decimal), remaining.variableType);
+            var motherlode = vaVars.FirstOrDefault( k => k.key == "EDDI asteroid prospected motherlode" );
+            Assert.IsNotNull( motherlode );
+            Assert.AreEqual(typeof(string), motherlode.variableType);
         }
 
         [TestMethod]
@@ -143,7 +185,9 @@ namespace UnitTests
             Assert.IsNotNull(cottleVars.FirstOrDefault(k => k.key == "fsd_status"));
 
             var vaVars = vars.AsVoiceAttackVariables("EDDI", entry.Key);
-            Assert.AreEqual(typeof(string), vaVars.FirstOrDefault(k => k.key == "EDDI ship fsd status")?.variableType);
+            var fsdstatus = vaVars.FirstOrDefault( k => k.key == "EDDI ship fsd status" );
+            Assert.IsNotNull(fsdstatus);
+            Assert.AreEqual(typeof(string), fsdstatus.variableType);
         }
 
         [TestMethod]
@@ -172,15 +216,31 @@ namespace UnitTests
 
             var vaVars = vars.AsVoiceAttackVariables("EDDI", entry.Key);
             Assert.AreEqual(4, vaVars.Count);
-            Assert.AreEqual(typeof(string), vaVars.FirstOrDefault(k => k.key == "EDDI commodity ejected commodity")?.variableType);
-            Assert.AreEqual(typeof(int), vaVars.FirstOrDefault(k => k.key == "EDDI commodity ejected amount")?.variableType);
-            Assert.AreEqual(typeof(decimal), vaVars.FirstOrDefault(k => k.key == "EDDI commodity ejected missionid")?.variableType);
-            Assert.AreEqual(typeof(bool), vaVars.FirstOrDefault(k => k.key == "EDDI commodity ejected abandoned")?.variableType);
+            var commodity = vaVars.FirstOrDefault( k => k.key == "EDDI commodity ejected commodity" );
+            Assert.IsNotNull( commodity );
+            Assert.AreEqual(typeof(string), commodity.variableType);
+            var amount = vaVars.FirstOrDefault( k => k.key == "EDDI commodity ejected amount" );
+            Assert.IsNotNull( amount );
+            Assert.AreEqual(typeof(int), amount.variableType);
+            var missionid = vaVars.FirstOrDefault( k => k.key == "EDDI commodity ejected missionid" );
+            Assert.IsNotNull( missionid );
+            Assert.AreEqual(typeof(decimal), missionid.variableType);
+            var abandoned = vaVars.FirstOrDefault( k => k.key == "EDDI commodity ejected abandoned" );
+            Assert.IsNotNull( abandoned );
+            Assert.AreEqual(typeof(bool), abandoned.variableType);
 
-            Assert.AreEqual("The name of the commodity ejected", vaVars.FirstOrDefault(k => k.key == "EDDI commodity ejected commodity")?.description);
-            Assert.AreEqual("The amount of commodity ejected", vaVars.FirstOrDefault(k => k.key == "EDDI commodity ejected amount")?.description);
-            Assert.AreEqual("ID of the mission-related commodity, if applicable", vaVars.FirstOrDefault(k => k.key == "EDDI commodity ejected missionid")?.description);
-            Assert.AreEqual("True if the cargo has been abandoned", vaVars.FirstOrDefault(k => k.key == "EDDI commodity ejected abandoned")?.description);
+            var ejectedcommodity = vaVars.FirstOrDefault( k => k.key == "EDDI commodity ejected commodity" );
+            Assert.IsNotNull( ejectedcommodity );
+            Assert.AreEqual("The name of the commodity ejected", ejectedcommodity.description);
+            var ejectedamount = vaVars.FirstOrDefault( k => k.key == "EDDI commodity ejected amount" );
+            Assert.IsNotNull( ejectedamount );
+            Assert.AreEqual("The amount of commodity ejected", ejectedamount.description);
+            var ejectedmissionid = vaVars.FirstOrDefault( k => k.key == "EDDI commodity ejected missionid" );
+            Assert.IsNotNull( ejectedmissionid );
+            Assert.AreEqual("ID of the mission-related commodity, if applicable", ejectedmissionid.description);
+            var ejectedabandoned = vaVars.FirstOrDefault( k => k.key == "EDDI commodity ejected abandoned" );
+            Assert.IsNotNull( ejectedabandoned );
+            Assert.AreEqual("True if the cargo has been abandoned", ejectedabandoned.description);
         }
 
         [ TestMethod ]

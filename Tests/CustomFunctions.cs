@@ -1,19 +1,16 @@
 ﻿using Cottle;
 using EddiDataDefinitions;
-using EddiSpeechResponder;
 using EddiSpeechResponder.CustomFunctions;
 using EddiSpeechResponder.ScriptResolverService;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 
-namespace UnitTests
+namespace Tests
 {
-    [TestClass]
+    [TestClass, TestCategory("UnitTests")]
     public class CustomFunctions : TestBase
     {
-        private readonly ScriptResolver resolver = new ScriptResolver(new Dictionary<string, Script>());
-
         [TestInitialize]
         public void start()
         {
@@ -37,8 +34,8 @@ namespace UnitTests
         [DataRow("CobraMkIII", "--A--", @"DeLacy <phoneme alphabet=""ipa"" ph=""ˈælfə"">alpha</phoneme> <phoneme alphabet=""ipa"" ph=""ˈzɪərəʊ"">zero</phoneme> <phoneme alphabet=""ipa"" ph=""ˈzɪərəʊ"">zero</phoneme>")] // Manufacturer: Faulcon DeLacy, alphanumeric ID with 1 character and symbols
         public void TestShipCallsignFunction(string shipModel, string id, string expected)
         {
-            Ship ship = ShipDefinitions.FromEDModel(shipModel);
-            PrivateType privateType = new PrivateType(typeof(ShipCallsign));
+            var ship = ShipDefinitions.FromEDModel(shipModel);
+            var privateType = new PrivateType(typeof(ShipCallsign));
             Assert.AreEqual(expected, (string)privateType.InvokeStatic("phoneticCallsign", new object[] { ship, id }));
         }
 

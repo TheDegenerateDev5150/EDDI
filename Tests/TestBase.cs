@@ -19,7 +19,7 @@ using System.IO;
 // source: https://devblogs.microsoft.com/devops/mstest-v2-in-assembly-parallel-test-execution/
 [assembly: Parallelize( Workers = 0, Scope = ExecutionScope.ClassLevel )]
 
-namespace UnitTests
+namespace Tests
 {
     public class TestBase
     {

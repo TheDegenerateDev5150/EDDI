@@ -6,7 +6,7 @@ using System.Linq;
 using System.Net;
 using Utilities;
 
-namespace UnitTests
+namespace Tests
 {
     // A mock rest client for the Spansh Service
     internal class FakeSpanshRestClient : ISpanshRestClient
@@ -21,7 +21,7 @@ namespace UnitTests
         IRestResponse<T> ISpanshRestClient.Execute<T>(IRestRequest request)
         {
             // this will throw if given a resource not in the canned dictionaries: that's OK
-            string content = CannedContent[request.Resource];
+            var content = CannedContent[request.Resource];
             IRestResponse<T> restResponse = new RestResponse<T>
             {
                 Content = content,
@@ -39,7 +39,7 @@ namespace UnitTests
             try
             {
                 resourceString += request.Parameters.Any() ? "?" : string.Empty;
-                for ( int i = 0; i < request.Parameters.Count; i++ )
+                for ( var i = 0; i < request.Parameters.Count; i++ )
                 {
                     var parameter = request.Parameters[ i ];
                     resourceString += i > 0 ? "&" : "";

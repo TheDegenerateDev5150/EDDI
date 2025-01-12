@@ -1,9 +1,9 @@
 ﻿using EddiSpeechService;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace UnitTests
+namespace Tests
 {
-    [TestClass]
+    [TestClass, TestCategory("UnitTests")]
     // this class is pure and doesn't need TestBase.MakeSafe()
     public class TranslationTests
     {
@@ -201,7 +201,7 @@ namespace UnitTests
         {
             var fromEDName = Translations.GetTranslation("CobraMkIII");
             var fromName = Translations.GetTranslation("Cobra Mk. III");
-            string expected = "<phoneme alphabet=\"ipa\" ph=\"ˈkəʊbrə\">cobra</phoneme> " + "<phoneme alphabet=\"ipa\" ph=\"mɑːk\">Mark</phoneme> " + "<phoneme alphabet=\"ipa\" ph=\"θriː\">3</phoneme>";
+            var expected = "<phoneme alphabet=\"ipa\" ph=\"ˈkəʊbrə\">cobra</phoneme> " + "<phoneme alphabet=\"ipa\" ph=\"mɑːk\">Mark</phoneme> " + "<phoneme alphabet=\"ipa\" ph=\"θriː\">3</phoneme>";
             Assert.AreEqual(expected, fromEDName);
             Assert.AreEqual(expected, fromName);
         }
@@ -210,7 +210,7 @@ namespace UnitTests
         public void TestSpokenShipManufacturer()
         {
             var fromName = Translations.GetTranslation("Lakon Spaceways");
-            string expected = "<phoneme alphabet=\"ipa\" ph=\"leɪkɒn\">Lakon</phoneme> " + "<phoneme alphabet=\"ipa\" ph=\"speɪsweɪz\">Spaceways</phoneme>";
+            var expected = "<phoneme alphabet=\"ipa\" ph=\"leɪkɒn\">Lakon</phoneme> " + "<phoneme alphabet=\"ipa\" ph=\"speɪsweɪz\">Spaceways</phoneme>";
             Assert.AreEqual(expected, fromName);
         }
 

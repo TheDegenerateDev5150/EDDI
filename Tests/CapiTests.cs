@@ -7,9 +7,9 @@ using System.Linq;
 using Tests.Properties;
 using Utilities;
 
-namespace UnitTests
+namespace Tests
 {
-    [TestClass]
+    [TestClass, TestCategory( "UnitTests" )]
     // this class is pure and doesn't need TestBase.MakeSafe()
     public class CapiTests : TestBase
     {
@@ -26,7 +26,7 @@ namespace UnitTests
                 new OutfittingInfoItem( "Hpt_ATDumbfireMissile_Fixed_Medium", "weapon", 540900)
             };
 
-            JObject json = DeserializeJsonResource<JObject>(Resources.capi_shipyard_Abasheli_Barracks)?.ToObject<JObject>();
+            var json = DeserializeJsonResource<JObject>(Resources.capi_shipyard_Abasheli_Barracks)?.ToObject<JObject>();
             Assert.IsNotNull(json);
             json["timestamp"] = DateTime.UtcNow; // We add a timestamp to the json returned from the Frontier API, do the same here.
             var station = FrontierApiStation.FromJson(null, json);
@@ -83,7 +83,7 @@ namespace UnitTests
         [TestMethod]
         public void TestProfileStation()
         {
-            JObject marketJson = DeserializeJsonResource<JObject>(Resources.capi_market_Libby_Horizons)?.ToObject<JObject>();
+            var marketJson = DeserializeJsonResource<JObject>(Resources.capi_market_Libby_Horizons)?.ToObject<JObject>();
             Assert.IsNotNull(marketJson);
             var expectedStation = new FrontierApiStation()
             {
@@ -194,7 +194,7 @@ namespace UnitTests
 
             // Set up our profile station
             var marketTimestamp = DateTime.UtcNow;
-            JObject marketJson = DeserializeJsonResource<JObject>(Resources.capi_market_Libby_Horizons)?.ToObject<JObject>();
+            var marketJson = DeserializeJsonResource<JObject>(Resources.capi_market_Libby_Horizons)?.ToObject<JObject>();
             Assert.IsNotNull(marketJson);
             marketJson["timestamp"] = marketTimestamp; // We add a timestamp to the json returned from the Frontier API, do the same here.
             var lastStation = FrontierApiStation.FromJson(marketJson, null);

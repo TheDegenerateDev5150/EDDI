@@ -2,16 +2,16 @@
 using System;
 using Utilities;
 
-namespace UnitTests
+namespace Tests
 {
-    [TestClass]
+    [TestClass, TestCategory("UnitTests")]
     public class RedactionTests : TestBase
     {
         private void TestRoundTrip(string source)
         {
-            string rawPath = source != null ? Environment.ExpandEnvironmentVariables(source) : null;
-            string redacted = Redaction.RedactEnvironmentVariables(rawPath);
-            string expected = source?.Replace("%TMP%", "%TEMP%"); // these are exact synonyms and we normalise on %TEMP%
+            var rawPath = source != null ? Environment.ExpandEnvironmentVariables(source) : null;
+            var redacted = Redaction.RedactEnvironmentVariables(rawPath);
+            var expected = source?.Replace("%TMP%", "%TEMP%"); // these are exact synonyms and we normalise on %TEMP%
             Assert.AreEqual(expected, redacted);
         }
 
@@ -25,39 +25,39 @@ namespace UnitTests
         [TestMethod]
         public void TestEmptyRedaction()
         {
-            string source = "";
+            var source = "";
             TestRoundTrip(source);
         }
 
         [TestMethod]
         public void TestAppdataRedaction()
         {
-            string source = @"%APPDATA%\EDDI\eddi.json";
+            var source = @"%APPDATA%\EDDI\eddi.json";
             TestRoundTrip(source);
         }
 
         [TestMethod]
         public void TestLocalappdataRedaction()
         {
-            string source = @"%LOCALAPPDATA%\EDDI\eddi.json";
+            var source = @"%LOCALAPPDATA%\EDDI\eddi.json";
             TestRoundTrip(source);
         }
 
         [TestMethod]
         public void TestMedleyRedaction()
         {
-            string source = @"ice cream %USERNAME% foo %TMP% bar %TEMP% baz %APPDATA% quux %USERNAME% womble";
+            var source = @"ice cream %USERNAME% foo %TMP% bar %TEMP% baz %APPDATA% quux %USERNAME% womble";
             TestRoundTrip(source);
         }
 
         [TestMethod]
         public void TestMissingEnvVarRedaction()
         {
-            string oldVal = Environment.GetEnvironmentVariable("HOMEPATH");
+            var oldVal = Environment.GetEnvironmentVariable("HOMEPATH");
             Environment.SetEnvironmentVariable("HOMEPATH", null);
-            string source = @"C:\EDDI\eddi.json";
-            string redacted = Redaction.RedactEnvironmentVariables(source);
-            string expected = source;
+            var source = @"C:\EDDI\eddi.json";
+            var redacted = Redaction.RedactEnvironmentVariables(source);
+            var expected = source;
             Assert.AreEqual(expected, redacted);
             Environment.SetEnvironmentVariable("HOMEPATH", oldVal);
         }
@@ -65,11 +65,11 @@ namespace UnitTests
         [TestMethod]
         public void TestEmptyEnvVarRedaction()
         {
-            string oldVal = Environment.GetEnvironmentVariable("HOMEPATH");
+            var oldVal = Environment.GetEnvironmentVariable("HOMEPATH");
             Environment.SetEnvironmentVariable("HOMEPATH", "");
-            string source = @"C:\EDDI\eddi.json";
-            string redacted = Redaction.RedactEnvironmentVariables(source);
-            string expected = source;
+            var source = @"C:\EDDI\eddi.json";
+            var redacted = Redaction.RedactEnvironmentVariables(source);
+            var expected = source;
             Assert.AreEqual(expected, redacted);
             Environment.SetEnvironmentVariable("HOMEPATH", oldVal);
         }
@@ -77,11 +77,11 @@ namespace UnitTests
         [TestMethod]
         public void TestBackslashEnvVarRedaction()
         {
-            string oldVal = Environment.GetEnvironmentVariable("HOMEPATH");
+            var oldVal = Environment.GetEnvironmentVariable("HOMEPATH");
             Environment.SetEnvironmentVariable("HOMEPATH", @"\");
-            string source = @"C:\EDDI\eddi.json";
-            string redacted = Redaction.RedactEnvironmentVariables(source);
-            string expected = source;
+            var source = @"C:\EDDI\eddi.json";
+            var redacted = Redaction.RedactEnvironmentVariables(source);
+            var expected = source;
             Assert.AreEqual(expected, redacted);
             Environment.SetEnvironmentVariable("HOMEPATH", oldVal);
         }

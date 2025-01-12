@@ -7,9 +7,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Linq;
 
-namespace UnitTests
+namespace Tests
 {
-    [TestClass]
+    [TestClass, TestCategory( "UnitTests" )]
     public class CargoMonitorTests : TestBase
     {
         readonly CargoMonitor cargoMonitor = new CargoMonitor(new CargoMonitorConfiguration());

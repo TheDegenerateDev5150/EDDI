@@ -13,9 +13,9 @@ using System.Text;
 using Tests.Properties;
 using Utilities;
 
-namespace UnitTests
+namespace Tests
 {
-    [TestClass]
+    [TestClass, TestCategory( "UnitTests" )]
     public class EddnTests : TestBase
     {
         [TestInitialize]
@@ -42,8 +42,8 @@ namespace UnitTests
         public void TestEddnSchemaInitialization()
         {
             var responder = makeTestEDDNResponder();
-            Assert.IsTrue( responder.schemas?.Any() );
-            Assert.IsTrue( responder.capiSchemas?.Any() );
+            Assert.IsTrue( responder.schemas.Any() );
+            Assert.IsTrue( responder.capiSchemas.Any() );
         }
 
         [TestMethod]
@@ -294,11 +294,11 @@ namespace UnitTests
             }";
 
             var events = JournalMonitor.ParseJournalEntry(line);
-            Assert.IsTrue(events.Count == 1);
+            Assert.AreEqual(1, events.Count);
             var @jumpedEvent = (JumpedEvent)events[0];
 
             events = JournalMonitor.ParseJournalEntry(line2);
-            Assert.IsTrue(events.Count == 1);
+            Assert.AreEqual(1, events.Count);
             var @dockedEvent = (DockedEvent)events[0];
 
             var responder = makeTestEDDNResponder();
@@ -418,7 +418,7 @@ namespace UnitTests
             }
             else
             {
-                data.TryGetValue( "Factions", out object factionsVal );
+                data.TryGetValue( "Factions", out var factionsVal );
                 if ( factionsVal == null )
                 {
                     Assert.Fail();
@@ -426,7 +426,7 @@ namespace UnitTests
                 else
                 {
                     var factions = (List<object>)factionsVal;
-                    foreach ( object faction in factions )
+                    foreach ( var faction in factions )
                     {
                         Assert.IsFalse( ( (IDictionary<string, object>)faction ).ContainsKey( "MyReputation" ) );
                     }
@@ -503,12 +503,12 @@ namespace UnitTests
         [TestMethod, DoNotParallelize]
         public void TestRawJournalEventLocationData()
         {
-            string location = @"{ ""timestamp"":""2018-12-16T20:08:31Z"", ""event"":""Location"", ""Docked"":false, ""StarSystem"":""Pleiades Sector GW-W c1-4"", ""SystemAddress"":1183229809290, ""StarPos"":[-81.62500,-151.31250,-383.53125], ""SystemAllegiance"":"""", ""SystemEconomy"":""$economy_None;"", ""SystemEconomy_Localised"":""None"", ""SystemSecondEconomy"":""$economy_None;"", ""SystemSecondEconomy_Localised"":""None"", ""SystemGovernment"":""$government_None;"", ""SystemGovernment_Localised"":""None"", ""SystemSecurity"":""$GAlAXY_MAP_INFO_state_anarchy;"", ""SystemSecurity_Localised"":""Anarchy"", ""Population"":0, ""Body"":""Pleiades Sector GW-W c1-4"", ""BodyID"":0, ""BodyType"":""Star"" }";
-            string jump = @"{ ""timestamp"":""2018-12-16T20:10:15Z"", ""event"":""FSDJump"", ""StarSystem"":""Pleiades Sector HR-W d1-79"", ""SystemAddress"":2724879894859, ""StarPos"":[-80.62500,-146.65625,-343.25000], ""SystemAllegiance"":""Independent"", ""SystemEconomy"":""$economy_Extraction;"", ""SystemEconomy_Localised"":""Extraction"", ""SystemSecondEconomy"":""$economy_None;"", ""SystemSecondEconomy_Localised"":""None"", ""SystemGovernment"":""$government_Prison;"", ""SystemGovernment_Localised"":""Detention Centre"", ""SystemSecurity"":""$SYSTEM_SECURITY_high;"", ""SystemSecurity_Localised"":""High Security"", ""Population"":0, ""JumpDist"":40.562, ""FuelUsed"":2.827265, ""FuelLevel"":11.702736, ""Factions"":[ { ""Name"":""Independent Detention Foundation"", ""FactionState"":""None"", ""Government"":""Prison"", ""Influence"":0.000000, ""Allegiance"":""Independent"", ""Happiness"":""$Faction_HappinessBand2;"", ""Happiness_Localised"":""Happy"", ""MyReputation"":0.000000 }, { ""Name"":""Pilots Federation Local Branch"", ""FactionState"":""None"", ""Government"":""Democracy"", ""Influence"":0.000000, ""Allegiance"":""PilotsFederation"", ""Happiness"":"""", ""MyReputation"":100.000000 } ], ""SystemFaction"":""Independent Detention Foundation"" }";
-            string scan = @"{ ""timestamp"":""2018-12-16T20:10:21Z"", ""event"":""Scan"", ""ScanType"":""AutoScan"", ""StarSystem"":""Pleiades Sector HR-W d1-79"", ""SystemAddress"":2724879894859, ""BodyName"":""Pleiades Sector HR-W d1-79"", ""BodyID"":0, ""DistanceFromArrivalLS"":0.000000, ""StarType"":""F"", ""StellarMass"":1.437500, ""Radius"":855515008.000000, ""AbsoluteMagnitude"":3.808395, ""Age_MY"":1216, ""SurfaceTemperature"":6591.000000, ""Luminosity"":""Vab"", ""RotationPeriod"":261918.156250, ""AxialTilt"":0.000000 }";
-            string scan2 = @"{ ""timestamp"":""2018-12-16T20:28:02Z"", ""event"":""Scan"", ""ScanType"":""Detailed"", ""StarSystem"":""Hyades Sector DL-X b1-2"", ""SystemAddress"":5068463809865, ""BodyName"":""Hyades Sector DL-X b1-2"", ""BodyID"":0, ""DistanceFromArrivalLS"":0.000000, ""StarType"":""M"", ""StellarMass"":0.367188, ""Radius"":370672928.000000, ""AbsoluteMagnitude"":9.054306, ""Age_MY"":586, ""SurfaceTemperature"":2993.000000, ""Luminosity"":""Va"", ""RotationPeriod"":167608.859375, ""AxialTilt"":0.000000, ""Rings"":[ { ""Name"":""Hyades Sector DL-X b1-2 A Belt"", ""RingClass"":""eRingClass_MetalRich"", ""MassMT"":5.4671e+13, ""InnerRad"":7.1727e+08, ""OuterRad"":1.728e+09 }, { ""Name"":""Hyades Sector DL-X b1-2 B Belt"", ""RingClass"":""eRingClass_Icy"", ""MassMT"":8.7822e+14, ""InnerRad"":6.3166e+10, ""OuterRad"":1.5917e+11 } ] }";
-            string jump2 = @"{ ""timestamp"":""2019-01-27T07:23:38Z"", ""event"":""FSDJump"", ""StarSystem"":""Omega Sector OO-G a11-0"", ""SystemAddress"":5213552532472, ""StarPos"":[-1433.53125,-94.15625,5326.34375], ""SystemAllegiance"":"""", ""SystemEconomy"":""$economy_None;"", ""SystemEconomy_Localised"":""None"", ""SystemSecondEconomy"":""$economy_None;"", ""SystemSecondEconomy_Localised"":""None"", ""SystemGovernment"":""$government_None;"", ""SystemGovernment_Localised"":""None"", ""SystemSecurity"":""$GAlAXY_MAP_INFO_state_anarchy;"", ""SystemSecurity_Localised"":""Anarchy"", ""Population"":0, ""JumpDist"":56.848, ""FuelUsed"":4.741170, ""FuelLevel"":21.947533 }";
-            string scan3 = @"{""timestamp"":""2019-01-27T07:07:46Z"",""event"":""Scan"",""ScanType"":""AutoScan"", ""StarSystem"":""Omega Sector DM-M b7-16"", ""SystemAddress"":35835461971465, ""BodyName"":""Omega Sector DM-M b7-16 A B Belt Cluster 8"",""BodyID"":23,""Parents"":[{""Ring"":15},{""Star"":1},{""Null"":0}],""DistanceFromArrivalLS"":646.57074}";
+            var location = @"{ ""timestamp"":""2018-12-16T20:08:31Z"", ""event"":""Location"", ""Docked"":false, ""StarSystem"":""Pleiades Sector GW-W c1-4"", ""SystemAddress"":1183229809290, ""StarPos"":[-81.62500,-151.31250,-383.53125], ""SystemAllegiance"":"""", ""SystemEconomy"":""$economy_None;"", ""SystemEconomy_Localised"":""None"", ""SystemSecondEconomy"":""$economy_None;"", ""SystemSecondEconomy_Localised"":""None"", ""SystemGovernment"":""$government_None;"", ""SystemGovernment_Localised"":""None"", ""SystemSecurity"":""$GAlAXY_MAP_INFO_state_anarchy;"", ""SystemSecurity_Localised"":""Anarchy"", ""Population"":0, ""Body"":""Pleiades Sector GW-W c1-4"", ""BodyID"":0, ""BodyType"":""Star"" }";
+            var jump = @"{ ""timestamp"":""2018-12-16T20:10:15Z"", ""event"":""FSDJump"", ""StarSystem"":""Pleiades Sector HR-W d1-79"", ""SystemAddress"":2724879894859, ""StarPos"":[-80.62500,-146.65625,-343.25000], ""SystemAllegiance"":""Independent"", ""SystemEconomy"":""$economy_Extraction;"", ""SystemEconomy_Localised"":""Extraction"", ""SystemSecondEconomy"":""$economy_None;"", ""SystemSecondEconomy_Localised"":""None"", ""SystemGovernment"":""$government_Prison;"", ""SystemGovernment_Localised"":""Detention Centre"", ""SystemSecurity"":""$SYSTEM_SECURITY_high;"", ""SystemSecurity_Localised"":""High Security"", ""Population"":0, ""JumpDist"":40.562, ""FuelUsed"":2.827265, ""FuelLevel"":11.702736, ""Factions"":[ { ""Name"":""Independent Detention Foundation"", ""FactionState"":""None"", ""Government"":""Prison"", ""Influence"":0.000000, ""Allegiance"":""Independent"", ""Happiness"":""$Faction_HappinessBand2;"", ""Happiness_Localised"":""Happy"", ""MyReputation"":0.000000 }, { ""Name"":""Pilots Federation Local Branch"", ""FactionState"":""None"", ""Government"":""Democracy"", ""Influence"":0.000000, ""Allegiance"":""PilotsFederation"", ""Happiness"":"""", ""MyReputation"":100.000000 } ], ""SystemFaction"":""Independent Detention Foundation"" }";
+            var scan = @"{ ""timestamp"":""2018-12-16T20:10:21Z"", ""event"":""Scan"", ""ScanType"":""AutoScan"", ""StarSystem"":""Pleiades Sector HR-W d1-79"", ""SystemAddress"":2724879894859, ""BodyName"":""Pleiades Sector HR-W d1-79"", ""BodyID"":0, ""DistanceFromArrivalLS"":0.000000, ""StarType"":""F"", ""StellarMass"":1.437500, ""Radius"":855515008.000000, ""AbsoluteMagnitude"":3.808395, ""Age_MY"":1216, ""SurfaceTemperature"":6591.000000, ""Luminosity"":""Vab"", ""RotationPeriod"":261918.156250, ""AxialTilt"":0.000000 }";
+            var scan2 = @"{ ""timestamp"":""2018-12-16T20:28:02Z"", ""event"":""Scan"", ""ScanType"":""Detailed"", ""StarSystem"":""Hyades Sector DL-X b1-2"", ""SystemAddress"":5068463809865, ""BodyName"":""Hyades Sector DL-X b1-2"", ""BodyID"":0, ""DistanceFromArrivalLS"":0.000000, ""StarType"":""M"", ""StellarMass"":0.367188, ""Radius"":370672928.000000, ""AbsoluteMagnitude"":9.054306, ""Age_MY"":586, ""SurfaceTemperature"":2993.000000, ""Luminosity"":""Va"", ""RotationPeriod"":167608.859375, ""AxialTilt"":0.000000, ""Rings"":[ { ""Name"":""Hyades Sector DL-X b1-2 A Belt"", ""RingClass"":""eRingClass_MetalRich"", ""MassMT"":5.4671e+13, ""InnerRad"":7.1727e+08, ""OuterRad"":1.728e+09 }, { ""Name"":""Hyades Sector DL-X b1-2 B Belt"", ""RingClass"":""eRingClass_Icy"", ""MassMT"":8.7822e+14, ""InnerRad"":6.3166e+10, ""OuterRad"":1.5917e+11 } ] }";
+            var jump2 = @"{ ""timestamp"":""2019-01-27T07:23:38Z"", ""event"":""FSDJump"", ""StarSystem"":""Omega Sector OO-G a11-0"", ""SystemAddress"":5213552532472, ""StarPos"":[-1433.53125,-94.15625,5326.34375], ""SystemAllegiance"":"""", ""SystemEconomy"":""$economy_None;"", ""SystemEconomy_Localised"":""None"", ""SystemSecondEconomy"":""$economy_None;"", ""SystemSecondEconomy_Localised"":""None"", ""SystemGovernment"":""$government_None;"", ""SystemGovernment_Localised"":""None"", ""SystemSecurity"":""$GAlAXY_MAP_INFO_state_anarchy;"", ""SystemSecurity_Localised"":""Anarchy"", ""Population"":0, ""JumpDist"":56.848, ""FuelUsed"":4.741170, ""FuelLevel"":21.947533 }";
+            var scan3 = @"{""timestamp"":""2019-01-27T07:07:46Z"",""event"":""Scan"",""ScanType"":""AutoScan"", ""StarSystem"":""Omega Sector DM-M b7-16"", ""SystemAddress"":35835461971465, ""BodyName"":""Omega Sector DM-M b7-16 A B Belt Cluster 8"",""BodyID"":23,""Parents"":[{""Ring"":15},{""Star"":1},{""Null"":0}],""DistanceFromArrivalLS"":646.57074}";
 
             var responder = makeTestEDDNResponder();
 
@@ -608,28 +608,31 @@ namespace UnitTests
             Assert.AreEqual( "Omega Sector DM-M b7-16", responder.eddnState.Location.systemName );
         }
 
-        [TestMethod]
-        public void commoditySchemaJournalTest()
+        [ TestMethod ]
+        public void commoditySchemaJournalTest ()
         {
             // Set up our schema
-            var commoditySchema = makeTestEDDNResponder()
-                .schemas.FirstOrDefault(s => s.GetType() == typeof(CommoditySchema));
+            var commoditySchema = makeTestEDDNResponder().schemas
+                .FirstOrDefault( s => s.GetType() == typeof(CommoditySchema) );
+            Assert.IsNotNull( commoditySchema );
 
             // Set up our initial conditions
-            var marketData = Deserializtion.DeserializeData(DeserializeJsonResource<string>(Resources.market));
+            var marketData = Deserializtion.DeserializeData( DeserializeJsonResource<string>( Resources.market ) );
             var eddnState = new EDDNState();
 
             // Check a few items on our initial data
-            Assert.AreEqual("2020-08-07T17:17:10Z", Dates.FromDateTimeToString(marketData["timestamp"] as DateTime?));
-            Assert.AreEqual(3702012928, marketData["MarketID"] as long?);
-            Assert.AreEqual("all", marketData["CarrierDockingAccess"] as string);
-            Assert.AreEqual(6, (marketData["Items"] as IEnumerable<object>)?.Count());
-            if (marketData["Items"] is List<object> items)
+            Assert.AreEqual( "2020-08-07T17:17:10Z", Dates.FromDateTimeToString( marketData[ "timestamp" ] as DateTime? ) );
+            Assert.AreEqual( 3702012928, marketData[ "MarketID" ] as long? );
+            Assert.AreEqual( "all", marketData[ "CarrierDockingAccess" ] as string );
+            var marketItems = ( marketData[ "Items" ] as IEnumerable<object> );
+            Assert.IsNotNull( marketItems );
+            Assert.AreEqual( 6, marketItems.Count() );
+            if ( marketData[ "Items" ] is List<object> items )
             {
-                if (items[0] is IDictionary<string, object> item)
+                if ( items[ 0 ] is IDictionary<string, object> item )
                 {
-                    Assert.AreEqual(15, item.Keys.Count);
-                    Assert.AreEqual("Painite", item["Name_Localised"] as string);
+                    Assert.AreEqual( 15, item.Keys.Count );
+                    Assert.AreEqual( "Painite", item[ "Name_Localised" ] as string );
                 }
             }
             else
@@ -638,35 +641,46 @@ namespace UnitTests
             }
 
             // Apply our "Handle" method to transform the data
-            Assert.IsTrue(commoditySchema?.Handle("Market", ref marketData, eddnState));
+            Assert.IsTrue( commoditySchema.Handle( "Market", ref marketData, eddnState ) );
 
             // Validate the final data
-            Assert.AreEqual("2020-08-07T17:17:10Z", Dates.FromDateTimeToString(marketData["timestamp"] as DateTime?));
-            Assert.AreEqual(3702012928, marketData["marketId"] as long?);
-            Assert.IsFalse(marketData.ContainsKey("CarrierDockingAccess"));
-            Assert.AreEqual(6, (marketData["commodities"] as IEnumerable<object>)?.Count());
-            if (marketData["commodities"] is List<JObject> handledItems)
+            Assert.AreEqual( "2020-08-07T17:17:10Z", Dates.FromDateTimeToString( marketData[ "timestamp" ] as DateTime? ) );
+            Assert.AreEqual( 3702012928, marketData[ "marketId" ] as long? );
+            Assert.IsFalse( marketData.ContainsKey( "CarrierDockingAccess" ) );
+            var marketCommodities = ( marketData[ "commodities" ] as IEnumerable<object> );
+            Assert.IsNotNull( marketCommodities );
+            Assert.AreEqual( 6, marketCommodities.Count() );
+            if ( marketData[ "commodities" ] is List<JObject> handledItems )
             {
-                if (handledItems[0] is JObject item)
+                if ( handledItems[ 0 ] is JObject item )
                 {
-                    Assert.IsFalse(item.ContainsKey("id"));
-                    Assert.IsFalse(item.ContainsKey("Name_Localised"));
-                    Assert.IsFalse(item.ContainsKey("Category"));
-                    Assert.IsFalse(item.ContainsKey("Category_Localised"));
-                    Assert.IsFalse(item.ContainsKey("Consumer"));
-                    Assert.IsFalse(item.ContainsKey("Producer"));
-                    Assert.IsFalse(item.ContainsKey("Rare"));
+                    Assert.IsFalse( item.ContainsKey( "id" ) );
+                    Assert.IsFalse( item.ContainsKey( "Name_Localised" ) );
+                    Assert.IsFalse( item.ContainsKey( "Category" ) );
+                    Assert.IsFalse( item.ContainsKey( "Category_Localised" ) );
+                    Assert.IsFalse( item.ContainsKey( "Consumer" ) );
+                    Assert.IsFalse( item.ContainsKey( "Producer" ) );
+                    Assert.IsFalse( item.ContainsKey( "Rare" ) );
 
-                    Assert.AreEqual(9, item.Count);
-                    Assert.AreEqual("painite", item["name"]?.ToString());
-                    Assert.AreEqual(0, item["buyPrice"]?.ToObject<int?>());
-                    Assert.AreEqual(500096, item["sellPrice"]?.ToObject<int?>());
-                    Assert.AreEqual(0, item["meanPrice"]?.ToObject<int?>());
-                    Assert.AreEqual(0, item["stockBracket"]?.ToObject<int?>());
-                    Assert.AreEqual(2, item["demandBracket"]?.ToObject<int?>());
-                    Assert.AreEqual(0, item["stock"]?.ToObject<int?>());
-                    Assert.AreEqual(200, item["demand"]?.ToObject<int?>());
-                    Assert.AreEqual(1, item["statusFlags"]?.ToObject<JArray>()?.Count);
+                    Assert.AreEqual( 9, item.Count );
+                    Assert.IsNotNull( item[ "name" ] );
+                    Assert.AreEqual( "painite", item[ "name" ].ToString() );
+                    Assert.IsNotNull( item[ "buyPrice" ] );
+                    Assert.AreEqual( 0, item[ "buyPrice" ].ToObject<int?>() );
+                    Assert.IsNotNull( item[ "sellPrice" ] );
+                    Assert.AreEqual( 500096, item[ "sellPrice" ].ToObject<int?>() );
+                    Assert.IsNotNull( item[ "meanPrice" ] );
+                    Assert.AreEqual( 0, item[ "meanPrice" ].ToObject<int?>() );
+                    Assert.IsNotNull( item[ "stockBracket" ] );
+                    Assert.AreEqual( 0, item[ "stockBracket" ].ToObject<int?>() );
+                    Assert.IsNotNull( item[ "demandBracket" ] );
+                    Assert.AreEqual( 2, item[ "demandBracket" ].ToObject<int?>() );
+                    Assert.IsNotNull( item[ "stock" ] );
+                    Assert.AreEqual( 0, item[ "stock" ].ToObject<int?>() );
+                    Assert.IsNotNull( item[ "demand" ] );
+                    Assert.AreEqual( 200, item[ "demand" ].ToObject<int?>() );
+                    Assert.IsNotNull( item[ "statusFlags" ] );
+                    Assert.AreEqual( 1, item[ "statusFlags" ].ToObject<JArray>().Count );
                 }
             }
             else
@@ -689,10 +703,14 @@ namespace UnitTests
 
             // Check a few items on our initial data
             Assert.AreEqual("2020-08-07T17:17:10Z", Dates.FromDateTimeToString(marketJson["timestamp"]?.ToObject<DateTime?>()));
-            Assert.AreEqual(3228854528, marketJson["id"]?.ToObject<long?>());
-            Assert.AreEqual("starport", marketJson["outpostType"]?.ToString());
-            Assert.AreEqual(117, (marketJson["commodities"] as IEnumerable<object>)?.Count());
-            if (marketJson["commodities"]?.ToObject<JArray>() is JArray items)
+            Assert.IsNotNull( marketJson[ "id" ] );
+            Assert.AreEqual(3228854528, marketJson["id"].ToObject<long?>());
+            Assert.IsNotNull( marketJson[ "outpostType" ] );
+            Assert.AreEqual("starport", marketJson["outpostType"].ToString());
+            var commodities = marketJson[ "commodities" ];
+            Assert.IsNotNull(commodities);
+            Assert.AreEqual(117, commodities.Count());
+            if (commodities.ToObject<JArray>() is JArray items)
             {
                 if (items[0] is JToken item)
                 {
@@ -714,10 +732,10 @@ namespace UnitTests
             Assert.AreEqual(3228854528, handledData["marketId"] as long?);
             Assert.IsFalse(handledData.ContainsKey("outpostType"));
             Assert.IsTrue(handledData["economies"] is IEnumerable<object>);
-            Assert.AreEqual(116, (handledData["commodities"] as List<object>)?.Count);
             if (handledData["commodities"] is List<object> handledItems)
             {
-                if (handledItems[0] is Dictionary<string, object> item)
+                Assert.AreEqual( 116, handledItems.Count );
+                if ( handledItems[0] is Dictionary<string, object> item)
                 {
                     Assert.IsFalse(item.ContainsKey("id"));
                     Assert.IsFalse(item.ContainsKey("locName"));
@@ -748,6 +766,7 @@ namespace UnitTests
             // Set up our schema
             var fcmaterialsSchema = makeTestEDDNResponder()
                 .schemas.FirstOrDefault(s => s.GetType() == typeof(FCMaterialsSchema));
+            Assert.IsNotNull( fcmaterialsSchema );
 
             // Set up our initial conditions
             var eddnState = new EDDNState();
@@ -759,10 +778,10 @@ namespace UnitTests
             Assert.AreEqual(3709999999, fcmaterialsData["MarketID"] as long?);
             Assert.AreEqual("Station 42", fcmaterialsData["CarrierName"] as string);
             Assert.AreEqual("X9X-9XX", fcmaterialsData["CarrierID"] as string);
-            Assert.AreEqual(2, (fcmaterialsData["Items"] as IEnumerable<object>)?.Count());
             if (fcmaterialsData["Items"] is List<object> items)
             {
-                if (items[0] is IDictionary<string, object> item)
+                Assert.AreEqual( 2, items.Count );
+                if ( items[0] is IDictionary<string, object> item)
                 {
                     Assert.AreEqual(6, item.Keys.Count);
                     Assert.AreEqual("Chemical Superbase", item["Name_Localised"] as string);
@@ -774,20 +793,19 @@ namespace UnitTests
             }
 
             // Apply our "Handle" method to transform the data
-            Assert.IsTrue(fcmaterialsSchema?.Handle("FCMaterials", ref fcmaterialsData, eddnState));
+            Assert.IsTrue(fcmaterialsSchema.Handle("FCMaterials", ref fcmaterialsData, eddnState));
 
             // Validate the final data
             Assert.AreEqual("2022-11-08T03:15:30Z", Dates.FromDateTimeToString(fcmaterialsData["timestamp"] as DateTime?));
             Assert.AreEqual(3709999999, fcmaterialsData["MarketID"] as long?);
             Assert.AreEqual("Station 42", fcmaterialsData["CarrierName"] as string);
             Assert.AreEqual("X9X-9XX", fcmaterialsData["CarrierID"] as string);
-            Assert.AreEqual(2, (fcmaterialsData["Items"] as IEnumerable<object>)?.Count());
-            if (fcmaterialsData["Items"] is IEnumerable<object> handledItems)
+            if (fcmaterialsData["Items"] is List<object> handledItems)
             {
-                if (handledItems.FirstOrDefault() is IDictionary<string, object> item)
+                Assert.AreEqual( 2, handledItems.Count );
+                if ( handledItems.FirstOrDefault() is IDictionary<string, object> item)
                 {
                     Assert.IsFalse(item.ContainsKey("Name_Localised"));
-
                     Assert.AreEqual(5, item.Count);
                     Assert.AreEqual(128961528, Convert.ToInt64(item["id"]));
                     Assert.AreEqual("$chemicalsuperbase_name;", item["Name"].ToString());
@@ -814,17 +832,26 @@ namespace UnitTests
             var fcMarketJson = DeserializeJsonResource<JObject>(Resources.capi_market_fleet_carrier);
 
             // Check a few items on our initial data
-            Assert.AreEqual("2022-11-08T03:15:30Z", Dates.FromDateTimeToString(fcMarketJson["timestamp"]?.ToObject<DateTime>()));
-            Assert.AreEqual(3709999999, fcMarketJson["id"]?.ToObject<long>());
-            Assert.AreEqual("X9X-9XX", fcMarketJson["name"]?.ToString());
-            Assert.AreEqual("fleetcarrier", fcMarketJson["outpostType"]?.ToString());
-            var onFootMicroResources = fcMarketJson["orders"]?["onfootmicroresources"];
-            Assert.AreEqual(1, onFootMicroResources?["sales"]?.Children().Count());
-            Assert.AreEqual(16, onFootMicroResources?["purchases"]?.Children().Count());
-            if (onFootMicroResources?["sales"]?.Children().Values().FirstOrDefault() is JObject item)
+            Assert.IsNotNull( fcMarketJson[ "timestamp" ] );
+            Assert.AreEqual("2022-11-08T03:15:30Z", Dates.FromDateTimeToString(fcMarketJson["timestamp"].ToObject<DateTime>()));
+            Assert.IsNotNull( fcMarketJson[ "id" ] );
+            Assert.AreEqual(3709999999, fcMarketJson["id"].ToObject<long>());
+            Assert.IsNotNull( fcMarketJson[ "name" ] );
+            Assert.AreEqual("X9X-9XX", fcMarketJson["name"].ToString());
+            Assert.IsNotNull( fcMarketJson[ "outpostType" ] );
+            Assert.AreEqual("fleetcarrier", fcMarketJson["outpostType"].ToString());
+            Assert.IsNotNull( fcMarketJson[ "orders" ] );
+            var onFootMicroResources = fcMarketJson["orders"]["onfootmicroresources"];
+            Assert.IsNotNull( onFootMicroResources );
+            Assert.IsNotNull( onFootMicroResources[ "sales" ] );
+            Assert.IsNotNull( onFootMicroResources[ "purchases" ] );
+            Assert.AreEqual(1, onFootMicroResources["sales"].Children().Count());
+            Assert.AreEqual(16, onFootMicroResources["purchases"].Children().Count());
+            if (onFootMicroResources["sales"].Children().Values().FirstOrDefault() is JObject item)
             {
                 Assert.AreEqual(5, item.Count);
-                Assert.AreEqual("Graphene", item["locName"]?.ToString());
+                Assert.IsNotNull( item[ "locName" ] );
+                Assert.AreEqual("Graphene", item["locName"].ToString());
             }
             else
             {
@@ -839,13 +866,13 @@ namespace UnitTests
             Assert.AreEqual("2022-11-08T03:15:30Z", Dates.FromDateTimeToString((DateTime)handledData["timestamp"]));
             Assert.AreEqual(3709999999, handledData["MarketID"] as long?);
             Assert.AreEqual("X9X-9XX", handledData["CarrierID"] as string);
-            if (handledData.TryGetValue("Items", out object handledItemsObj) &&
+            if (handledData.TryGetValue("Items", out var handledItemsObj) &&
                 handledItemsObj is Dictionary<string, object> handledItems)
             {
                 var sales = handledItems["sales"] as Dictionary<string, object> ?? new Dictionary<string, object>();
                 var purchases = handledItems["purchases"] as Dictionary<string, object> ?? new Dictionary<string, object>();
-                Assert.AreEqual(1, sales.Count());
-                Assert.AreEqual(0, purchases.Count());
+                Assert.AreEqual(1, sales.Count);
+                Assert.AreEqual(0, purchases.Count);
                 if (sales["128064021"] is Dictionary<string, object> handledItem)
                 {
                     Assert.IsFalse(handledItem.ContainsKey("locName"));
@@ -873,6 +900,7 @@ namespace UnitTests
             // Set up our schema
             var outfittingSchema = makeTestEDDNResponder()
                 .schemas.FirstOrDefault(s => s.GetType() == typeof(OutfittingSchema));
+            Assert.IsNotNull( outfittingSchema );
 
             // Set up our initial conditions
             var eddnState = new EDDNState();
@@ -884,10 +912,10 @@ namespace UnitTests
             Assert.AreEqual(3227934976, outfittingData["MarketID"] as long?);
             Assert.AreEqual("Walker Ring", outfittingData["StationName"] as string);
             Assert.AreEqual("Gertrud", outfittingData["StarSystem"] as string);
-            Assert.AreEqual(767, (outfittingData["Items"] as IEnumerable<object>)?.Count());
             if (outfittingData["Items"] is List<object> items)
             {
-                if (items[0] is IDictionary<string, object> item)
+                Assert.AreEqual( 767, items.Count );
+                if ( items[0] is IDictionary<string, object> item)
                 {
                     Assert.AreEqual(3, item.Keys.Count);
                     Assert.AreEqual("hpt_cannon_gimbal_huge", item["Name"] as string);
@@ -901,16 +929,16 @@ namespace UnitTests
             }
 
             // Apply our "Handle" method to transform the data
-            Assert.IsTrue(outfittingSchema?.Handle("Outfitting", ref outfittingData, eddnState));
+            Assert.IsTrue(outfittingSchema.Handle("Outfitting", ref outfittingData, eddnState));
 
             // Validate the final data
             Assert.AreEqual("2022-11-21T00:05:07Z", Dates.FromDateTimeToString(outfittingData["timestamp"] as DateTime?));
             Assert.AreEqual(3227934976, outfittingData["marketId"] as long?);
             Assert.AreEqual("Walker Ring", outfittingData["stationName"] as string);
             Assert.AreEqual("Gertrud", outfittingData["systemName"] as string);
-            Assert.AreEqual(767, (outfittingData["modules"] as IEnumerable<object>)?.Count());
             if (outfittingData["modules"] is List<string> modules)
             {
+                Assert.AreEqual( 767, modules.Count );
                 Assert.AreEqual( "hpt_cannon_gimbal_huge", modules[ 0 ] );
             }
             else
@@ -932,18 +960,27 @@ namespace UnitTests
 
             // Check a few items on our initial data
             Assert.AreEqual("2020-08-07T17:17:10Z", Dates.FromDateTimeToString(shipyardJson["timestamp"]?.ToObject<DateTime?>()));
-            Assert.AreEqual(3544236032, shipyardJson["id"]?.ToObject<long?>());
-            Assert.AreEqual("Abasheli Barracks", shipyardJson["name"]?.ToString());
+            Assert.IsNotNull( shipyardJson[ "id" ] );
+            Assert.AreEqual(3544236032, shipyardJson["id"].ToObject<long?>());
+            Assert.IsNotNull( shipyardJson[ "name" ] );
+            Assert.AreEqual("Abasheli Barracks", shipyardJson["name"].ToString());
             Assert.IsFalse(shipyardJson.ContainsKey("StarSystem"));
-            Assert.AreEqual(165, (shipyardJson["modules"] as IEnumerable<object>)?.Count());
-            if (shipyardJson["modules"]?.Children().Values().FirstOrDefault() is JObject item)
+            var shipyardModules = shipyardJson[ "modules" ] as IEnumerable<object>;
+            Assert.IsNotNull( shipyardModules );
+            Assert.AreEqual( 165, shipyardModules.Count() );
+            if ( shipyardJson["modules"]?.Children().Values().FirstOrDefault() is JObject item)
             {
                 Assert.AreEqual(5, item.Count);
-                Assert.AreEqual("Hpt_ATDumbfireMissile_Fixed_Large", item["name"]?.ToString());
-                Assert.AreEqual("weapon", item["category"]?.ToString());
-                Assert.AreEqual(128788700, item["id"]?.ToObject<long?>());
-                Assert.AreEqual(1352250, item["cost"]?.ToObject<long?>());
-                Assert.AreEqual("ELITE_HORIZONS_V_PLANETARY_LANDINGS", item["sku"]?.ToString());
+                Assert.IsNotNull( item[ "name" ] );
+                Assert.AreEqual("Hpt_ATDumbfireMissile_Fixed_Large", item["name"].ToString());
+                Assert.IsNotNull( item[ "category" ] );
+                Assert.AreEqual("weapon", item["category"].ToString());
+                Assert.IsNotNull( item[ "id" ] );
+                Assert.AreEqual(128788700, item["id"].ToObject<long?>());
+                Assert.IsNotNull( item[ "cost" ] );
+                Assert.AreEqual(1352250, item["cost"].ToObject<long?>());
+                Assert.IsNotNull( item[ "sku" ] );
+                Assert.AreEqual("ELITE_HORIZONS_V_PLANETARY_LANDINGS", item["sku"].ToString());
             }
             else
             {
@@ -960,9 +997,9 @@ namespace UnitTests
             Assert.AreEqual(3544236032, outfittingData["marketId"] as long?);
             Assert.AreEqual("Abasheli Barracks", outfittingData["stationName"] as string);
             Assert.AreEqual("Kurigosages", outfittingData["systemName"] as string);
-            Assert.AreEqual(164, (outfittingData["modules"] as IEnumerable<object>)?.Count());
             if (outfittingData["modules"] is List<string> modules)
             {
+                Assert.AreEqual( 164, modules.Count );
                 Assert.AreEqual( "Hpt_ATDumbfireMissile_Fixed_Large", modules[ 0 ] );
             }
             else
@@ -977,6 +1014,7 @@ namespace UnitTests
             // Set up our schema
             var shipyardSchema = makeTestEDDNResponder()
                 .schemas.FirstOrDefault(s => s.GetType() == typeof(ShipyardSchema));
+            Assert.IsNotNull(shipyardSchema);
 
             // Set up our initial conditions
             var eddnState = new EDDNState();
@@ -988,10 +1026,10 @@ namespace UnitTests
             Assert.AreEqual(3227934976, shipyardData["MarketID"] as long?);
             Assert.AreEqual("Walker Ring", shipyardData["StationName"] as string);
             Assert.AreEqual("Gertrud", shipyardData["StarSystem"] as string);
-            Assert.AreEqual(18, (shipyardData["PriceList"] as IEnumerable<object>)?.Count());
             if (shipyardData["PriceList"] is List<object> items)
             {
-                if (items[0] is IDictionary<string, object> item)
+                Assert.AreEqual( 18, items.Count );
+                if ( items[0] is IDictionary<string, object> item)
                 {
                     Assert.AreEqual(3, item.Keys.Count);
                     Assert.AreEqual("sidewinder", item["ShipType"] as string);
@@ -1005,16 +1043,16 @@ namespace UnitTests
             }
 
             // Apply our "Handle" method to transform the data
-            Assert.IsTrue(shipyardSchema?.Handle("Shipyard", ref shipyardData, eddnState));
+            Assert.IsTrue(shipyardSchema.Handle("Shipyard", ref shipyardData, eddnState));
 
             // Validate the final data
             Assert.AreEqual("2022-11-21T00:04:40Z", Dates.FromDateTimeToString(shipyardData["timestamp"] as DateTime?));
             Assert.AreEqual(3227934976, shipyardData["marketId"] as long?);
             Assert.AreEqual("Walker Ring", shipyardData["stationName"] as string);
             Assert.AreEqual("Gertrud", shipyardData["systemName"] as string);
-            Assert.AreEqual(18, (shipyardData["ships"] as IEnumerable<object>)?.Count());
             if (shipyardData["ships"] is List<string> ships)
             {
+                Assert.AreEqual( 18, ships.Count );
                 Assert.AreEqual( "sidewinder", ships[ 0 ] );
             }
             else
@@ -1027,8 +1065,7 @@ namespace UnitTests
         public void shipyardSchemaCapiTest()
         {
             // Set up our schema
-            var shipyardSchema = makeTestEDDNResponder()
-                .capiSchemas.FirstOrDefault(s => s.GetType() == typeof(ShipyardSchema));
+            var shipyardSchema = makeTestEDDNResponder().capiSchemas.FirstOrDefault(s => s.GetType() == typeof(ShipyardSchema));
 
             // Set up our initial conditions
             var eddnState = new EDDNState();
@@ -1036,23 +1073,31 @@ namespace UnitTests
 
             // Check a few items on our initial data
             Assert.AreEqual("2020-08-07T17:17:10Z", Dates.FromDateTimeToString(shipyardJson["timestamp"]?.ToObject<DateTime?>()));
-            Assert.AreEqual(3544236032, shipyardJson["id"]?.ToObject<long?>());
-            Assert.AreEqual("Abasheli Barracks", shipyardJson["name"]?.ToString());
+            Assert.IsNotNull( shipyardJson[ "id" ] );
+            Assert.AreEqual(3544236032, shipyardJson["id"].ToObject<long?>());
+            Assert.IsNotNull( shipyardJson[ "name" ] );
+            Assert.AreEqual("Abasheli Barracks", shipyardJson["name"].ToString());
             Assert.IsFalse(shipyardJson.ContainsKey("StarSystem"));
-            Assert.AreEqual(5, (shipyardJson["ships"]?["shipyard_list"] as IEnumerable<object>)?.Count());
-            Assert.AreEqual(3, (shipyardJson["ships"]?["unavailable_list"] as IEnumerable<object>)?.Count());
-            if (shipyardJson["ships"]?["shipyard_list"]?.Children().Values().FirstOrDefault() is JObject item)
+            if (shipyardJson["ships"]?["shipyard_list"] is JToken shipyardShips && shipyardShips.Children().Values().FirstOrDefault() is JObject shipyardShip )
             {
-                Assert.AreEqual(4, item.Count);
-                Assert.AreEqual("Eagle", item["name"]?.ToString());
-                Assert.AreEqual(128049255, item["id"]?.ToObject<long?>());
-                Assert.AreEqual(44800, item["basevalue"]?.ToObject<long?>());
-                Assert.AreEqual("", item["sku"]?.ToString());
+                Assert.AreEqual( 5, shipyardShips.Count() );
+                Assert.IsNotNull( shipyardShip );
+                Assert.IsNotNull( shipyardShip[ "name" ] );
+                Assert.IsNotNull( shipyardShip[ "id"] );
+                Assert.IsNotNull( shipyardShip[ "basevalue" ] );
+                Assert.IsNotNull( shipyardShip[ "sku" ] );
+                Assert.AreEqual( "Eagle", shipyardShip[ "name" ].ToString() );
+                Assert.AreEqual( 128049255, shipyardShip[ "id" ].ToObject<long?>() );
+                Assert.AreEqual( 44800, shipyardShip[ "basevalue" ].ToObject<long?>() );
+                Assert.AreEqual( "", shipyardShip[ "sku" ].ToString() );
             }
             else
             {
                 Assert.Fail();
             }
+            var unavailableShipyardShips = shipyardJson[ "ships" ]?[ "unavailable_list" ] as IEnumerable<object>;
+            Assert.IsNotNull( unavailableShipyardShips );
+            Assert.AreEqual( 3, unavailableShipyardShips.Count() );
 
             // Apply our "Handle" method to transform the data
             var profileJson = JObject.Parse(@"{""lastSystem"":{""id"":99999,""name"":""Kurigosages"",""faction"":""independent""}}");
@@ -1065,9 +1110,9 @@ namespace UnitTests
             Assert.AreEqual("Abasheli Barracks", shipyardData["stationName"] as string);
             Assert.AreEqual("Kurigosages", shipyardData["systemName"] as string);
             Assert.IsFalse(shipyardData["allowCobraMkIV"] as bool? ?? false);
-            Assert.AreEqual(8, (shipyardData["ships"] as IEnumerable<object>)?.Count());
             if (shipyardData["ships"] is List<string> ships)
             {
+                Assert.AreEqual( 8, ships.Count );
                 Assert.AreEqual( "Eagle", ships[ 0 ] );
             }
             else

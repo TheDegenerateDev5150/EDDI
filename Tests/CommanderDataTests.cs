@@ -4,12 +4,11 @@ using EddiShipMonitor;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
 using System.Text;
 
-namespace UnitTests
+namespace Tests
 {
-    [TestClass]
+    [TestClass, TestCategory("UnitTests")]
     public class CommanderDataTests : TestBase
     {
         [TestInitialize]
@@ -40,9 +39,9 @@ namespace UnitTests
             var json = DeserializeJsonResource<JObject>( Tests.Properties.Resources.capi_profile );
             var profile = FrontierApiProfile.FromJson(json);
 
-            Ship ship = FrontierApi.ShipFromJson((JObject)json["ship"]);
+            var ship = FrontierApi.ShipFromJson((JObject)json["ship"]);
             Assert.IsNotNull(ship);
-            List<Ship> shipyard = FrontierApi.ShipyardFromJson(ship, json);
+            var shipyard = FrontierApi.ShipyardFromJson(ship, json);
 
             Assert.AreEqual("Testy", profile.Cmdr.name);
 
@@ -64,7 +63,7 @@ namespace UnitTests
             Assert.AreEqual("7C", ship.powerplant.@class + ship.powerplant.grade);
             Assert.AreEqual(9, ship.compartments.Count);
             Assert.AreEqual(2, ship.compartments[8].size);
-            Assert.AreEqual(null, ship.compartments[8].module);
+            Assert.IsNull(ship.compartments[8].module);
 
             Assert.AreEqual(10, ship.cargocapacity);
 
@@ -86,7 +85,7 @@ namespace UnitTests
         [TestMethod]
         public void TestMarketIDFromProfile()
         {
-            JObject json = DeserializeJsonResource<JObject>( Tests.Properties.Resources.capi_profile );
+            var json = DeserializeJsonResource<JObject>( Tests.Properties.Resources.capi_profile );
             var profile = FrontierApiProfile.FromJson(json);
             Assert.AreEqual(3226643968, profile.LastStationMarketID);
         }

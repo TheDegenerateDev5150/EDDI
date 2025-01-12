@@ -10,13 +10,12 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using Tests.Properties;
-using UnitTests;
 using Utilities;
 
-namespace IntegrationTests
+namespace Tests
 {
-    [TestClass]
-    public class EddiCoreTests : TestBase
+    [TestClass, TestCategory( nameof( IntegrationTests ) )]
+    public class IntegrationTests : TestBase
     {
         [TestInitialize]
         public void start()
@@ -58,16 +57,16 @@ namespace IntegrationTests
             }
             else
             {
-                EDDI.Instance.activeMonitors.TryTake( out IEddiMonitor activeMonitor );
+                EDDI.Instance.activeMonitors.TryTake( out var activeMonitor );
                 Assert.AreEqual( monitor, activeMonitor );
             }
         }
     }
 }
 
-namespace UnitTests
+namespace Tests
 {
-    [TestClass]
+    [TestClass, TestCategory( "UnitTests" )]
     public class EddiCoreTests : TestBase
     {
         [TestInitialize]
@@ -134,17 +133,20 @@ namespace UnitTests
             // Standard jump to Cephei Sector DQ-Y b1. Environment is supercruise.
             EDDI.Instance.eventJumped( @event1 );
             Assert.AreEqual( Constants.ENVIRONMENT_SUPERCRUISE, EDDI.Instance.Environment );
-            Assert.AreEqual( 2868635641225UL, EDDI.Instance.CurrentStarSystem?.systemAddress );
+            Assert.IsNotNull( EDDI.Instance.CurrentStarSystem );
+            Assert.AreEqual( 2868635641225UL, EDDI.Instance.CurrentStarSystem.systemAddress );
 
             // Standard jump to HIP 8525. Environment is supercruise.
             EDDI.Instance.eventJumped( @event2 );
             Assert.AreEqual( Constants.ENVIRONMENT_SUPERCRUISE, EDDI.Instance.Environment );
-            Assert.AreEqual( 560216410467UL, EDDI.Instance.CurrentStarSystem?.systemAddress );
+            Assert.IsNotNull( EDDI.Instance.CurrentStarSystem );
+            Assert.AreEqual( 560216410467UL, EDDI.Instance.CurrentStarSystem.systemAddress );
 
             // Hyperdiction in HIP 8525. Environment is normal space rather than supercruise.
             EDDI.Instance.eventJumped( @event3 );
             Assert.AreEqual( Constants.ENVIRONMENT_NORMAL_SPACE, EDDI.Instance.Environment );
-            Assert.AreEqual( 560216410467UL, EDDI.Instance.CurrentStarSystem?.systemAddress );
+            Assert.IsNotNull( EDDI.Instance.CurrentStarSystem );
+            Assert.AreEqual( 560216410467UL, EDDI.Instance.CurrentStarSystem.systemAddress );
         }
 
         [TestMethod, DoNotParallelize]
@@ -179,18 +181,19 @@ namespace UnitTests
             Assert.IsInstanceOfType(@event, typeof(BodyScannedEvent));
 
             EDDI.Instance.updateCurrentSystem( "Grea Bloae HH-T d4-44", 1520309296811UL );
-            Assert.AreEqual("Grea Bloae HH-T d4-44", EDDI.Instance.CurrentStarSystem?.systemname);
+            Assert.IsNotNull( EDDI.Instance.CurrentStarSystem );
+            Assert.AreEqual("Grea Bloae HH-T d4-44", EDDI.Instance.CurrentStarSystem.systemname);
 
             // Set up conditions to test the first scan of the body
-            var body = EDDI.Instance.CurrentStarSystem?.bodies.Find(b => b.bodyname == "Grea Bloae HH-T d4-44 4");
+            var body = EDDI.Instance.CurrentStarSystem.bodies.Find(b => b.bodyname == "Grea Bloae HH-T d4-44 4");
             if (body != null) { body.scannedDateTime = null; }
             EDDI.Instance.eventBodyScanned( @event );
-            Assert.AreEqual(@event.timestamp, EDDI.Instance.CurrentStarSystem?.bodies.Find(b => b.bodyname == "Grea Bloae HH-T d4-44 4").scannedDateTime);
+            Assert.AreEqual(@event.timestamp, EDDI.Instance.CurrentStarSystem.bodies.Find(b => b.bodyname == "Grea Bloae HH-T d4-44 4").scannedDateTime);
 
             // Re-scanning the same body shouldn't replace the first scan's data
             var @event2 = new BodyScannedEvent(@event.timestamp.AddSeconds(60), @event.scantype, @event.body);
             EDDI.Instance.eventBodyScanned( @event2 );
-            Assert.AreEqual(@event.timestamp, EDDI.Instance.CurrentStarSystem?.bodies.Find(b => b.bodyname == "Grea Bloae HH-T d4-44 4").scannedDateTime);
+            Assert.AreEqual(@event.timestamp, EDDI.Instance.CurrentStarSystem.bodies.Find(b => b.bodyname == "Grea Bloae HH-T d4-44 4").scannedDateTime);
         }
 
         [TestMethod, DoNotParallelize]
@@ -207,15 +210,17 @@ namespace UnitTests
             Assert.IsInstanceOfType(@event, typeof(BodyScannedEvent));
 
             EDDI.Instance.updateCurrentSystem( "Grea Bloae HH-T d4-44", 1520309296811UL );
-            Assert.AreEqual("Grea Bloae HH-T d4-44", EDDI.Instance.CurrentStarSystem?.systemname);
+            Assert.IsNotNull( EDDI.Instance.CurrentStarSystem );
+            Assert.AreEqual("Grea Bloae HH-T d4-44", EDDI.Instance.CurrentStarSystem.systemname);
 
             // Set up conditions to test the first scan of the body
-            var body = EDDI.Instance.CurrentStarSystem?.bodies.Find(b => b.bodyname == "Grea Bloae HH-T d4-44 4");
-            if (body != null) { body.scannedDateTime = null; body.mappedDateTime = null;
-            }
+            var body = EDDI.Instance.CurrentStarSystem.bodies.Find(b => b.bodyname == "Grea Bloae HH-T d4-44 4");
+            if (body != null) { body.scannedDateTime = null; body.mappedDateTime = null; }
             EDDI.Instance.eventBodyScanned( @event );
-            Assert.AreEqual(@event.timestamp, EDDI.Instance.CurrentStarSystem?.bodies.FirstOrDefault(b => b.bodyname == "Grea Bloae HH-T d4-44 4")?.scannedDateTime);
-            var event1EstimatedValue = EDDI.Instance.CurrentStarSystem?.bodies.Find(b => b.bodyname == "Grea Bloae HH-T d4-44 4").estimatedvalue;
+            var scannedBody = EDDI.Instance.CurrentStarSystem.bodies.FirstOrDefault( b => b.bodyname == "Grea Bloae HH-T d4-44 4" );
+            Assert.IsNotNull(scannedBody);
+            Assert.AreEqual(@event.timestamp, scannedBody.scannedDateTime);
+            var event1EstimatedValue = scannedBody.estimatedvalue;
 
             // Map the body
             var line2 = @"{ ""timestamp"":""2016 - 11 - 01T18: 59:07Z"", ""event"":""SAAScanComplete"", ""BodyName"":""Grea Bloae HH-T d4-44 4"", ""BodyID"":3, ""StarSystem"":""Grea Bloae HH-T d4-44"", ""SystemAddress"":1520309296811, ""ProbesUsed"":5, ""EfficiencyTarget"":6 }";
@@ -224,16 +229,15 @@ namespace UnitTests
             var @event2 = (BodyMappedEvent)events[0];
             EDDI.Instance.eventBodyMapped( @event2 );
 
-            Assert.AreEqual(@event.timestamp, EDDI.Instance.CurrentStarSystem?.bodies.Find(b => b.bodyname == "Grea Bloae HH-T d4-44 4").scannedDateTime);
-            Assert.AreEqual(@event2.timestamp, EDDI.Instance.CurrentStarSystem?.bodies.Find(b => b.bodyname == "Grea Bloae HH-T d4-44 4").mappedDateTime);
-            Assert.IsTrue(EDDI.Instance.CurrentStarSystem?.bodies.Find(b => b.bodyname == "Grea Bloae HH-T d4-44 4").estimatedvalue > event1EstimatedValue);
+            Assert.AreEqual(@event.timestamp, scannedBody.scannedDateTime);
+            Assert.AreEqual(@event2.timestamp, scannedBody.mappedDateTime);
+            Assert.IsTrue(scannedBody.estimatedvalue > event1EstimatedValue);
         }
 
         [TestMethod, DoNotParallelize]
         public void TestSignalDetectedDeDuplication()
         {
             EDDI.Instance.CurrentStarSystem = new StarSystem { systemname = "TestSystem", systemAddress = 6606892846275 };
-
             var currentStarSystem = EDDI.Instance.CurrentStarSystem;
 
             var line0 = @"{ ""timestamp"":""2019-02-04T02:20:28Z"", ""event"":""FSSSignalDiscovered"", ""SystemAddress"":6606892846275, ""SignalName"":""$NumberStation;"", ""SignalName_Localised"":""Unregistered Comms Beacon"" }";
@@ -244,25 +248,25 @@ namespace UnitTests
 
             var event0 = (SignalDetectedEvent)JournalMonitor.ParseJournalEntry(line0).FirstOrDefault();
             EDDI.Instance.eventSignalDetected( event0 );
-            Assert.AreEqual(1, currentStarSystem?.signalsources.Count());
-            Assert.AreEqual("Unregistered Comms Beacon", currentStarSystem?.signalsources[0]);
+            Assert.AreEqual(1, currentStarSystem.signalsources.Count);
+            Assert.AreEqual("Unregistered Comms Beacon", currentStarSystem.signalsources[0]);
 
             var event1 = (SignalDetectedEvent)JournalMonitor.ParseJournalEntry(line1).FirstOrDefault();
             EDDI.Instance.eventSignalDetected( event1 );
-            Assert.AreEqual(1, currentStarSystem?.signalsources.Count() );
+            Assert.AreEqual(1, currentStarSystem.signalsources.Count );
 
             var event2 = (SignalDetectedEvent)JournalMonitor.ParseJournalEntry(line2).FirstOrDefault();
             EDDI.Instance.eventSignalDetected( event2 );
-            Assert.AreEqual(2, currentStarSystem?.signalsources.Count() );
-            Assert.AreEqual("Notable Stellar Phenomena", currentStarSystem?.signalsources[1]);
+            Assert.AreEqual(2, currentStarSystem.signalsources.Count );
+            Assert.AreEqual("Notable Stellar Phenomena", currentStarSystem.signalsources[1]);
 
             var event3 = (SignalDetectedEvent)JournalMonitor.ParseJournalEntry(line3).FirstOrDefault();
             EDDI.Instance.eventSignalDetected( event3 );
-            Assert.AreEqual(2, currentStarSystem?.signalsources.Count() );
+            Assert.AreEqual(2, currentStarSystem.signalsources.Count );
 
             var event4 = (SignalDetectedEvent)JournalMonitor.ParseJournalEntry(line4).FirstOrDefault();
             EDDI.Instance.eventSignalDetected( event4 );
-            Assert.AreEqual(2, currentStarSystem?.signalsources.Count() );
+            Assert.AreEqual(2, currentStarSystem.signalsources.Count );
         }
 
         [TestMethod, DoNotParallelize]
@@ -278,21 +282,21 @@ namespace UnitTests
             Assert.IsInstanceOfType(@event, typeof(SystemScanComplete));
 
             EDDI.Instance.CurrentStarSystem = new StarSystem { systemname = "TestSystem" };
-            Assert.IsFalse(EDDI.Instance.CurrentStarSystem?.systemScanCompleted);
+            Assert.IsFalse(EDDI.Instance.CurrentStarSystem.systemScanCompleted);
 
             // Test whether the first `SystemScanCompleted` event is accepted and passed to monitors / responders
             var eventPassed = EDDI.Instance.eventSystemScanComplete( @event );
-            Assert.IsTrue(EDDI.Instance.CurrentStarSystem?.systemScanCompleted);
+            Assert.IsTrue(EDDI.Instance.CurrentStarSystem.systemScanCompleted);
             Assert.IsTrue(eventPassed);
 
             // Test a second `SystemScanCompleted` event to make sure the repetition is surpressed and not passed to monitors / responders
             eventPassed = EDDI.Instance.eventSystemScanComplete( @event );
-            Assert.IsTrue(EDDI.Instance.CurrentStarSystem?.systemScanCompleted);
+            Assert.IsTrue(EDDI.Instance.CurrentStarSystem.systemScanCompleted);
             Assert.IsFalse(eventPassed);
 
             // Switch systems and verify that the `systemScanCompleted` bool returns to it's default state
             EDDI.Instance.CurrentStarSystem = new StarSystem { systemname = "TestSystem2" };
-            Assert.IsFalse(EDDI.Instance.CurrentStarSystem?.systemScanCompleted);
+            Assert.IsFalse(EDDI.Instance.CurrentStarSystem.systemScanCompleted);
         }
 
         [TestMethod, DoNotParallelize]

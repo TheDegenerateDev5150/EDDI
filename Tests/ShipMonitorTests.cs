@@ -11,9 +11,9 @@ using System.Linq;
 using Tests.Properties;
 using Utilities;
 
-namespace UnitTests
+namespace Tests
 {
-    [TestClass]
+    [TestClass, TestCategory("UnitTests")]
     public class ShipMonitorTests : TestBase
     {
         [TestInitialize]
@@ -47,7 +47,7 @@ namespace UnitTests
             Assert.AreEqual( 111211684, ship.modulesvalue );
             Assert.AreEqual( 6257742, ship.rebuy );
             Assert.AreEqual( 100, ship.health );
-            Assert.AreEqual( false, ship.hot );
+            Assert.IsFalse( ship.hot );
             Assert.AreEqual( 530.8M, ship.unladenmass );
             Assert.AreEqual( 64, ship.cargocapacity );
             Assert.AreEqual( 2, ship.hardpoints.Count( h => h.module.edname == "Hpt_MultiCannon_Gimbal_Large" ) );
@@ -80,14 +80,14 @@ namespace UnitTests
             Assert.AreEqual( 150.442M, Math.Round( ship.JumpDetails( "full", 16, 64 ).distance, 3 ) );
         }
 
-        [TestMethod]
+        [ TestMethod ]
         public void TestLoadoutParsingPythonNX ()
         {
-            var data = DeserializeJsonResource<string>(Resources.loadout_python_nx);
+            var data = DeserializeJsonResource<string>( Resources.loadout_python_nx );
 
-            var events = JournalMonitor.ParseJournalEntry(data);
+            var events = JournalMonitor.ParseJournalEntry( data );
             Assert.AreEqual( 1, events.Count );
-            var loadoutEvent = events[0] as ShipLoadoutEvent;
+            var loadoutEvent = events[ 0 ] as ShipLoadoutEvent;
             Assert.IsNotNull( loadoutEvent );
             Assert.AreEqual( "", loadoutEvent.shipname );
             Assert.AreEqual( 16, loadoutEvent.compartments.Count );
@@ -96,7 +96,7 @@ namespace UnitTests
             var shipMonitor = new ShipMonitor { updatedAt = DateTime.MinValue };
             var ship = shipMonitor.ParseShipLoadoutEvent( loadoutEvent );
             Assert.IsNotNull( ship );
-            Assert.AreEqual( null, ship.name );
+            Assert.IsNull( ship.name );
             Assert.AreEqual( "FL-01P", ship.ident );
             Assert.AreEqual( 64, ship.LocalId );
             Assert.AreEqual( 16, ship.fueltankcapacity );
@@ -105,7 +105,7 @@ namespace UnitTests
             Assert.AreEqual( 0, ship.modulesvalue );
             Assert.AreEqual( 0, ship.rebuy );
             Assert.AreEqual( 100, ship.health );
-            Assert.AreEqual( false, ship.hot );
+            Assert.IsFalse( ship.hot );
             Assert.AreEqual( 693.099976M, ship.unladenmass );
             Assert.AreEqual( 8, ship.cargocapacity );
             Assert.AreEqual( 4, ship.hardpoints.Count( h => h.module.edname == "Hpt_MultiCannon_Gimbal_Large" ) );
@@ -141,8 +141,8 @@ namespace UnitTests
         [ TestMethod ]
         public void TestShipScenario1 ()
         {
-            int sidewinderId = 901;
-            int courierId = 902;
+            var sidewinderId = 901;
+            var courierId = 902;
 
             // Start a ship monitor
             var shipMonitor = new ShipMonitor { updatedAt = DateTime.MinValue };
@@ -158,7 +158,7 @@ namespace UnitTests
 
             var sidewinder = shipMonitor.GetShip( sidewinderId );
             Assert.AreEqual( sidewinder, shipMonitor.GetCurrentShip() );
-            Assert.AreEqual( sidewinder.model, "Sidewinder" );
+            Assert.AreEqual( "Sidewinder", sidewinder.model );
             Assert.AreEqual( 100, sidewinder.health );
 
             // Purchase a Courier
@@ -174,11 +174,11 @@ namespace UnitTests
                 shipMonitor );
 
             sidewinder = shipMonitor.GetShip( sidewinderId );
-            Assert.AreEqual( sidewinder.model, "Sidewinder" );
+            Assert.AreEqual( "Sidewinder", sidewinder.model );
 
             var courier = shipMonitor.GetShip( courierId );
             Assert.AreEqual( courier, shipMonitor.GetCurrentShip() );
-            Assert.AreEqual( courier.model, "Imperial Courier" );
+            Assert.AreEqual( "Imperial Courier", courier.model );
             Assert.AreEqual( 100, courier.health );
 
             // Swap back to the SideWinder
@@ -193,7 +193,7 @@ namespace UnitTests
 
             sidewinder = shipMonitor.GetShip( sidewinderId );
             Assert.AreEqual( sidewinder, shipMonitor.GetCurrentShip() );
-            Assert.AreEqual( sidewinder.model, "Sidewinder" );
+            Assert.AreEqual( "Sidewinder", sidewinder.model );
 
             // Swap back to the Courier
             SendEvents( @"{ ""timestamp"":""2017-04-24T08:18:35Z"", ""event"":""ShipyardSwap"", ""ShipType"":""empire_courier"", ""ShipID"":902, ""StoreOldShip"":""SideWinder"", ""StoreShipID"":901, ""MarketID"":128666762 }",
@@ -207,7 +207,7 @@ namespace UnitTests
 
             courier = shipMonitor.GetShip( courierId );
             Assert.AreEqual( courier, shipMonitor.GetCurrentShip() );
-            Assert.AreEqual( courier.model, "Imperial Courier" );
+            Assert.AreEqual( "Imperial Courier", courier.model );
 
             // Name the Courier
             SendEvents( @"{ ""timestamp"":""2017-04-24T08:19:55Z"", ""event"":""SetUserShipName"", ""Ship"":""empire_courier"", ""ShipID"":902, ""UserShipName"":""Scunthorpe Bound"", ""UserShipId"":""MC-24E"" }",
@@ -215,8 +215,8 @@ namespace UnitTests
 
             courier = shipMonitor.GetShip( courierId );
             Assert.AreEqual( courier, shipMonitor.GetCurrentShip() );
-            Assert.AreEqual( courier.model, "Imperial Courier" );
-            Assert.AreEqual( courier.name, "Scunthorpe Bound" );
+            Assert.AreEqual( "Imperial Courier", courier.model );
+            Assert.AreEqual( "Scunthorpe Bound", courier.name );
 
             // Swap back to the SideWinder
             SendEvents( @"{ ""timestamp"":""2017-04-24T08:21:03Z"", ""event"":""ShipyardSwap"", ""ShipType"":""sidewinder"", ""ShipID"":901, ""StoreOldShip"":""Empire_Courier"", ""StoreShipID"":902, ""MarketID"":128666762 }",
@@ -230,7 +230,7 @@ namespace UnitTests
 
             sidewinder = shipMonitor.GetShip( sidewinderId );
             Assert.AreEqual( sidewinder, shipMonitor.GetCurrentShip() );
-            Assert.AreEqual( sidewinder.model, "Sidewinder" );
+            Assert.AreEqual( "Sidewinder", sidewinder.model );
 
             // Swap back to the Courier
             SendEvents( @"{ ""timestamp"":""2017-04-24T08:21:47Z"", ""event"":""ShipyardSwap"", ""ShipType"":""empire_courier"", ""ShipID"":902, ""StoreOldShip"":""SideWinder"", ""StoreShipID"":901, ""MarketID"":128666762 }",
@@ -244,8 +244,8 @@ namespace UnitTests
 
             courier = shipMonitor.GetShip( courierId );
             Assert.AreEqual( courier, shipMonitor.GetCurrentShip() );
-            Assert.AreEqual( courier.model, "Imperial Courier" );
-            Assert.AreEqual( courier.name, "Scunthorpe Bound" );
+            Assert.AreEqual( "Imperial Courier", courier.model );
+            Assert.AreEqual( "Scunthorpe Bound", courier.name );
             Assert.AreEqual( "Int_CargoRack_Size2_Class1", courier.compartments[ 0 ].module.edname );
             Assert.AreEqual( "cargo rack", courier.compartments[ 0 ].module.invariantName.ToLowerInvariant() );
 
@@ -295,11 +295,15 @@ namespace UnitTests
             shipMonitor.AddShip( ship );
 
             // Test the event handler
-            Assert.AreEqual(@event.frommodule, ship.compartments.FirstOrDefault(c => c.name == @event.fromslot)?.module);
-            Assert.AreEqual(@event.tomodule, ship.compartments.FirstOrDefault(c => c.name == @event.toslot)?.module);
+            var fromCompartment = ship.compartments.FirstOrDefault( c => c.name == @event.fromslot );
+            var toCompartment = ship.compartments.FirstOrDefault( c => c.name == @event.toslot );
+            Assert.IsNotNull( fromCompartment );
+            Assert.IsNotNull( toCompartment );
+            Assert.AreEqual( @event.frommodule, fromCompartment.module );
+            Assert.AreEqual(@event.tomodule, toCompartment.module);
             shipMonitor.handleModuleSwappedEvent( @event );
-            Assert.AreEqual(@event.frommodule, ship.compartments.FirstOrDefault(c => c.name == @event.toslot)?.module);
-            Assert.AreEqual(@event.tomodule, ship.compartments.FirstOrDefault(c => c.name == @event.fromslot)?.module);
+            Assert.AreEqual(@event.frommodule, toCompartment.module);
+            Assert.AreEqual( @event.tomodule, fromCompartment.module );
         }
 
         [TestMethod, DoNotParallelize]
@@ -395,7 +399,7 @@ namespace UnitTests
                 var deserializedShip = JsonConvert.DeserializeObject<Ship>(originalShipString);
                 if (deserializedShip != null)
                 {
-                    Assert.IsTrue(JsonParsing.compareJsonEquality(originalShip, deserializedShip, true, out string mutatedProperty, Array.Empty<string>()));
+                    Assert.IsTrue(JsonParsing.compareJsonEquality(originalShip, deserializedShip, true, out var mutatedProperty, Array.Empty<string>()));
                     if (!string.IsNullOrEmpty(mutatedProperty))
                     {
                         Assert.Fail("Deserialized ship doesn't match original ship for property " + mutatedProperty);
@@ -426,13 +430,14 @@ namespace UnitTests
             shipMonitor.handleShipLoadoutEvent( fighterLoadoutEvent );
 
             var currentShip = shipMonitor.GetCurrentShip();
+            Assert.IsNotNull( currentShip );
 
             // After a loadout event generated from a fighter, 
             // we still want to track the ship we launched from as our current ship.
             Assert.IsNotNull(loadoutEvent);
             Assert.IsNotNull(fighterLoadoutEvent);
-            Assert.AreEqual(loadoutEvent.shipid, currentShip?.LocalId);
-            Assert.AreNotEqual(fighterLoadoutEvent.shipid, currentShip?.LocalId);
+            Assert.AreEqual(loadoutEvent.shipid, currentShip.LocalId);
+            Assert.AreNotEqual(fighterLoadoutEvent.shipid, currentShip.LocalId);
         }
 
         [TestMethod]
@@ -445,7 +450,6 @@ namespace UnitTests
             Assert.IsNotNull(@event);
             Assert.IsInstanceOfType(@event, typeof(ModulePurchasedEvent));
 
-            Assert.IsNotNull(@event.shipid);
             Assert.AreEqual(119, @event.shipid);
             Assert.IsNotNull(@event.slot);
             Assert.IsNotNull(@event.buymodule);
@@ -460,7 +464,8 @@ namespace UnitTests
             {
                 if (compartment.name == "Military01")
                 {
-                    Assert.AreEqual("Guardian Shield Reinforcement", compartment.module?.invariantName);
+                    Assert.IsNotNull(compartment.module);
+                    Assert.AreEqual("Guardian Shield Reinforcement", compartment.module.invariantName);
                 }
             }
         }
@@ -473,7 +478,6 @@ namespace UnitTests
             var @event = (ModulePurchasedEvent)events[0];
 
             var ship = ShipDefinitions.FromModel(@event.ship);
-            Assert.IsNotNull(@event.shipid);
             ship.LocalId = @event.shipid;
             var slot = @event.slot;
             var module = @event.buymodule;
@@ -550,7 +554,9 @@ namespace UnitTests
             shipMonitor.PreHandle(@event);
 
             // Test the result to verify that the distance is calculated relative to the jump coordinates
-            Assert.AreEqual(21996.3M, shipMonitor.GetShip(9999)?.distance);
+            ship = shipMonitor.GetShip( 9999 );
+            Assert.IsNotNull( ship );
+            Assert.AreEqual(21996.3M, ship.distance);
         }
 
         [TestMethod]

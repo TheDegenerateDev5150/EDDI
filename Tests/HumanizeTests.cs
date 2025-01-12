@@ -1,9 +1,9 @@
 ﻿using EddiSpeechService;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace UnitTests
+namespace Tests
 {
-    [TestClass]
+    [TestClass, TestCategory( "UnitTests" )]
     public class HumanizeTests
     {
         [TestMethod]

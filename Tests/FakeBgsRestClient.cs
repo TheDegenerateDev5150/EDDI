@@ -6,7 +6,7 @@ using System.Linq;
 using System.Net;
 using Utilities;
 
-namespace UnitTests
+namespace Tests
 {
     public class FakeBgsRestClient : IBgsRestClient
     {
@@ -25,14 +25,14 @@ namespace UnitTests
             try
             {
                 resourceString += request.Parameters.Any() ? "?" : string.Empty;
-                for ( int i = 0; i < request.Parameters.Count; i++ )
+                for ( var i = 0; i < request.Parameters.Count; i++ )
                 {
                     var parameter = request.Parameters[ i ];
                     resourceString += i > 0 ? "&" : "";
                     resourceString += $"{parameter.Name}={parameter.Value}";
                 }
 
-                string content = CannedContent[resourceString];
+                var content = CannedContent[resourceString];
                 IRestResponse<T> restResponse = new RestResponse<T>
                 {
                     Content = content,

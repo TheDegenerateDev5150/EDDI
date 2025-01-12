@@ -11,7 +11,7 @@ using System.Linq;
 using Tests.Properties;
 using Utilities;
 
-namespace UnitTests
+namespace Tests
 {
     public class MockVAProxy
     {
@@ -114,7 +114,7 @@ namespace UnitTests
         }
     }
 
-    [TestClass]
+    [TestClass, TestCategory("UnitTests")]
     public class VoiceAttackPluginTests : TestBase
     {
         [TestInitialize]
@@ -154,8 +154,7 @@ namespace UnitTests
             dynamic vaProxy = new MockVAProxy();
             var mockVAProxy = (MockVAProxy)vaProxy;
             VoiceAttackVariables.setDictionaryValues( dict, "state", ref vaProxy );
-            Assert.AreEqual( dict.FirstOrDefault(kv => kv.Key == varName).Value?
-                .ToString(), mockVAProxy.GetText( "EDDI state " + varName ) );
+            Assert.AreEqual( dict.FirstOrDefault( kv => kv.Key == varName ).Value?.ToString(), mockVAProxy.GetText( "EDDI state " + varName ) );
             Assert.AreEqual( decimalResult is null 
                 ? null 
                 : (decimal?)decimal.Parse(decimalResult), mockVAProxy.GetDecimal( "EDDI state " + varName ) );
@@ -175,9 +174,9 @@ namespace UnitTests
         {
             dynamic vaProxy = new MockVAProxy();
             var mockVAProxy = (MockVAProxy)vaProxy;
-            string line = @"{ ""timestamp"":""2016-09-23T18:57:55Z"", ""event"":""SellExplorationData"", ""Systems"":[ ""Gamma Tucanae"", ""Rho Capricorni"", ""Dain"", ""Col 285 Sector BR-S b18-0"", ""LP 571-80"", ""Kawilocidi"", ""Irulachan"", ""Alrai Sector MC-M a7-0"", ""Col 285 Sector FX-Q b19-5"", ""Col 285 Sector EX-Q b19-7"", ""Alrai Sector FB-O a6-3"" ], ""Discovered"":[ ""Irulachan"" ], ""BaseValue"":63573, ""Bonus"":1445, ""TotalEarnings"":65018 }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            Assert.IsTrue(events.Count == 1);
+            var line = @"{ ""timestamp"":""2016-09-23T18:57:55Z"", ""event"":""SellExplorationData"", ""Systems"":[ ""Gamma Tucanae"", ""Rho Capricorni"", ""Dain"", ""Col 285 Sector BR-S b18-0"", ""LP 571-80"", ""Kawilocidi"", ""Irulachan"", ""Alrai Sector MC-M a7-0"", ""Col 285 Sector FX-Q b19-5"", ""Col 285 Sector EX-Q b19-7"", ""Alrai Sector FB-O a6-3"" ], ""Discovered"":[ ""Irulachan"" ], ""BaseValue"":63573, ""Bonus"":1445, ""TotalEarnings"":65018 }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            Assert.AreEqual(1, events.Count);
             Assert.IsInstanceOfType(events[0], typeof(ExplorationDataSoldEvent));
             var ev = events[0] as ExplorationDataSoldEvent;
             Assert.IsNotNull(ev);
@@ -213,11 +212,11 @@ namespace UnitTests
         {
             dynamic vaProxy = new MockVAProxy();
             var mockVAProxy = (MockVAProxy)vaProxy;
-            string line = @"{ ""timestamp"":""2019-10-26T02:15:49Z"", ""event"":""FSSDiscoveryScan"", ""Progress"":0.439435, ""BodyCount"":7, ""NonBodyCount"":3, ""SystemName"":""Outotz WO-A d1"", ""SystemAddress"":44870715523 }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            Assert.IsTrue(events.Count == 1);
+            var line = @"{ ""timestamp"":""2019-10-26T02:15:49Z"", ""event"":""FSSDiscoveryScan"", ""Progress"":0.439435, ""BodyCount"":7, ""NonBodyCount"":3, ""SystemName"":""Outotz WO-A d1"", ""SystemAddress"":44870715523 }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            Assert.AreEqual(1, events.Count);
             Assert.IsInstanceOfType(events[0], typeof(DiscoveryScanEvent));
-            DiscoveryScanEvent ev = events[0] as DiscoveryScanEvent;
+            var ev = events[0] as DiscoveryScanEvent;
             Assert.IsNotNull(ev);
 
             Assert.AreEqual(7, ev.totalbodies);
@@ -232,7 +231,7 @@ namespace UnitTests
             Assert.AreEqual(7, mockVAProxy.GetInt( "EDDI discovery scan totalbodies"));
             Assert.AreEqual(3, mockVAProxy.GetInt("EDDI discovery scan nonbodies"));
             Assert.IsNull(mockVAProxy.GetInt("EDDI discovery scan progress"));
-            foreach (VoiceAttackVariable variable in vaVars)
+            foreach (var variable in vaVars)
             {
                 Assert.IsTrue(mockVAProxy.ContainsKey(variable.key), "Unmatched key");
             }
@@ -243,11 +242,11 @@ namespace UnitTests
         {
             dynamic vaProxy = new MockVAProxy();
             var mockVAProxy = (MockVAProxy)vaProxy;
-            string line = "{ \"timestamp\":\"2020-04-10T02:32:21Z\", \"event\":\"ProspectedAsteroid\", \"Materials\":[ { \"Name\":\"LowTemperatureDiamond\", \"Name_Localised\":\"Low Temperature Diamonds\", \"Proportion\":26.078022 }, { \"Name\":\"HydrogenPeroxide\", \"Name_Localised\":\"Hydrogen Peroxide\", \"Proportion\":10.189009 } ], \"MotherlodeMaterial\":\"Alexandrite\", \"Content\":\"$AsteroidMaterialContent_Low;\", \"Content_Localised\":\"Material Content: Low\", \"Remaining\":90.000000 }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            Assert.IsTrue(events.Count == 1);
+            var line = "{ \"timestamp\":\"2020-04-10T02:32:21Z\", \"event\":\"ProspectedAsteroid\", \"Materials\":[ { \"Name\":\"LowTemperatureDiamond\", \"Name_Localised\":\"Low Temperature Diamonds\", \"Proportion\":26.078022 }, { \"Name\":\"HydrogenPeroxide\", \"Name_Localised\":\"Hydrogen Peroxide\", \"Proportion\":10.189009 } ], \"MotherlodeMaterial\":\"Alexandrite\", \"Content\":\"$AsteroidMaterialContent_Low;\", \"Content_Localised\":\"Material Content: Low\", \"Remaining\":90.000000 }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            Assert.AreEqual(1, events.Count);
             Assert.IsInstanceOfType(events[0], typeof(AsteroidProspectedEvent));
-            AsteroidProspectedEvent ev = events[0] as AsteroidProspectedEvent;
+            var ev = events[0] as AsteroidProspectedEvent;
             Assert.IsNotNull(ev);
 
             var vars = new MetaVariables(ev.GetType(), ev).Results;
@@ -263,7 +262,7 @@ namespace UnitTests
             Assert.AreEqual(10.189009M, mockVAProxy.GetDecimal("EDDI asteroid prospected commodities 2 percentage"));
             Assert.AreEqual(2, mockVAProxy.GetInt("EDDI asteroid prospected commodities"));
             Assert.AreEqual("Low", mockVAProxy.GetText("EDDI asteroid prospected materialcontent"));
-            foreach (VoiceAttackVariable variable in vaVars)
+            foreach (var variable in vaVars)
             {
                 Assert.IsTrue(mockVAProxy.ContainsKey(variable.key), "Unmatched key");
             }
@@ -276,14 +275,14 @@ namespace UnitTests
             var mockVAProxy = (MockVAProxy)vaProxy;
             // Test a generated variable name from overlapping strings.
             // The prefix "EDDI ship fsd" should be merged with the formatted child key "fsd status" to yield "EDDI ship fsd status".
-            ShipFsdEvent ev = new ShipFsdEvent (DateTime.UtcNow, "ready");
+            var ev = new ShipFsdEvent (DateTime.UtcNow, "ready");
             var vars = new MetaVariables(ev.GetType(), ev).Results;
             
             var vaVars = vars.AsVoiceAttackVariables("EDDI", ev.type);
             foreach (var @var in vaVars) { @var.Set(vaProxy); }
             Assert.AreEqual(2, vaVars.Count);
             Assert.AreEqual("ready", mockVAProxy.GetText("EDDI ship fsd status"));
-            foreach (VoiceAttackVariable variable in vaVars)
+            foreach (var variable in vaVars)
             {
                 Assert.IsTrue(mockVAProxy.ContainsKey(variable.key), "Unmatched key");
             }
@@ -296,17 +295,17 @@ namespace UnitTests
             var mockVAProxy = (MockVAProxy)vaProxy;
             // Test a generated variable name from overlapping strings.
             // The prefix "EDDI ship fsd" should be merged with the formatted child key "fsd status" to yield "EDDI ship fsd status".
-            CommodityEjectedEvent ev = new CommodityEjectedEvent(DateTime.UtcNow, CommodityDefinition.FromEDName("Water"), 5, null, true);
+            var ev = new CommodityEjectedEvent(DateTime.UtcNow, CommodityDefinition.FromEDName("Water"), 5, null, true);
 
             var vars = new MetaVariables(ev.GetType(), ev).Results;
 
             var cottleVars = vars.AsCottleVariables();
             Assert.IsNotNull(cottleVars);
             Assert.AreEqual(4, cottleVars.Count);
-            Assert.AreEqual("Water", cottleVars.FirstOrDefault(k => k.key == "commodity")?.value);
-            Assert.AreEqual(5, cottleVars.FirstOrDefault(k => k.key == "amount")?.value);
+            Assert.AreEqual("Water", cottleVars.FirstOrDefault(k => k.key == "commodity")?.value ?? string.Empty);
+            Assert.AreEqual(5, cottleVars.FirstOrDefault(k => k.key == "amount")?.value ?? string.Empty);
             Assert.IsNull(cottleVars.FirstOrDefault(k => k.key == "missionid")?.value);
-            Assert.AreEqual(true, cottleVars.FirstOrDefault(k => k.key == "abandoned")?.value);
+            Assert.IsTrue((bool)(cottleVars.FirstOrDefault(k => k.key == "abandoned")?.value ?? false));
 
             var vaVars = vars.AsVoiceAttackVariables("EDDI", ev.type);
             foreach (var @var in vaVars) { @var.Set(vaProxy); }
@@ -314,8 +313,8 @@ namespace UnitTests
             Assert.AreEqual("Water", mockVAProxy.GetText("EDDI commodity ejected commodity"));
             Assert.AreEqual(5, mockVAProxy.GetInt("EDDI commodity ejected amount"));
             Assert.IsNull(mockVAProxy.GetDecimal("EDDI commodity ejected missionid"));
-            Assert.AreEqual(true, mockVAProxy.GetBoolean("EDDI commodity ejected abandoned"));
-            foreach (VoiceAttackVariable variable in vaVars)
+            Assert.IsTrue(mockVAProxy.GetBoolean("EDDI commodity ejected abandoned"));
+            foreach (var variable in vaVars)
             {
                 Assert.IsTrue(mockVAProxy.ContainsKey(variable.key), "Unmatched key");
             }
@@ -355,14 +354,14 @@ namespace UnitTests
             Assert.AreEqual( 16, mockVAProxy.GetInt( "Ship cargo capacity" ) );
             Assert.AreEqual( 8, mockVAProxy.GetInt("Ship compartments") );
             Assert.AreEqual( 6, mockVAProxy.GetInt("Ship compartment 0 size") );
-            Assert.AreEqual( true, mockVAProxy.GetBoolean( "Ship compartment 0 occupied" ) );
+            Assert.IsTrue(mockVAProxy.GetBoolean("Ship compartment 0 occupied"));
             Assert.AreEqual( 6, mockVAProxy.GetInt("Ship compartment 0 module class") );
             Assert.AreEqual( "C", mockVAProxy.GetText("Ship compartment 0 module grade") );
             Assert.AreEqual( 100M, mockVAProxy.GetDecimal("Ship compartment 0 module health") );
             Assert.AreEqual( 2234799, mockVAProxy.GetDecimal("Ship compartment 0 module cost") );
             Assert.AreEqual( 2696600, mockVAProxy.GetDecimal("Ship compartment 0 module value") );
             Assert.AreEqual( 9, mockVAProxy.GetInt("Ship hardpoints") );
-            Assert.AreEqual( true, mockVAProxy.GetBoolean( "Ship large hardpoint 0 occupied" ) );
+            Assert.IsTrue(mockVAProxy.GetBoolean("Ship large hardpoint 0 occupied"));
             Assert.AreEqual( 2, mockVAProxy.GetInt("Ship large hardpoint 0 module class") );
             Assert.AreEqual( "B", mockVAProxy.GetText("Ship large hardpoint 0 module grade") );
             Assert.AreEqual( 100M, mockVAProxy.GetDecimal("Ship large hardpoint 0 module health") );
@@ -379,20 +378,20 @@ namespace UnitTests
             Assert.AreEqual( 100M, mockVAProxy.GetDecimal("Ship health") );
             Assert.AreEqual( 0, mockVAProxy.GetInt("Ship cargo capacity") );
             Assert.AreEqual( 0, mockVAProxy.GetInt("Ship compartments") );
-            Assert.AreEqual( null, mockVAProxy.GetInt("Ship compartment 0 size") );
-            Assert.AreEqual( false, mockVAProxy.GetBoolean("Ship compartment 0 occupied") );
-            Assert.AreEqual( null, mockVAProxy.GetInt("Ship compartment 0 module class") );
-            Assert.AreEqual( null, mockVAProxy.GetText("Ship compartment 0 module grade") );
-            Assert.AreEqual( null, mockVAProxy.GetDecimal("Ship compartment 0 module health") );
-            Assert.AreEqual( null, mockVAProxy.GetDecimal("Ship compartment 0 module cost") );
-            Assert.AreEqual( null, mockVAProxy.GetDecimal("Ship compartment 0 module value") );
+            Assert.IsNull( mockVAProxy.GetInt("Ship compartment 0 size") );
+            Assert.IsFalse( mockVAProxy.GetBoolean("Ship compartment 0 occupied") );
+            Assert.IsNull(mockVAProxy.GetInt("Ship compartment 0 module class") );
+            Assert.IsNull( mockVAProxy.GetText("Ship compartment 0 module grade") );
+            Assert.IsNull(mockVAProxy.GetDecimal("Ship compartment 0 module health"));
+            Assert.IsNull(mockVAProxy.GetDecimal("Ship compartment 0 module cost"));
+            Assert.IsNull(mockVAProxy.GetDecimal("Ship compartment 0 module value"));
             Assert.AreEqual( 0, mockVAProxy.GetInt("Ship hardpoints") );
-            Assert.AreEqual( false, mockVAProxy.GetBoolean("Ship large hardpoint 0 occupied") );
-            Assert.AreEqual( null, mockVAProxy.GetInt("Ship large hardpoint 0 module class") );
-            Assert.AreEqual( null, mockVAProxy.GetText("Ship large hardpoint 0 module grade") );
-            Assert.AreEqual( null, mockVAProxy.GetDecimal("Ship large hardpoint 0 module health") );
-            Assert.AreEqual( null, mockVAProxy.GetDecimal("Ship large hardpoint 0 module cost") );
-            Assert.AreEqual( null, mockVAProxy.GetDecimal("Ship large hardpoint 0 module value") );
+            Assert.IsFalse(mockVAProxy.GetBoolean("Ship large hardpoint 0 occupied"));
+            Assert.IsNull(mockVAProxy.GetInt("Ship large hardpoint 0 module class"));
+            Assert.IsNull(mockVAProxy.GetText("Ship large hardpoint 0 module grade"));
+            Assert.IsNull(mockVAProxy.GetDecimal("Ship large hardpoint 0 module health"));
+            Assert.IsNull(mockVAProxy.GetDecimal("Ship large hardpoint 0 module cost"));
+            Assert.IsNull(mockVAProxy.GetDecimal("Ship large hardpoint 0 module value"));
         }
     }
 }

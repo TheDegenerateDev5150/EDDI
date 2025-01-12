@@ -1,21 +1,20 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
 using Utilities;
 using static Utilities.Diff;
 
-namespace UnitTests
+namespace Tests
 {
-    [TestClass]
+    [TestClass, TestCategory("UnitTests")]
     // this class is pure and doesn't need TestBase.MakeSafe()
     public class DiffTests
     {
         [TestMethod]
         public void TestDiff1()
         {
-            string a = "Line 1\r\nLine 2\r\nLine 3";
-            string b = "Line 1\r\nLine 3";
+            var a = "Line 1\r\nLine 2\r\nLine 3";
+            var b = "Line 1\r\nLine 3";
 
-            List<DiffItem> diffItems = DiffTexts(a, b);
+            var diffItems = DiffTexts(a, b);
 
             Assert.AreEqual(3, diffItems.Count);
             Assert.AreEqual(DiffItem.DiffType.Unmodified, diffItems[0].type);
@@ -29,10 +28,10 @@ namespace UnitTests
         [TestMethod]
         public void TestDiff2()
         {
-            string a = "The quick brown fox jumped over the lazy dog";
-            string b = "The quick brown fox jumps over the lazy dog";
+            var a = "The quick brown fox jumped over the lazy dog";
+            var b = "The quick brown fox jumps over the lazy dog";
 
-            List<DiffItem> diffItems = DiffTexts(a, b);
+            var diffItems = DiffTexts(a, b);
 
             Assert.AreEqual(2, diffItems.Count);
             Assert.AreEqual(DiffItem.DiffType.Deleted, diffItems[0].type);
@@ -44,9 +43,9 @@ namespace UnitTests
         [TestMethod]
         public void TestDiff3()
         {
-            string a = "Line 1\r\nLine 2\r\nLine 3";
+            var a = "Line 1\r\nLine 2\r\nLine 3";
 
-            List<DiffItem> diffItems = DiffTexts(a, a);
+            var diffItems = DiffTexts(a, a);
 
             Assert.AreEqual(3, diffItems.Count);
             Assert.AreEqual(DiffItem.DiffType.Unmodified, diffItems[0].type);
@@ -60,10 +59,10 @@ namespace UnitTests
         [TestMethod]
         public void TestDiff4()
         {
-            string a = "Line 1\r\nLine 2\r\nLine 3";
-            string b = "Something completely different\r\n\r\n";
+            var a = "Line 1\r\nLine 2\r\nLine 3";
+            var b = "Something completely different\r\n\r\n";
 
-            List<DiffItem> diffItems = DiffTexts(a, b);
+            var diffItems = DiffTexts(a, b);
 
             Assert.AreEqual(6, diffItems.Count);
             Assert.AreEqual(DiffItem.DiffType.Deleted, diffItems[0].type);
@@ -83,10 +82,10 @@ namespace UnitTests
         [TestMethod]
         public void TestDiff5()
         {
-            string a = "";
-            string b = "Line 1\r\nLine 2\r\nLine 3";
+            var a = "";
+            var b = "Line 1\r\nLine 2\r\nLine 3";
 
-            List<DiffItem> diffItems = DiffTexts(a, b);
+            var diffItems = DiffTexts(a, b);
 
             Assert.AreEqual(3, diffItems.Count);
             Assert.AreEqual(DiffItem.DiffType.Inserted, diffItems[0].type);

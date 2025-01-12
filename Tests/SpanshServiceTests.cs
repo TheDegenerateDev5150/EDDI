@@ -6,9 +6,9 @@ using System.Linq;
 using System.Text;
 using Tests.Properties;
 
-namespace UnitTests
+namespace Tests
 {
-    [TestClass]
+    [TestClass, TestCategory("UnitTests")]
     public class SpanshServiceTests : TestBase
     {
         [TestInitialize]
@@ -204,23 +204,31 @@ namespace UnitTests
             Assert.AreEqual( 0.0M, result.x );
             Assert.AreEqual( 0.0M, result.y );
             Assert.AreEqual( 0.0M, result.z );
-            Assert.AreEqual( result.systemname, "Sol" );
-            Assert.AreEqual( "Refinery", result.Economies[0]?.invariantName );
-            Assert.AreEqual( "Service", result.Economies[1]?.invariantName );
-            Assert.AreEqual( "Mother Gaia", result.Faction?.name );
-            Assert.AreEqual( "Federation", result.Faction?.Allegiance.invariantName );
-            Assert.AreEqual( "Democracy", result.Faction?.Government.invariantName );
-            Assert.AreEqual( "Boom", result.Faction?.presences[0].FactionState.invariantName );
-            Assert.AreEqual( 0.341633M, result.Faction?.presences[ 0 ].influence );
+            Assert.AreEqual( "Sol", result.systemname );
+            var primaryeconomy = result.Economies[ 0 ];
+            Assert.IsNotNull( primaryeconomy );
+            var secondaryeconomy = result.Economies[ 1 ];
+            Assert.IsNotNull( secondaryeconomy );
+            Assert.AreEqual( "Refinery", primaryeconomy.invariantName );
+            Assert.AreEqual( "Service", secondaryeconomy.invariantName );
+            Assert.IsNotNull( result.Faction );
+            Assert.AreEqual( "Mother Gaia", result.Faction.name );
+            Assert.AreEqual( "Federation", result.Faction.Allegiance.invariantName );
+            Assert.AreEqual( "Democracy", result.Faction.Government.invariantName );
+            Assert.AreEqual( "Boom", result.Faction.presences[ 0 ].FactionState.invariantName );
+            Assert.AreEqual( 0.341633M, result.Faction.presences[ 0 ].influence );
             Assert.AreEqual( 6, result.factions.Count );
-            Assert.AreEqual( "Jerome Archer", result.Power?.invariantName );
-            Assert.AreEqual( "Stronghold", result.powerState?.invariantName );
-            Assert.AreEqual( true, new[]
+            Assert.IsNotNull( result.Power );
+            Assert.AreEqual( "Jerome Archer", result.Power.invariantName );
+            Assert.IsNotNull( result.powerState );
+            Assert.AreEqual( "Stronghold", result.powerState.invariantName );
+            Assert.IsTrue( new[]
                 {
                     "Edmund Mahon", 
                     "Yuri Grom"
                 }.All( n => result.ContestingPowers.Select( p => p.invariantName ).Contains( n ) ) );
-            Assert.AreEqual( "High", result.securityLevel?.invariantName );
+            Assert.IsNotNull( result.securityLevel );
+            Assert.AreEqual( "High", result.securityLevel.invariantName );
             Assert.AreEqual( 22780919531L, result.population );
             Assert.AreEqual( 1731650107L, result.updatedat );
             Assert.AreEqual( 40, result.totalbodies );
@@ -257,7 +265,7 @@ namespace UnitTests
             Assert.AreEqual( 220.236331M, mercuryBody.distance );
             Assert.AreEqual( 0.055M, mercuryBody.earthmass );
             Assert.AreEqual( 0.375546038543897M, mercuryBody.gravity );
-            Assert.AreEqual( true, mercuryBody.landable );
+            Assert.IsTrue( mercuryBody.landable );
             Assert.AreEqual( 11, mercuryBody.materials.Count );
             Assert.AreEqual( "Iron", mercuryBody.materials[0].definition.invariantName );
             Assert.AreEqual( 23.508457M, mercuryBody.materials[ 0 ].percentage );
@@ -274,7 +282,7 @@ namespace UnitTests
             Assert.AreEqual( 0, Convert.ToInt32( mercuryBody.parents[ 0 ][ "Star" ] ) );
             Assert.AreEqual( 2439.7M, mercuryBody.radius );
             Assert.AreEqual( 58.6460011179282M, mercuryBody.rotationalperiod );
-            Assert.AreEqual( false, mercuryBody.tidallylocked );
+            Assert.IsFalse( mercuryBody.tidallylocked );
             Assert.AreEqual( 193.16393581521619631491696832M, mercuryBody.semimajoraxis );
             Assert.AreEqual( 3, mercuryBody.solidcompositions.Count );
             Assert.AreEqual( "Metal", mercuryBody.solidcompositions[ 0 ].invariantComposition );
@@ -289,7 +297,7 @@ namespace UnitTests
             Assert.AreEqual( "Not terraformable", mercuryBody.terraformState.invariantName );
             Assert.AreEqual( "Planet", mercuryBody.bodyType.invariantName );
             Assert.AreEqual( 1731639333, mercuryBody.updatedat );
-            Assert.AreEqual( null, mercuryBody.volcanism );
+            Assert.IsNull( mercuryBody.volcanism );
 
             // Test a non-landable volcanic moon
             var ioBody = result.bodies.FirstOrDefault( b => b.bodyId == 9 );
@@ -308,7 +316,7 @@ namespace UnitTests
             Assert.AreEqual( 2711.8941M, ioBody.distance );
             Assert.AreEqual( 0.015M, ioBody.earthmass );
             Assert.AreEqual( 0.183781380646477M, ioBody.gravity );
-            Assert.AreEqual( false, ioBody.landable );
+            Assert.IsFalse( ioBody.landable );
             //Assert.AreEqual( 262.699694M, ioBody.meananomaly );
             Assert.AreEqual( "Io", ioBody.bodyname );
             Assert.AreEqual( 0.0041M, ioBody.eccentricity );
@@ -319,7 +327,7 @@ namespace UnitTests
             Assert.AreEqual( 0, Convert.ToInt32( ioBody.parents[ 1 ][ "Star" ] ) );
             Assert.AreEqual( 1821.3M, ioBody.radius );
             Assert.AreEqual( 1.76913773259259M, ioBody.rotationalperiod );
-            Assert.AreEqual( true, ioBody.tidallylocked );
+            Assert.IsTrue( ioBody.tidallylocked );
             Assert.AreEqual( 1.4066395732938339718636117257M, ioBody.semimajoraxis );
             Assert.AreEqual( 3, ioBody.solidcompositions.Count );
             Assert.AreEqual( "Rock", ioBody.solidcompositions[ 0 ].invariantComposition );
@@ -353,7 +361,7 @@ namespace UnitTests
             Assert.AreEqual( 4826.257317M, saturnBody.distance );
             Assert.AreEqual( 95.159035M, saturnBody.earthmass );
             Assert.AreEqual( 1.11101315386969M, saturnBody.gravity );
-            Assert.AreEqual( false, saturnBody.landable );
+            Assert.IsFalse( saturnBody.landable );
             //Assert.AreEqual( 263.47047M, saturnBody.meananomaly );
             Assert.AreEqual( "Saturn", saturnBody.bodyname );
             Assert.AreEqual( 0.055723M, saturnBody.eccentricity );
@@ -370,7 +378,7 @@ namespace UnitTests
             Assert.AreEqual( 140180000.0M, saturnBody.rings[ 0 ].outerradius );
             Assert.AreEqual( "Icy", saturnBody.rings[ 0 ].Composition.invariantName );
             Assert.AreEqual( 0.440416655659722M, saturnBody.rotationalperiod );
-            Assert.AreEqual( false, saturnBody.tidallylocked );
+            Assert.IsFalse( saturnBody.tidallylocked );
             Assert.AreEqual( 4781.4714856073191059861018919M, saturnBody.semimajoraxis );
             Assert.AreEqual( "Class I gas giant", saturnBody.planetClass.invariantName );
             Assert.AreEqual( 0M, saturnBody.pressure );
@@ -386,9 +394,9 @@ namespace UnitTests
             Assert.IsNotNull( rescueStation );
             Assert.AreEqual( "Federation", rescueStation.Faction.Allegiance.invariantName );
             Assert.AreEqual( "Mother Gaia", rescueStation.Faction.name );
-            Assert.AreEqual( FactionState.Boom.invariantName,
-                rescueStation.Faction.presences.FirstOrDefault( f => 
-                    f.systemAddress == 10477373803U )?.FactionState.invariantName );
+            var faction = rescueStation.Faction.presences.FirstOrDefault( f => f.systemAddress == 10477373803U );
+            Assert.IsNotNull( faction );
+            Assert.AreEqual( FactionState.Boom.invariantName, faction.FactionState.invariantName );
             Assert.AreEqual( 496.966721M, rescueStation.distancefromstar );
             Assert.AreEqual( 1, rescueStation.economyShares.Count );
             Assert.AreEqual( "Rescue", rescueStation.economyShares[ 0 ].economy.invariantName );
@@ -403,7 +411,7 @@ namespace UnitTests
             Assert.AreEqual( "Rescue Ship - Li Qing Jao", rescueStation.name );
             Assert.AreEqual( 85, rescueStation.outfitting.Count );
             Assert.AreEqual( "Lightweight Alloy", rescueStation.outfitting[0].invariantName );
-            Assert.AreEqual( true, new[]
+            Assert.IsTrue( new[]
                 {
                     "Dock", 
                     "Auto Dock", 
@@ -431,9 +439,9 @@ namespace UnitTests
             Assert.IsNotNull( orbitalStation );
             Assert.AreEqual( "Federation", orbitalStation.Faction.Allegiance.invariantName );
             Assert.AreEqual( "Mother Gaia", orbitalStation.Faction.name );
-            Assert.AreEqual( FactionState.Boom.invariantName,
-                orbitalStation.Faction.presences.FirstOrDefault( f =>
-                    f.systemAddress == 10477373803U )?.FactionState.invariantName );
+            faction = orbitalStation.Faction.presences.FirstOrDefault( f => f.systemAddress == 10477373803U );
+            Assert.IsNotNull( faction );
+            Assert.AreEqual( FactionState.Boom.invariantName, faction.FactionState.invariantName );
             Assert.AreEqual( 4825.538875M, orbitalStation.distancefromstar );
             Assert.AreEqual( 1, orbitalStation.economyShares.Count );
             Assert.AreEqual( "Refinery", orbitalStation.economyShares[ 0 ].economy.invariantName );
@@ -451,7 +459,7 @@ namespace UnitTests
             Assert.AreEqual( "Titan City", orbitalStation.name );
             Assert.AreEqual( 273, orbitalStation.outfitting.Count );
             Assert.AreEqual( "Reinforced Alloy", orbitalStation.outfitting[ 1 ].invariantName );
-            Assert.AreEqual( true, new[]
+            Assert.IsTrue( new[]
                 {
                     "Dock", 
                     "Auto Dock", 
@@ -495,9 +503,9 @@ namespace UnitTests
             Assert.IsNotNull( surfaceOutpost );
             Assert.AreEqual( "Federation", surfaceOutpost.Faction.Allegiance.invariantName );
             Assert.AreEqual( "Sol Workers' Party", surfaceOutpost.Faction.name );
-            Assert.AreEqual( FactionState.CivilLiberty.invariantName,
-                surfaceOutpost.Faction.presences.FirstOrDefault( f =>
-                    f.systemAddress == 10477373803U )?.FactionState.invariantName );
+            faction = surfaceOutpost.Faction.presences.FirstOrDefault( f => f.systemAddress == 10477373803U );
+            Assert.IsNotNull( faction );
+            Assert.AreEqual( FactionState.CivilLiberty.invariantName, faction.FactionState.invariantName );
             Assert.AreEqual( 220.090497M, surfaceOutpost.distancefromstar );
             Assert.AreEqual( 1, surfaceOutpost.economyShares.Count );
             Assert.AreEqual( "Industrial", surfaceOutpost.economyShares[ 0 ].economy.invariantName );
@@ -509,7 +517,7 @@ namespace UnitTests
             Assert.AreEqual( 92, surfaceOutpost.commodities.Count );
             Assert.AreEqual( "Walz Depot", surfaceOutpost.name );
             Assert.AreEqual( 216, surfaceOutpost.outfitting.Count );
-            Assert.AreEqual( true, new[]
+            Assert.IsTrue( new[]
                 {
                     "Dock",
                     "Auto Dock",

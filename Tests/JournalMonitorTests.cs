@@ -11,9 +11,9 @@ using System.Text;
 using System.Threading;
 using Utilities;
 
-namespace UnitTests
+namespace Tests
 {
-    [TestClass]
+    [TestClass, TestCategory("UnitTests")]
     public class JournalMonitorTests : TestBase
     {
         [TestInitialize]
@@ -25,19 +25,19 @@ namespace UnitTests
         [TestMethod]
         public void TestJournalPlanetScan1()
         {
-            string line = @"{ ""timestamp"":""2016-09-22T21:34:30Z"", ""event"":""Scan"", ""BodyName"":""Nemehim 4"", ""StarSystem"":""Nemehim"", ""SystemAddress"":1733388440282, ""DistanceFromArrivalLS"":1115.837646, ""TidalLock"":false, ""TerraformState"":"""", ""PlanetClass"":""Rocky ice body"", ""Atmosphere"":"""", ""Volcanism"":"""", ""MassEM"":0.013448, ""Radius"":1688803.625000, ""SurfaceGravity"":1.879402, ""SurfaceTemperature"":103.615654, ""SurfacePressure"":0.000000, ""Landable"":true, ""Materials"":{ ""iron"":18.8, ""sulphur"":17.7, ""carbon"":14.9, ""nickel"":14.3, ""phosphorus"":9.6, ""chromium"":8.5, ""manganese"":7.8, ""zinc"":5.1, ""molybdenum"":1.2, ""tungsten"":1.0, ""tellurium"":1.0 }, ""OrbitalPeriod"":122165280.000000, ""RotationPeriod"":112645.117188 }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            Assert.IsTrue(events.Count == 1);
+            var line = @"{ ""timestamp"":""2016-09-22T21:34:30Z"", ""event"":""Scan"", ""BodyName"":""Nemehim 4"", ""StarSystem"":""Nemehim"", ""SystemAddress"":1733388440282, ""DistanceFromArrivalLS"":1115.837646, ""TidalLock"":false, ""TerraformState"":"""", ""PlanetClass"":""Rocky ice body"", ""Atmosphere"":"""", ""Volcanism"":"""", ""MassEM"":0.013448, ""Radius"":1688803.625000, ""SurfaceGravity"":1.879402, ""SurfaceTemperature"":103.615654, ""SurfacePressure"":0.000000, ""Landable"":true, ""Materials"":{ ""iron"":18.8, ""sulphur"":17.7, ""carbon"":14.9, ""nickel"":14.3, ""phosphorus"":9.6, ""chromium"":8.5, ""manganese"":7.8, ""zinc"":5.1, ""molybdenum"":1.2, ""tungsten"":1.0, ""tellurium"":1.0 }, ""OrbitalPeriod"":122165280.000000, ""RotationPeriod"":112645.117188 }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            Assert.AreEqual(1, events.Count);
         }
 
         [TestMethod]
         public void TestJournalPlanetScan2()
         {
-            string line = @"{ ""timestamp"":""2016 - 11 - 01T18: 49:07Z"", ""event"":""Scan"", ""BodyName"":""Grea Bloae HH-T d4-44 4"", ""StarSystem"":""Grea Bloae HH-T d4-44"", ""SystemAddress"":1520309296811, ""DistanceFromArrivalLS"":703.763611, ""TidalLock"":false, ""TerraformState"":""Terraformable"", ""PlanetClass"":""High metal content body"", ""Atmosphere"":""hot thick carbon dioxide atmosphere"", ""Volcanism"":""minor metallic magma volcanism"", ""MassEM"":2.171783, ""Radius"":7622170.500000, ""SurfaceGravity"":14.899396, ""SurfaceTemperature"":836.165466, ""SurfacePressure"":33000114.000000, ""Landable"":false, ""SemiMajorAxis"":210957926400.000000, ""Eccentricity"":0.000248, ""OrbitalInclination"":0.015659, ""Periapsis"":104.416656, ""OrbitalPeriod"":48801056.000000, ""RotationPeriod"":79442.242188 }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            Assert.IsTrue(events.Count == 1);
+            var line = @"{ ""timestamp"":""2016 - 11 - 01T18: 49:07Z"", ""event"":""Scan"", ""BodyName"":""Grea Bloae HH-T d4-44 4"", ""StarSystem"":""Grea Bloae HH-T d4-44"", ""SystemAddress"":1520309296811, ""DistanceFromArrivalLS"":703.763611, ""TidalLock"":false, ""TerraformState"":""Terraformable"", ""PlanetClass"":""High metal content body"", ""Atmosphere"":""hot thick carbon dioxide atmosphere"", ""Volcanism"":""minor metallic magma volcanism"", ""MassEM"":2.171783, ""Radius"":7622170.500000, ""SurfaceGravity"":14.899396, ""SurfaceTemperature"":836.165466, ""SurfacePressure"":33000114.000000, ""Landable"":false, ""SemiMajorAxis"":210957926400.000000, ""Eccentricity"":0.000248, ""OrbitalInclination"":0.015659, ""Periapsis"":104.416656, ""OrbitalPeriod"":48801056.000000, ""RotationPeriod"":79442.242188 }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            Assert.AreEqual(1, events.Count);
             Assert.IsInstanceOfType(events[0], typeof(BodyScannedEvent));
-            BodyScannedEvent ev = events[0] as BodyScannedEvent;
+            var ev = events[0] as BodyScannedEvent;
             Assert.IsNotNull(ev);
             Assert.AreEqual("Grea Bloae HH-T d4-44 4", ev.bodyname);
             Assert.AreEqual((decimal)703.763611, ev.distance);
@@ -67,7 +67,7 @@ namespace UnitTests
         [TestMethod]
         public void TestJournalPlanetScan3()
         {
-            string line = @"{
+            var line = @"{
                 ""Atmosphere"": ""hot thick carbon dioxide atmosphere"",
                 ""AtmosphereComposition"": [
                     {
@@ -118,10 +118,10 @@ namespace UnitTests
                 ""timestamp"": ""2018-09-03T19:07:54Z""
             }";
 
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            Assert.IsTrue(events.Count == 1);
+            var events = JournalMonitor.ParseJournalEntry(line);
+            Assert.AreEqual(1, events.Count);
             Assert.IsInstanceOfType(events[0], typeof(BodyScannedEvent));
-            BodyScannedEvent ev = events[0] as BodyScannedEvent;
+            var ev = events[0] as BodyScannedEvent;
             Assert.IsNotNull(ev);
             Assert.AreEqual("Carbon dioxide", ev.atmosphereclass.invariantName);
             Assert.AreEqual(96.5M, ev.atmospherecompositions[0].percent);
@@ -133,11 +133,11 @@ namespace UnitTests
         public void TestJournalPlanetScan4()
         {
             // Test new scan data from game version 3.4.
-            string line = @"{ ""timestamp"":""2019-04-12T04:42:10Z"", ""event"":""Scan"", ""ScanType"":""AutoScan"", ""BodyName"":""HR 1185 A 1"", ""BodyID"":4, ""StarSystem"":""HR 1185"", ""SystemAddress"":1774711381, ""Parents"":[ {""Null"":3}, {""Star"":1}, {""Null"":0} ], ""DistanceFromArrivalLS"":45.276505, ""TidalLock"":true, ""TerraformState"":"""", ""PlanetClass"":""High metal content body"", ""Atmosphere"":""hot thick silicate vapour atmosphere"", ""AtmosphereType"":""SilicateVapour"", ""AtmosphereComposition"":[ { ""Name"":""Silicates"", ""Percent"":99.989662 } ], ""Volcanism"":""major silicate vapour geysers volcanism"", ""MassEM"":2.428317, ""Radius"":8014977.000000, ""SurfaceGravity"":15.066424, ""SurfaceTemperature"":4894.569336, ""SurfacePressure"":6359968768.000000, ""Landable"":false, ""Composition"":{ ""Ice"":0.000073, ""Rock"":0.671092, ""Metal"":0.322412 }, ""SemiMajorAxis"":15315170.000000, ""Eccentricity"":0.021248, ""OrbitalInclination"":-4.599963, ""Periapsis"":144.548447, ""OrbitalPeriod"":27184.082031, ""RotationPeriod"":39590.453125, ""AxialTilt"":0.120614, ""WasDiscovered"":true, ""WasMapped"":true }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            Assert.IsTrue(events.Count == 1);
+            var line = @"{ ""timestamp"":""2019-04-12T04:42:10Z"", ""event"":""Scan"", ""ScanType"":""AutoScan"", ""BodyName"":""HR 1185 A 1"", ""BodyID"":4, ""StarSystem"":""HR 1185"", ""SystemAddress"":1774711381, ""Parents"":[ {""Null"":3}, {""Star"":1}, {""Null"":0} ], ""DistanceFromArrivalLS"":45.276505, ""TidalLock"":true, ""TerraformState"":"""", ""PlanetClass"":""High metal content body"", ""Atmosphere"":""hot thick silicate vapour atmosphere"", ""AtmosphereType"":""SilicateVapour"", ""AtmosphereComposition"":[ { ""Name"":""Silicates"", ""Percent"":99.989662 } ], ""Volcanism"":""major silicate vapour geysers volcanism"", ""MassEM"":2.428317, ""Radius"":8014977.000000, ""SurfaceGravity"":15.066424, ""SurfaceTemperature"":4894.569336, ""SurfacePressure"":6359968768.000000, ""Landable"":false, ""Composition"":{ ""Ice"":0.000073, ""Rock"":0.671092, ""Metal"":0.322412 }, ""SemiMajorAxis"":15315170.000000, ""Eccentricity"":0.021248, ""OrbitalInclination"":-4.599963, ""Periapsis"":144.548447, ""OrbitalPeriod"":27184.082031, ""RotationPeriod"":39590.453125, ""AxialTilt"":0.120614, ""WasDiscovered"":true, ""WasMapped"":true }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            Assert.AreEqual(1, events.Count);
             Assert.IsInstanceOfType(events[0], typeof(BodyScannedEvent));
-            BodyScannedEvent ev = events[0] as BodyScannedEvent;
+            var ev = events[0] as BodyScannedEvent;
             Assert.IsNotNull(ev);
             Assert.AreEqual("Planet", ev.body.bodyType.invariantName);
             Assert.IsTrue(ev.alreadydiscovered ?? false);
@@ -148,7 +148,7 @@ namespace UnitTests
         public void TestJournalPlanetScan5()
         {
             // Test Nav Beacon scan data from game version 4.0.
-            string line = @"{
+            var line = @"{
                 ""timestamp"": ""2023-01-29T13:05:14Z"",
                 ""event"": ""Scan"",
                 ""ScanType"": ""NavBeaconDetail"",
@@ -229,10 +229,10 @@ namespace UnitTests
                 ""WasDiscovered"": false,
                 ""WasMapped"": true
             }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            Assert.IsTrue(events.Count == 1);
+            var events = JournalMonitor.ParseJournalEntry(line);
+            Assert.AreEqual(1, events.Count);
             Assert.IsInstanceOfType(events[0], typeof(BodyScannedEvent));
-            BodyScannedEvent ev = events[0] as BodyScannedEvent;
+            var ev = events[0] as BodyScannedEvent;
             Assert.IsNotNull(ev);
             Assert.AreEqual("Moon", ev.body.bodyType.invariantName);
             Assert.IsTrue(ev.alreadydiscovered ?? false );
@@ -242,11 +242,11 @@ namespace UnitTests
         [TestMethod]
         public void TestJournalStarScan1()
         {
-            string line = @"{ ""timestamp"":""2016-10-27T08:51:23Z"", ""event"":""Scan"", ""BodyName"":""Vela Dark Region FG-Y d3"", ""StarSystem"":""Vela Dark Region FG-Y d3"", ""SystemAddress"":113757866339, ""DistanceFromArrivalLS"":0.000000, ""StarType"":""K"", ""StellarMass"":0.960938, ""Radius"":692146368.000000, ""AbsoluteMagnitude"":5.375961, ""Age_MY"":230, ""SurfaceTemperature"":5108.000000, ""RotationPeriod"":393121.093750, ""Rings"":[ { ""Name"":""Vela Dark Region FG-Y d3 A Belt"", ""RingClass"":""eRingClass_Metalic"", ""MassMT"":1.2262e+10, ""InnerRad"":1.2288e+09, ""OuterRad"":2.3812e+09 } ] }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            Assert.IsTrue(events.Count == 1);
+            var line = @"{ ""timestamp"":""2016-10-27T08:51:23Z"", ""event"":""Scan"", ""BodyName"":""Vela Dark Region FG-Y d3"", ""StarSystem"":""Vela Dark Region FG-Y d3"", ""SystemAddress"":113757866339, ""DistanceFromArrivalLS"":0.000000, ""StarType"":""K"", ""StellarMass"":0.960938, ""Radius"":692146368.000000, ""AbsoluteMagnitude"":5.375961, ""Age_MY"":230, ""SurfaceTemperature"":5108.000000, ""RotationPeriod"":393121.093750, ""Rings"":[ { ""Name"":""Vela Dark Region FG-Y d3 A Belt"", ""RingClass"":""eRingClass_Metalic"", ""MassMT"":1.2262e+10, ""InnerRad"":1.2288e+09, ""OuterRad"":2.3812e+09 } ] }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            Assert.AreEqual(1, events.Count);
 
-            StarScannedEvent theEvent = (StarScannedEvent)events[0];
+            var theEvent = (StarScannedEvent)events[0];
 
             Assert.AreEqual(230, theEvent.age);
             Assert.IsNull(theEvent.eccentricity);
@@ -274,11 +274,11 @@ namespace UnitTests
         [TestMethod]
         public void TestJournalStarScan2()
         {
-            string line = @"{ ""timestamp"":""2016-10-28T12:07:09Z"", ""event"":""Scan"", ""BodyName"":""Col 285 Sector CG-X d1-44"", ""StarSystem"":""Col 285 Sector CG-X d1-44"", ""SystemAddress"":1522272307539, ""DistanceFromArrivalLS"":0.000000, ""StarType"":""TTS"", ""StellarMass"":0.808594, ""Radius"":659162816.000000, ""AbsoluteMagnitude"":6.411560, ""Age_MY"":154, ""SurfaceTemperature"":4124.000000, ""RotationPeriod"":341417.281250, ""Rings"":[ { ""Name"":""Col 285 Sector CG-X d1-44 A Belt"", ""RingClass"":""eRingClass_Rocky"", ""MassMT"":1.1625e+13, ""InnerRad"":1.0876e+09, ""OuterRad"":2.4192e+09 } ] }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            Assert.IsTrue(events.Count == 1);
+            var line = @"{ ""timestamp"":""2016-10-28T12:07:09Z"", ""event"":""Scan"", ""BodyName"":""Col 285 Sector CG-X d1-44"", ""StarSystem"":""Col 285 Sector CG-X d1-44"", ""SystemAddress"":1522272307539, ""DistanceFromArrivalLS"":0.000000, ""StarType"":""TTS"", ""StellarMass"":0.808594, ""Radius"":659162816.000000, ""AbsoluteMagnitude"":6.411560, ""Age_MY"":154, ""SurfaceTemperature"":4124.000000, ""RotationPeriod"":341417.281250, ""Rings"":[ { ""Name"":""Col 285 Sector CG-X d1-44 A Belt"", ""RingClass"":""eRingClass_Rocky"", ""MassMT"":1.1625e+13, ""InnerRad"":1.0876e+09, ""OuterRad"":2.4192e+09 } ] }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            Assert.AreEqual(1, events.Count);
 
-            StarScannedEvent theEvent = (StarScannedEvent)events[0];
+            var theEvent = (StarScannedEvent)events[0];
             Assert.AreEqual((decimal)659162.816, theEvent.radius);
             Assert.AreEqual(StarClass.solarradius((decimal)659162.816000000), theEvent.solarradius);
             Assert.AreEqual(0.94775, (double?)theEvent.solarradius ?? 0, 0.01);
@@ -289,11 +289,11 @@ namespace UnitTests
         public void TestJournalStarScan3()
         {
             // Gamer version 3.4
-            string line = @"{ ""timestamp"":""2019-04-12T04:49:10Z"", ""event"":""Scan"", ""ScanType"":""Detailed"", ""BodyName"":""Pleiades Sector MN-T c3-14 B"", ""BodyID"":2, ""StarSystem"":""Pleiades Sector MN-T c3-14"", ""SystemAddress"":3932008911514, ""Parents"":[ {""Null"":0} ], ""DistanceFromArrivalLS"":84306.257813, ""StarType"":""M"", ""Subclass"":8, ""StellarMass"":0.246094, ""Radius"":316421920.000000, ""AbsoluteMagnitude"":10.680222, ""Age_MY"":702, ""SurfaceTemperature"":2228.000000, ""Luminosity"":""Va"", ""SemiMajorAxis"":20863141281792.000000, ""Eccentricity"":0.278661, ""OrbitalInclination"":-103.465088, ""Periapsis"":32.983871, ""OrbitalPeriod"":104334450688.000000, ""RotationPeriod"":212050.531250, ""AxialTilt"":0.000000, ""WasDiscovered"":true, ""WasMapped"":false }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            Assert.IsTrue(events.Count == 1);
+            var line = @"{ ""timestamp"":""2019-04-12T04:49:10Z"", ""event"":""Scan"", ""ScanType"":""Detailed"", ""BodyName"":""Pleiades Sector MN-T c3-14 B"", ""BodyID"":2, ""StarSystem"":""Pleiades Sector MN-T c3-14"", ""SystemAddress"":3932008911514, ""Parents"":[ {""Null"":0} ], ""DistanceFromArrivalLS"":84306.257813, ""StarType"":""M"", ""Subclass"":8, ""StellarMass"":0.246094, ""Radius"":316421920.000000, ""AbsoluteMagnitude"":10.680222, ""Age_MY"":702, ""SurfaceTemperature"":2228.000000, ""Luminosity"":""Va"", ""SemiMajorAxis"":20863141281792.000000, ""Eccentricity"":0.278661, ""OrbitalInclination"":-103.465088, ""Periapsis"":32.983871, ""OrbitalPeriod"":104334450688.000000, ""RotationPeriod"":212050.531250, ""AxialTilt"":0.000000, ""WasDiscovered"":true, ""WasMapped"":false }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            Assert.AreEqual(1, events.Count);
 
-            StarScannedEvent theEvent = (StarScannedEvent)events[0];
+            var theEvent = (StarScannedEvent)events[0];
             Assert.AreEqual(8, theEvent.stellarsubclass);
             Assert.IsTrue(theEvent.alreadydiscovered ?? false);
             Assert.AreEqual(3687.497842466M, theEvent.density);
@@ -324,17 +324,17 @@ namespace UnitTests
         [TestMethod]
         public void TestJournalShipyardNew1()
         {
-            string line = @"{ ""timestamp"":""2016-10-27T08:49:08Z"", ""event"":""ShipyardNew"", ""ShipType"":""belugaliner"", ""NewShipID"":56 }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            Assert.IsTrue(events.Count == 1);
+            var line = @"{ ""timestamp"":""2016-10-27T08:49:08Z"", ""event"":""ShipyardNew"", ""ShipType"":""belugaliner"", ""NewShipID"":56 }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            Assert.AreEqual(1, events.Count);
         }
 
         [TestMethod]
         public void TestJournalInterdiction1()
         {
-            string line = @"{ ""timestamp"":""2016-09-21T07:00:17Z"",""event"":""Interdiction"",""Success"":true,""Interdicted"":""Torval's Shield"",""IsPlayer"":false,""Faction"":""Zemina Torval"",""Power"":""Empire""}";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            Assert.IsTrue(events.Count == 1);
+            var line = @"{ ""timestamp"":""2016-09-21T07:00:17Z"",""event"":""Interdiction"",""Success"":true,""Interdicted"":""Torval's Shield"",""IsPlayer"":false,""Faction"":""Zemina Torval"",""Power"":""Empire""}";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            Assert.AreEqual(1, events.Count);
             if ( events[0] is ShipInterdictionEvent @event )
             {
                 Assert.AreEqual( "Zemina Torval", @event.faction );
@@ -353,9 +353,9 @@ namespace UnitTests
         [TestMethod]
         public void TestJournalInterdiction2 ()
         {
-            string line = @"{ ""timestamp"":""2023-11-29T22:21:30Z"",""event"":""Interdiction"",""Success"":true,""IsPlayer"":true,""Interdicted"":""*redacted*"",""CombatRank"":5}";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            Assert.IsTrue( events.Count == 1 );
+            var line = @"{ ""timestamp"":""2023-11-29T22:21:30Z"",""event"":""Interdiction"",""Success"":true,""IsPlayer"":true,""Interdicted"":""*redacted*"",""CombatRank"":5}";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            Assert.AreEqual(1, events.Count);
             if ( events[ 0 ] is ShipInterdictionEvent @event )
             {
                 Assert.IsNull( @event.faction );
@@ -374,11 +374,11 @@ namespace UnitTests
         [TestMethod]
         public void TestJournalFileheader1()
         {
-            string line = @"{""timestamp"":""2016-06-10T14:31:00Z"", ""event"":""Fileheader"", ""part"":1, ""gameversion"":""2.2"", ""build"":""r131487/r0 "" }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            Assert.IsTrue(events.Count == 1);
+            var line = @"{""timestamp"":""2016-06-10T14:31:00Z"", ""event"":""Fileheader"", ""part"":1, ""gameversion"":""2.2"", ""build"":""r131487/r0 "" }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            Assert.AreEqual(1, events.Count);
 
-            FileHeaderEvent theEvent = (FileHeaderEvent)events[0];
+            var theEvent = (FileHeaderEvent)events[0];
 
             Assert.AreEqual("r131487/r0", theEvent.build);
         }
@@ -386,11 +386,11 @@ namespace UnitTests
         [TestMethod]
         public void TestJournalDocked1()
         {
-            string line = @"{ ""timestamp"":""2017-04-14T19:34:32Z"", ""event"":""Docked"", ""StationName"":""Freeholm"", ""StationType"":""AsteroidBase"", ""StarSystem"":""Artemis"", ""StationFaction"":{ ""Name"":""Artemis Empire Assembly"", ""FactionState"":""Boom"" }, ""StationGovernment"":""$government_Patronage;"", ""StationGovernment_Localised"":""Patronage"", ""StationAllegiance"":""Empire"", ""StationEconomy"":""$economy_Industrial;"", ""StationEconomy_Localised"":""Industrial"", ""StationEconomies"": [ { ""Name"": ""$economy_Industrial;"", ""Proportion"": 0.7 }, { ""Name"": ""$economy_Extraction;"", ""Proportion"": 0.3 } ], ""DistFromStarLS"":2527.211914, ""StationServices"":[""Refuel""], ""MarketID"": 128169720, ""SystemAddress"": 3107509474002, ""LandingPads"": {""Large"": 7, ""Medium"": 8, ""Small"": 4 } }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            Assert.IsTrue(events.Count == 1);
+            var line = @"{ ""timestamp"":""2017-04-14T19:34:32Z"", ""event"":""Docked"", ""StationName"":""Freeholm"", ""StationType"":""AsteroidBase"", ""StarSystem"":""Artemis"", ""StationFaction"":{ ""Name"":""Artemis Empire Assembly"", ""FactionState"":""Boom"" }, ""StationGovernment"":""$government_Patronage;"", ""StationGovernment_Localised"":""Patronage"", ""StationAllegiance"":""Empire"", ""StationEconomy"":""$economy_Industrial;"", ""StationEconomy_Localised"":""Industrial"", ""StationEconomies"": [ { ""Name"": ""$economy_Industrial;"", ""Proportion"": 0.7 }, { ""Name"": ""$economy_Extraction;"", ""Proportion"": 0.3 } ], ""DistFromStarLS"":2527.211914, ""StationServices"":[""Refuel""], ""MarketID"": 128169720, ""SystemAddress"": 3107509474002, ""LandingPads"": {""Large"": 7, ""Medium"": 8, ""Small"": 4 } }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            Assert.AreEqual(1, events.Count);
 
-            DockedEvent theEvent = (DockedEvent)events[0];
+            var theEvent = (DockedEvent)events[0];
 
             Assert.AreEqual("AsteroidBase", theEvent.stationModel.edname);
 
@@ -412,16 +412,18 @@ namespace UnitTests
         [TestMethod]
         public void TestJournalDocked2()
         {
-            string line = @"{ ""timestamp"":""2018-04-01T05:21:24Z"", ""event"":""Docked"", ""StationName"":""Donaldson"", ""StationState"":""UnderRepairs"", ""StationType"":""Orbis"", ""StarSystem"":""Alioth"", ""SystemAddress"":1109989017963, ""MarketID"":128141048, ""StationFaction"":{ ""Name"":""Alioth Pro-Alliance Grou"", ""FactionState"":""Boom"" }, ""StationGovernment"":""$government_Democracy;"", ""StationGovernment_Localised"":""Democracy"", ""StationAllegiance"":""Alliance"", ""StationServices"":[ ""Dock"", ""Autodock"", ""BlackMarket"", ""Commodities"", ""Contacts"", ""Exploration"", ""Missions"", ""Outfitting"", ""CrewLounge"", ""Rearm"", ""Refuel"", ""Repair"", ""Shipyard"", ""Tuning"", ""Workshop"", ""MissionsGenerated"", ""FlightController"", ""StationOperations"", ""Powerplay"", ""SearchAndRescue"" ], ""StationEconomy"":""$economy_Service;"", ""StationEconomy_Localised"":""Service"", ""StationEconomies"":[ { ""Name"":""$economy_Service;"", ""Name_Localised"":""Service"", ""Proportion"":1.000000 } ], ""DistFromStarLS"":4632.417480, ""LandingPads"": {""Large"": 6, ""Medium"": 11, ""Small"": 10 }  }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            Assert.IsTrue(events.Count == 1);
+            var line = @"{ ""timestamp"":""2018-04-01T05:21:24Z"", ""event"":""Docked"", ""StationName"":""Donaldson"", ""StationState"":""UnderRepairs"", ""StationType"":""Orbis"", ""StarSystem"":""Alioth"", ""SystemAddress"":1109989017963, ""MarketID"":128141048, ""StationFaction"":{ ""Name"":""Alioth Pro-Alliance Grou"", ""FactionState"":""Boom"" }, ""StationGovernment"":""$government_Democracy;"", ""StationGovernment_Localised"":""Democracy"", ""StationAllegiance"":""Alliance"", ""StationServices"":[ ""Dock"", ""Autodock"", ""BlackMarket"", ""Commodities"", ""Contacts"", ""Exploration"", ""Missions"", ""Outfitting"", ""CrewLounge"", ""Rearm"", ""Refuel"", ""Repair"", ""Shipyard"", ""Tuning"", ""Workshop"", ""MissionsGenerated"", ""FlightController"", ""StationOperations"", ""Powerplay"", ""SearchAndRescue"" ], ""StationEconomy"":""$economy_Service;"", ""StationEconomy_Localised"":""Service"", ""StationEconomies"":[ { ""Name"":""$economy_Service;"", ""Name_Localised"":""Service"", ""Proportion"":1.000000 } ], ""DistFromStarLS"":4632.417480, ""LandingPads"": {""Large"": 6, ""Medium"": 11, ""Small"": 10 }  }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            Assert.AreEqual(1, events.Count);
 
-            DockedEvent theEvent = (DockedEvent)events[0];
+            var theEvent = (DockedEvent)events[0];
 
             Assert.AreEqual("Orbis", theEvent.stationModel.edname);
             Assert.AreEqual("Donaldson", theEvent.station);
             Assert.AreEqual("Alioth", theEvent.system);
-            Assert.AreEqual("Boom", theEvent.controllingfaction.presences.FirstOrDefault(p => p.systemName == theEvent.system)?.FactionState?.invariantName);
+            var factionState = theEvent.controllingfaction.presences.FirstOrDefault( p => p.systemName == theEvent.system )?.FactionState;
+            Assert.IsNotNull( factionState );
+            Assert.AreEqual("Boom", factionState.invariantName);
             Assert.AreEqual("Democracy", theEvent.controllingfaction.Government.invariantName);
             Assert.AreEqual("Alliance", theEvent.controllingfaction.Allegiance.invariantName);
             Assert.AreEqual(20, theEvent.stationservices.Count);
@@ -437,16 +439,18 @@ namespace UnitTests
         [TestMethod]
         public void TestJournalDockedDuplicateEconomies()
         {
-            string line = @"{ ""timestamp"":""2018-04-01T05:21:24Z"", ""event"":""Docked"", ""StationName"":""Katzenstein Dock"", ""StationType"":""Coriolis"", ""StarSystem"":""36 Ophiuchi"", ""SystemAddress"":1865903245675, ""MarketID"":3228939264, ""StationFaction"":{ ""Name"":""36 Ophiuchi Future"", ""FactionState"":""Boom"" }, ""StationGovernment"":""$government_Democracy;"", ""StationGovernment_Localised"":""Democracy"", ""StationAllegiance"":""Federation"", ""StationServices"":[ ""Dock"", ""Autodock"", ""BlackMarket"", ""Commodities"", ""Contacts"", ""Exploration"", ""Missions"", ""Outfitting"", ""CrewLounge"", ""Rearm"", ""Refuel"", ""Repair"", ""Shipyard"", ""Tuning"", ""Workshop"", ""MissionsGenerated"", ""FlightController"", ""StationOperations"", ""Powerplay"", ""SearchAndRescue"", ""StationMenu"" ], ""StationEconomy"":""$economy_Refinery;"", ""StationEconomy_Localised"":""Refinery"", ""StationEconomies"":[ { ""Name"":""$economy_Refinery;"", ""Name_Localised"":""Refinery"", ""Proportion"":0.84 }, { ""Name"":""$economy_Refinery;"", ""Name_Localised"":""Refinery"", ""Proportion"":0.16 } ], ""DistFromStarLS"":4217877.0 }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            Assert.IsTrue(events.Count == 1);
+            var line = @"{ ""timestamp"":""2018-04-01T05:21:24Z"", ""event"":""Docked"", ""StationName"":""Katzenstein Dock"", ""StationType"":""Coriolis"", ""StarSystem"":""36 Ophiuchi"", ""SystemAddress"":1865903245675, ""MarketID"":3228939264, ""StationFaction"":{ ""Name"":""36 Ophiuchi Future"", ""FactionState"":""Boom"" }, ""StationGovernment"":""$government_Democracy;"", ""StationGovernment_Localised"":""Democracy"", ""StationAllegiance"":""Federation"", ""StationServices"":[ ""Dock"", ""Autodock"", ""BlackMarket"", ""Commodities"", ""Contacts"", ""Exploration"", ""Missions"", ""Outfitting"", ""CrewLounge"", ""Rearm"", ""Refuel"", ""Repair"", ""Shipyard"", ""Tuning"", ""Workshop"", ""MissionsGenerated"", ""FlightController"", ""StationOperations"", ""Powerplay"", ""SearchAndRescue"", ""StationMenu"" ], ""StationEconomy"":""$economy_Refinery;"", ""StationEconomy_Localised"":""Refinery"", ""StationEconomies"":[ { ""Name"":""$economy_Refinery;"", ""Name_Localised"":""Refinery"", ""Proportion"":0.84 }, { ""Name"":""$economy_Refinery;"", ""Name_Localised"":""Refinery"", ""Proportion"":0.16 } ], ""DistFromStarLS"":4217877.0 }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            Assert.AreEqual(1, events.Count);
 
-            DockedEvent theEvent = (DockedEvent)events[0];
+            var theEvent = (DockedEvent)events[0];
 
             Assert.AreEqual("Coriolis", theEvent.stationModel.edname);
             Assert.AreEqual("Katzenstein Dock", theEvent.station);
             Assert.AreEqual("36 Ophiuchi", theEvent.system);
-            Assert.AreEqual("Boom", theEvent.controllingfaction.presences.FirstOrDefault(p => p.systemName == theEvent.system)?.FactionState?.invariantName);
+            var factionState = theEvent.controllingfaction.presences.FirstOrDefault( p => p.systemName == theEvent.system )?.FactionState;
+            Assert.IsNotNull( factionState );
+            Assert.AreEqual("Boom", factionState.invariantName);
             Assert.AreEqual("Democracy", theEvent.controllingfaction.Government.invariantName);
             Assert.AreEqual("Federation", theEvent.controllingfaction.Allegiance.invariantName);
             Assert.AreEqual(21, theEvent.stationservices.Count);
@@ -457,7 +461,7 @@ namespace UnitTests
             Assert.AreEqual(0.16M, theEvent.economyShares[1].proportion);
 
             // The Station definition should consolidate the economy shares above. Test that now. 
-            Station testStation = new Station() { name = "testStation", economyShares = theEvent.economyShares };
+            var testStation = new Station { name = "testStation", economyShares = theEvent.economyShares };
             Assert.AreEqual(1, testStation.economyShares.Count);
             Assert.AreEqual("Refinery", testStation.economyShares[0].economy.invariantName);
             Assert.AreEqual(1.00M, testStation.economyShares[0].proportion);
@@ -466,11 +470,11 @@ namespace UnitTests
         [TestMethod]
         public void TestJournalDockingCancelled()
         {
-            string line = @"{ ""timestamp"":""2018-06-04T07:43:11Z"", ""event"":""DockingCancelled"", ""MarketID"":3227840768, ""StationName"":""Laval Terminal"", ""StationType"":""Orbis"" }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            Assert.IsTrue(events.Count == 1);
+            var line = @"{ ""timestamp"":""2018-06-04T07:43:11Z"", ""event"":""DockingCancelled"", ""MarketID"":3227840768, ""StationName"":""Laval Terminal"", ""StationType"":""Orbis"" }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            Assert.AreEqual(1, events.Count);
 
-            DockingCancelledEvent theEvent = (DockingCancelledEvent)events[0];
+            var theEvent = (DockingCancelledEvent)events[0];
 
             Assert.AreEqual("Orbis", theEvent.stationDefinition.basename);
             Assert.AreEqual("Laval Terminal", theEvent.station);
@@ -480,10 +484,10 @@ namespace UnitTests
         [TestMethod]
         public void TestJournalDockingDenied()
         {
-            string line = @"{ ""timestamp"":""2018-06-04T01:53:29Z"", ""event"":""DockingDenied"", ""Reason"":""Offences"", ""MarketID"":3223343616, ""StationName"":""Ray Gateway"", ""StationType"":""Coriolis"" }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            Assert.IsTrue(events.Count == 1);
-            DockingDeniedEvent theEvent = (DockingDeniedEvent)events[0];
+            var line = @"{ ""timestamp"":""2018-06-04T01:53:29Z"", ""event"":""DockingDenied"", ""Reason"":""Offences"", ""MarketID"":3223343616, ""StationName"":""Ray Gateway"", ""StationType"":""Coriolis"" }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            Assert.AreEqual(1, events.Count);
+            var theEvent = (DockingDeniedEvent)events[0];
             Assert.AreEqual("Coriolis", theEvent.stationDefinition.basename);
             Assert.AreEqual("Ray Gateway", theEvent.station);
             Assert.AreEqual(3223343616, theEvent.marketId);
@@ -494,7 +498,7 @@ namespace UnitTests
         {
             var line = @"{ ""timestamp"":""2018-06-04T07:34:07Z"", ""event"":""DockingRequested"", ""MarketID"":3222020352, ""StationName"":""Morris Enterprise"", ""StationType"":""Bernal"", ""LandingPads"": {""Large"": 9, ""Medium"": 18, ""Small"": 17 }, }";
             var events = JournalMonitor.ParseJournalEntry(line);
-            Assert.IsTrue(events.Count == 1);
+            Assert.AreEqual(1, events.Count);
             var theEvent = (DockingRequestedEvent)events[0];
             Assert.AreEqual( "Bernal", theEvent.stationDefinition.basename );
             Assert.AreEqual( "Morris Enterprise", theEvent.station );
@@ -507,10 +511,10 @@ namespace UnitTests
         [TestMethod]
         public void TestJournalDockingGranted()
         {
-            string line = @"{ ""timestamp"":""2018-06-04T07:53:34Z"", ""event"":""DockingGranted"", ""LandingPad"":17, ""MarketID"":128850247, ""StationName"":""Simbad's Refuge"", ""StationType"":""AsteroidBase"" }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            Assert.IsTrue(events.Count == 1);
-            DockingGrantedEvent theEvent = (DockingGrantedEvent)events[0];
+            var line = @"{ ""timestamp"":""2018-06-04T07:53:34Z"", ""event"":""DockingGranted"", ""LandingPad"":17, ""MarketID"":128850247, ""StationName"":""Simbad's Refuge"", ""StationType"":""AsteroidBase"" }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            Assert.AreEqual(1, events.Count);
+            var theEvent = (DockingGrantedEvent)events[0];
             Assert.AreEqual("AsteroidBase", theEvent.stationDefinition.basename);
             Assert.AreEqual(17, theEvent.landingpad);
             Assert.AreEqual("Simbad's Refuge", theEvent.station);
@@ -520,12 +524,12 @@ namespace UnitTests
         [TestMethod]
         public void TestJournalMessageReceived1()
         {
-            string line = @"{ ""timestamp"":""2016-10-07T03:02:44Z"", ""event"":""ReceiveText"", ""From"":""$ShipName_Police_Federation;"", ""From_Localised"":""Federal Security Service"", ""Message"":""$Police_StartPatrol03;"", ""Message_Localised"":""Receiving five by five, I'm in the air now, joining patrol."", ""Channel"":""npc"" }";
+            var line = @"{ ""timestamp"":""2016-10-07T03:02:44Z"", ""event"":""ReceiveText"", ""From"":""$ShipName_Police_Federation;"", ""From_Localised"":""Federal Security Service"", ""Message"":""$Police_StartPatrol03;"", ""Message_Localised"":""Receiving five by five, I'm in the air now, joining patrol."", ""Channel"":""npc"" }";
 
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            Assert.IsTrue(events.Count == 1);
+            var events = JournalMonitor.ParseJournalEntry(line);
+            Assert.AreEqual(1, events.Count);
 
-            MessageReceivedEvent theEvent = (MessageReceivedEvent)events[0];
+            var theEvent = (MessageReceivedEvent)events[0];
 
             Assert.IsFalse(theEvent.player);
             Assert.AreEqual("Police", theEvent.Source.invariantName);
@@ -536,19 +540,19 @@ namespace UnitTests
         [TestMethod]
         public void TestJournalMessageReceived2()
         {
-            string line = @"{ ""timestamp"":""2016-10-06T12:48:56Z"", ""event"":""ReceiveText"", ""From"":""$npc_name_decorate:#name=Jonathan Dallard;"", ""From_Localised"":""Jonathan Dallard"", ""Message"":""$Pirate_OnStartScanCargo07;"", ""Message_Localised"":""Do you have anything of value?"", ""Channel"":""npc"" }";
+            var line = @"{ ""timestamp"":""2016-10-06T12:48:56Z"", ""event"":""ReceiveText"", ""From"":""$npc_name_decorate:#name=Jonathan Dallard;"", ""From_Localised"":""Jonathan Dallard"", ""Message"":""$Pirate_OnStartScanCargo07;"", ""Message_Localised"":""Do you have anything of value?"", ""Channel"":""npc"" }";
 
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            Assert.IsTrue(events.Count == 2);
+            var events = JournalMonitor.ParseJournalEntry(line);
+            Assert.AreEqual(2, events.Count);
 
-            MessageReceivedEvent event1 = (MessageReceivedEvent)events[0];
+            var event1 = (MessageReceivedEvent)events[0];
 
             Assert.IsFalse(event1.player);
             Assert.AreEqual("Pirate", event1.Source.invariantName);
             Assert.AreEqual("Jonathan Dallard", event1.from);
             Assert.AreEqual("npc", event1.Channel.invariantName);
 
-            NPCCargoScanCommencedEvent event2 = (NPCCargoScanCommencedEvent)events[1];
+            var event2 = (NPCCargoScanCommencedEvent)events[1];
 
             Assert.AreEqual("Pirate", event2.by);
         }
@@ -556,20 +560,20 @@ namespace UnitTests
         [TestMethod]
         public void TestJournalCommsSystemMessage()
         {
-            string line = @"{ ""timestamp"":""2018-11-15T06:16:23Z"", ""event"":""ReceiveText"", ""From"":"""", ""Message"":""$COMMS_entered:#name=ICZ JH-V c2-7;"", ""Message_Localised"":""Entered Channel: ICZ JH-V c2-7"", ""Channel"":""npc"" }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            Assert.IsTrue(events.Count == 0);
+            var line = @"{ ""timestamp"":""2018-11-15T06:16:23Z"", ""event"":""ReceiveText"", ""From"":"""", ""Message"":""$COMMS_entered:#name=ICZ JH-V c2-7;"", ""Message_Localised"":""Entered Channel: ICZ JH-V c2-7"", ""Channel"":""npc"" }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            Assert.AreEqual(0, events.Count);
         }
 
         [TestMethod]
         public void TestJournalPlayerDirectMessage()
         {
-            string line = "{ \"timestamp\":\"2017-10-12T19:58:46Z\", \"event\":\"ReceiveText\", \"From\":\"SlowIce\", \"Message\":\"good luck\", \"Channel\":\"player\" }";
+            var line = "{ \"timestamp\":\"2017-10-12T19:58:46Z\", \"event\":\"ReceiveText\", \"From\":\"SlowIce\", \"Message\":\"good luck\", \"Channel\":\"player\" }";
 
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            Assert.IsTrue(events.Count == 1);
+            var events = JournalMonitor.ParseJournalEntry(line);
+            Assert.AreEqual(1, events.Count);
 
-            MessageReceivedEvent event1 = (MessageReceivedEvent)events[0];
+            var event1 = (MessageReceivedEvent)events[0];
 
             Assert.IsTrue(event1.player);
             Assert.AreEqual("Commander", event1.Source.invariantName);
@@ -581,11 +585,11 @@ namespace UnitTests
         [TestMethod]
         public void TestJournalPlayerLocalChat()
         {
-            string line = @"{ ""timestamp"":""2017 - 10 - 12T20: 39:25Z"", ""event"":""ReceiveText"", ""From"":""Rebecca Lansing"", ""Message"":""Hi there"", ""Channel"":""local"" }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            Assert.IsTrue(events.Count == 1);
+            var line = @"{ ""timestamp"":""2017 - 10 - 12T20: 39:25Z"", ""event"":""ReceiveText"", ""From"":""Rebecca Lansing"", ""Message"":""Hi there"", ""Channel"":""local"" }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            Assert.AreEqual(1, events.Count);
 
-            MessageReceivedEvent event1 = (MessageReceivedEvent)events[0];
+            var event1 = (MessageReceivedEvent)events[0];
 
             Assert.IsTrue(event1.player);
             Assert.AreEqual("Commander", event1.Source.invariantName);
@@ -597,11 +601,11 @@ namespace UnitTests
         [TestMethod]
         public void TestJournalPlayerWingChat()
         {
-            string line = @"{ ""timestamp"":""2017-10-12T21:11:10Z"", ""event"":""ReceiveText"", ""From"":""SlowIce"", ""Message"":""hello"", ""Channel"":""wing"" }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            Assert.IsTrue(events.Count == 1);
+            var line = @"{ ""timestamp"":""2017-10-12T21:11:10Z"", ""event"":""ReceiveText"", ""From"":""SlowIce"", ""Message"":""hello"", ""Channel"":""wing"" }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            Assert.AreEqual(1, events.Count);
 
-            MessageReceivedEvent event1 = (MessageReceivedEvent)events[0];
+            var event1 = (MessageReceivedEvent)events[0];
 
             Assert.IsTrue(event1.player);
             Assert.AreEqual("Wing mate", event1.Source.invariantName);
@@ -614,11 +618,11 @@ namespace UnitTests
         public void TestJournalPlayerMulticrewChat()
         {
             // Test for messages received from multicrew. These are received without a defined key for 'Channel' in the player journal.
-            string line = @"{ ""timestamp"":""2017 - 12 - 06T22: 40:54Z"", ""event"":""ReceiveText"", ""From"":""Nexonoid"", ""Message"":""whats up"" }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            Assert.IsTrue(events.Count == 1);
+            var line = @"{ ""timestamp"":""2017 - 12 - 06T22: 40:54Z"", ""event"":""ReceiveText"", ""From"":""Nexonoid"", ""Message"":""whats up"" }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            Assert.AreEqual(1, events.Count);
 
-            MessageReceivedEvent event1 = (MessageReceivedEvent)events[0];
+            var event1 = (MessageReceivedEvent)events[0];
 
             Assert.IsTrue(event1.player);
             Assert.AreEqual("multicrew", event1.Channel.invariantName);
@@ -630,16 +634,16 @@ namespace UnitTests
         [TestMethod]
         public void TestJournalMissionAccepted1()
         {
-            string line = @"{ ""timestamp"":""2017-05-05T16:07:37Z"", ""event"":""MissionAccepted"", ""Faction"":""Chick Ek Partnership"", ""Name"":""Mission_Sightseeing_Criminal_BOOM"", ""Commodity"":""$Wine_Name;"", ""Commodity_Localised"":""Wine"", ""Count"":3, ""DestinationSystem"":""HR 7221$MISSIONUTIL_MULTIPLE_FINAL_SEPARATOR;Tupa"", ""Expiry"":""2017-05-06T04:31:24Z"", ""Wing"":false, ""Influence"":""Low"", ""Reputation"":""Med"", ""PassengerCount"":7, ""PassengerVIPs"":true, ""PassengerWanted"":true, ""PassengerType"":""Criminal"", ""MissionID"":134724902 }";
+            var line = @"{ ""timestamp"":""2017-05-05T16:07:37Z"", ""event"":""MissionAccepted"", ""Faction"":""Chick Ek Partnership"", ""Name"":""Mission_Sightseeing_Criminal_BOOM"", ""Commodity"":""$Wine_Name;"", ""Commodity_Localised"":""Wine"", ""Count"":3, ""DestinationSystem"":""HR 7221$MISSIONUTIL_MULTIPLE_FINAL_SEPARATOR;Tupa"", ""Expiry"":""2017-05-06T04:31:24Z"", ""Wing"":false, ""Influence"":""Low"", ""Reputation"":""Med"", ""PassengerCount"":7, ""PassengerVIPs"":true, ""PassengerWanted"":true, ""PassengerType"":""Criminal"", ""MissionID"":134724902 }";
 
             EDDI.Instance.DataProvider = ConfigureTestDataProvider();
             fakeSpanshRestClient.Expect( "systems/field_values/system_names?q=HR 7221", @"{""min_max"":[{""id64"":1458376250082,""name"":""HR 7221"",""x"":58.53125,""y"":-55.8125,""z"":91.25},{""id64"":1984977218610962,""name"":""Stuemeae HR-W c1-7221"",""x"":10.15625,""y"":33.78125,""z"":25930.3125},{""id64"":248122030838051,""name"":""Ogaimy HR-U d3-7221"",""x"":-612.625,""y"":748.0625,""z"":19813.40625},{""id64"":248122231837339,""name"":""Wepai HR-V d2-7221"",""x"":345.6875,""y"":-881.8125,""z"":23512.625},{""id64"":1419209853283,""name"":""HIP 7221"",""x"":-124.1875,""y"":-25.5625,""z"":-103.0},{""id64"":31015022086420,""name"":""Agnairt BQ-X e1-7221"",""x"":-9350.6875,""y"":-344.3125,""z"":22368.15625},{""id64"":31015047219436,""name"":""Kyloall TO-R e4-7221"",""x"":-8434.0,""y"":-863.78125,""z"":21591.5},{""id64"":31015084968164,""name"":""Kyloarph QI-T e3-7221"",""x"":-6968.15625,""y"":-912.75,""z"":21370.9375},{""id64"":31015097591764,""name"":""Boelts BV-X e1-7221"",""x"":-6537.5,""y"":-163.71875,""z"":16001.59375},{""id64"":31015139510300,""name"":""Eephaim FM-V e2-7221"",""x"":-4986.625,""y"":-584.5,""z"":17484.0625},{""id64"":248120386491131,""name"":""Wepua NF-C d14-7221"",""x"":-8457.96875,""y"":-116.53125,""z"":24523.5},{""id64"":248120487121299,""name"":""Kyloall XT-Y d1-7221"",""x"":-7964.75,""y"":-285.1875,""z"":20868.5},{""id64"":248120520659547,""name"":""Agnaiz LS-I d10-7221"",""x"":-7822.375,""y"":-407.25,""z"":22892.375},{""id64"":248120638034363,""name"":""Kyloarph UZ-O d6-7221"",""x"":-7259.5625,""y"":-721.53125,""z"":21275.9375},{""id64"":248120654827963,""name"":""Kyloarph TE-P d6-7221"",""x"":-7122.03125,""y"":-663.625,""z"":21330.9375},{""id64"":248120721936675,""name"":""Leamue LM-U d3-7221"",""x"":-6854.875,""y"":-624.84375,""z"":19738.0625},{""id64"":248120722182699,""name"":""Dumboea RN-S d4-7221"",""x"":-6864.15625,""y"":589.78125,""z"":22437.3125},{""id64"":248120738681195,""name"":""Leamue AG-E d12-7221"",""x"":-6752.59375,""y"":-779.5,""z"":20482.8125},{""id64"":248120738714075,""name"":""Kyloarph OD-I d10-7221"",""x"":-6711.84375,""y"":-656.53125,""z"":21622.3125},{""id64"":248120789029347,""name"":""Kyloarph XE-G d11-7221"",""x"":-6516.09375,""y"":-688.125,""z"":21698.53125}],""values"":[""HR 7221"",""Stuemeae HR-W c1-7221"",""Ogaimy HR-U d3-7221"",""Wepai HR-V d2-7221"",""HIP 7221"",""Agnairt BQ-X e1-7221"",""Kyloall TO-R e4-7221"",""Kyloarph QI-T e3-7221"",""Boelts BV-X e1-7221"",""Eephaim FM-V e2-7221"",""Wepua NF-C d14-7221"",""Kyloall XT-Y d1-7221"",""Agnaiz LS-I d10-7221"",""Kyloarph UZ-O d6-7221"",""Kyloarph TE-P d6-7221"",""Leamue LM-U d3-7221"",""Dumboea RN-S d4-7221"",""Leamue AG-E d12-7221"",""Kyloarph OD-I d10-7221"",""Kyloarph XE-G d11-7221""]}" );
             fakeSpanshRestClient.Expect( "systems/field_values/system_names?q=Tupa", @"{""min_max"":[{""id64"":908419142354,""name"":""Tupa"",""x"":-63.625,""y"":-9.96875,""z"":0.0625}],""values"":[""Tupa""]}" );
 
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            Assert.IsTrue(events.Count == 1);
+            var events = JournalMonitor.ParseJournalEntry(line);
+            Assert.AreEqual(1, events.Count);
 
-            MissionAcceptedEvent event1 = (MissionAcceptedEvent)events[0];
+            var event1 = (MissionAcceptedEvent)events[0];
 
             Assert.AreEqual("Wine", event1.commodity);
         }
@@ -647,8 +651,8 @@ namespace UnitTests
         [TestMethod, DoNotParallelize]
         public void TestFriends()
         {
-            string line1 = "{ \"timestamp\":\"2017-08-24T17:22:03Z\", \"event\":\"Friends\", \"Status\":\"Online\", \"Name\":\"_Testy_McTest_\" }";
-            string line2 = "{ \"timestamp\":\"2017-08-24T17:22:03Z\", \"event\":\"Friends\", \"Status\":\"Offline\", \"Name\":\"_Testy_McTest_\" }";
+            var line1 = "{ \"timestamp\":\"2017-08-24T17:22:03Z\", \"event\":\"Friends\", \"Status\":\"Online\", \"Name\":\"_Testy_McTest_\" }";
+            var line2 = "{ \"timestamp\":\"2017-08-24T17:22:03Z\", \"event\":\"Friends\", \"Status\":\"Offline\", \"Name\":\"_Testy_McTest_\" }";
 
             // Setup
             var eddiInstance = EDDI.Instance;
@@ -684,10 +688,10 @@ namespace UnitTests
         [TestMethod]
         public void TestJournalSearchAndRescue()
         {
-            string line = @"{""timestamp"":""2018-05-26T22:04:09Z"",""event"":""SearchAndRescue"",""MarketID"":3228973824,""Name"":""usscargoblackbox"",""Name_Localised"":""Black Box"",""Count"":1,""Reward"":21184}";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            Assert.IsTrue(events.Count == 1);
-            SearchAndRescueEvent sarEvent = (SearchAndRescueEvent)events[0];
+            var line = @"{""timestamp"":""2018-05-26T22:04:09Z"",""event"":""SearchAndRescue"",""MarketID"":3228973824,""Name"":""usscargoblackbox"",""Name_Localised"":""Black Box"",""Count"":1,""Reward"":21184}";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            Assert.AreEqual(1, events.Count);
+            var sarEvent = (SearchAndRescueEvent)events[0];
             Assert.AreEqual("Black Box", sarEvent.commodity.invariantName);
             Assert.AreEqual("Salvage", sarEvent.commodity.Category.invariantName);
         }
@@ -695,10 +699,10 @@ namespace UnitTests
         [TestMethod]
         public void TestJournalEnteredNormalSpaceEvent()
         {
-            string line = @"{ ""timestamp"":""2018 - 02 - 07T07: 13:39Z"", ""event"":""SupercruiseExit"", ""StarSystem"":""Wyrd"", ""SystemAddress"":5031654888146, ""Body"":""Vonarburg Co-operative"", ""BodyID"":35, ""BodyType"":""Station"" }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            Assert.IsTrue(events.Count == 1);
-            EnteredNormalSpaceEvent normalSpaceEvent = (EnteredNormalSpaceEvent)events[0];
+            var line = @"{ ""timestamp"":""2018 - 02 - 07T07: 13:39Z"", ""event"":""SupercruiseExit"", ""StarSystem"":""Wyrd"", ""SystemAddress"":5031654888146, ""Body"":""Vonarburg Co-operative"", ""BodyID"":35, ""BodyType"":""Station"" }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            Assert.AreEqual(1, events.Count);
+            var normalSpaceEvent = (EnteredNormalSpaceEvent)events[0];
             Assert.AreEqual("Vonarburg Co-operative", normalSpaceEvent.bodyname);
             Assert.AreEqual("Station", normalSpaceEvent.bodytype);
             Assert.AreEqual("Wyrd", normalSpaceEvent.systemname);
@@ -708,7 +712,7 @@ namespace UnitTests
         [TestMethod]
         public void TestJournalJumpedEvent()
         {
-            string line = @"{
+            var line = @"{
             ""timestamp"": ""2018-08-08T06: 56: 20Z"",
                 ""event"": ""FSDJump"",
                 ""StarSystem"": ""Diaguandri"",
@@ -795,9 +799,9 @@ namespace UnitTests
                 }
             }";
 
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            Assert.IsTrue(events.Count == 1);
-            JumpedEvent jumpedEvent = (JumpedEvent)events[0];
+            var events = JournalMonitor.ParseJournalEntry(line);
+            Assert.AreEqual(1, events.Count);
+            var jumpedEvent = (JumpedEvent)events[0];
             Assert.AreEqual("Diaguandri", jumpedEvent.system);
             Assert.AreEqual((ulong)670417429889, jumpedEvent.systemAddress);
             Assert.AreEqual(-41.06250M, jumpedEvent.x);
@@ -814,14 +818,16 @@ namespace UnitTests
             Assert.AreEqual(23.899260M, jumpedEvent.fuelremaining);
             Assert.AreEqual("EXO", jumpedEvent.faction);
             Assert.AreEqual("Expansion", jumpedEvent.factionstate);
-            Assert.AreEqual("Expansion", jumpedEvent.factions.FirstOrDefault(f => f.name == "EXO")?.presences.FirstOrDefault(p => p.systemName == "Diaguandri")?.FactionState?.invariantName);
+            var factionState = jumpedEvent.factions.FirstOrDefault( f => f.name == "EXO" )?.presences.FirstOrDefault( p => p.systemName == "Diaguandri" )?.FactionState;
+            Assert.IsNotNull(factionState);
+            Assert.AreEqual("Expansion", factionState.invariantName);
         }
 
         [TestMethod]
         public void TestJournalJumpedEvent2()
         {
             // Test for unpopulated system
-            string line = @"{
+            var line = @"{
                 ""timestamp"": ""2018-10-17T00:40:45Z"",
                 ""event"": ""FSDJump"",
                 ""StarSystem"": ""Wredguia WD-K d8-65"",
@@ -841,9 +847,9 @@ namespace UnitTests
                 ""FuelUsed"": 4.271171,
                 ""FuelLevel"": 27.728828
             }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            Assert.IsTrue(events.Count == 1);
-            JumpedEvent jumpedEvent = (JumpedEvent)events[0];
+            var events = JournalMonitor.ParseJournalEntry(line);
+            Assert.AreEqual(1, events.Count);
+            var jumpedEvent = (JumpedEvent)events[0];
             Assert.AreEqual("None", jumpedEvent.factionstate);
         }
 
@@ -851,7 +857,7 @@ namespace UnitTests
         public void TestJournalJumpedEventFactionStateNull()
         {
             // Test for unpopulated system
-            string line = @"{
+            var line = @"{
                 ""timestamp"": ""2018-10-17T00:40:45Z"",
                 ""event"": ""FSDJump"",
                 ""StarSystem"": ""Wredguia WD-K d8-65"",
@@ -872,16 +878,16 @@ namespace UnitTests
                 ""FuelLevel"": 27.728828
             }";
 
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            Assert.IsTrue(events.Count == 1);
-            JumpedEvent jumpedEvent = (JumpedEvent)events[0];
+            var events = JournalMonitor.ParseJournalEntry(line);
+            Assert.AreEqual(1, events.Count);
+            var jumpedEvent = (JumpedEvent)events[0];
             Assert.AreEqual("None", jumpedEvent.factionstate);
         }
 
         [TestMethod]
         public void TestJournalLocationEvent()
         {
-            string line = @"{
+            var line = @"{
                 ""timestamp"": ""2018-08-12T02: 52: 13Z"",
                 ""event"": ""Location"",
                 ""Docked"": true,
@@ -994,13 +1000,13 @@ namespace UnitTests
                 }
             }";
 
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            Assert.IsTrue(events.Count == 1);
-            LocationEvent @event = (LocationEvent)events[0];
+            var events = JournalMonitor.ParseJournalEntry(line);
+            Assert.AreEqual(1, events.Count);
+            var @event = (LocationEvent)events[0];
 
             Assert.AreEqual("Ray Gateway", @event.bodyname);
             Assert.AreEqual("Station", @event.bodyType.invariantName);
-            Assert.AreEqual(true, @event.docked);
+            Assert.IsTrue(@event.docked);
             Assert.AreEqual("High Tech", @event.Economy.invariantName);
             Assert.AreEqual("Refinery", @event.Economy2.invariantName);
 
@@ -1028,17 +1034,17 @@ namespace UnitTests
         [TestMethod]
         public void TestNearSurfaceEvent()
         {
-            string line = @"{ ""timestamp"":""2018-07-24T07:08:37Z"", ""event"":""ApproachBody"", ""StarSystem"":""Ageno"", ""SystemAddress"":18262335038849, ""Body"":""Ageno B 2 a"", ""BodyID"":17 }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            NearSurfaceEvent @event = (NearSurfaceEvent)events[0];
+            var line = @"{ ""timestamp"":""2018-07-24T07:08:37Z"", ""event"":""ApproachBody"", ""StarSystem"":""Ageno"", ""SystemAddress"":18262335038849, ""Body"":""Ageno B 2 a"", ""BodyID"":17 }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            var @event = (NearSurfaceEvent)events[0];
 
             Assert.AreEqual("Ageno", @event.systemname);
             Assert.AreEqual((ulong)18262335038849, @event.systemAddress);
             Assert.AreEqual("Ageno B 2 a", @event.bodyname);
 
-            string line2 = @"{ ""timestamp"":""2018 - 07 - 24T07: 08:58Z"", ""event"":""LeaveBody"", ""StarSystem"":""Ageno"", ""SystemAddress"":18262335038849, ""Body"":""Ageno B 2 a"", ""BodyID"":17 }";
+            var line2 = @"{ ""timestamp"":""2018 - 07 - 24T07: 08:58Z"", ""event"":""LeaveBody"", ""StarSystem"":""Ageno"", ""SystemAddress"":18262335038849, ""Body"":""Ageno B 2 a"", ""BodyID"":17 }";
             events = JournalMonitor.ParseJournalEntry(line2);
-            NearSurfaceEvent @event2 = (NearSurfaceEvent)events[0];
+            var @event2 = (NearSurfaceEvent)events[0];
 
             Assert.AreEqual("Ageno", @event2.systemname);
             Assert.AreEqual((ulong)18262335038849, @event2.systemAddress);
@@ -1048,9 +1054,9 @@ namespace UnitTests
         [TestMethod]
         public void TestSearchAndRescueEvent()
         {
-            string line = @"{ ""timestamp"":""2018 - 06 - 17T05: 32:32Z"", ""event"":""SearchAndRescue"", ""MarketID"":3222633216, ""Name"":""occupiedcryopod"", ""Name_Localised"":""Occupied Escape Pod"", ""Count"":2, ""Reward"":48593 }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            SearchAndRescueEvent @event = (SearchAndRescueEvent)events[0];
+            var line = @"{ ""timestamp"":""2018 - 06 - 17T05: 32:32Z"", ""event"":""SearchAndRescue"", ""MarketID"":3222633216, ""Name"":""occupiedcryopod"", ""Name_Localised"":""Occupied Escape Pod"", ""Count"":2, ""Reward"":48593 }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            var @event = (SearchAndRescueEvent)events[0];
 
             Assert.AreEqual(3222633216, @event.marketId);
             Assert.AreEqual("occupiedcryopod", @event.commodity.edname.ToLowerInvariant());
@@ -1061,9 +1067,9 @@ namespace UnitTests
         [TestMethod]
         public void TestSettlementApproachedEvent()
         {
-            string line = @"{ ""timestamp"":""2018-11-04T03:11:56Z"", ""event"":""ApproachSettlement"", ""Name"":""Bulmer Enterprise"", ""MarketID"":3510380288, ""SystemAddress"": 670417429889, ""Latitude"":-23.121552, ""Longitude"":-98.177559 }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            SettlementApproachedEvent @event = (SettlementApproachedEvent)events[0];
+            var line = @"{ ""timestamp"":""2018-11-04T03:11:56Z"", ""event"":""ApproachSettlement"", ""Name"":""Bulmer Enterprise"", ""MarketID"":3510380288, ""SystemAddress"": 670417429889, ""Latitude"":-23.121552, ""Longitude"":-98.177559 }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            var @event = (SettlementApproachedEvent)events[0];
 
             Assert.AreEqual(3510380288, @event.marketId);
             Assert.AreEqual((ulong)670417429889, @event.systemAddress);
@@ -1075,9 +1081,9 @@ namespace UnitTests
         [TestMethod]
         public void TestUndockedEvent()
         {
-            string line = @"{ ""timestamp"":""2018 - 08 - 12T02: 53:41Z"", ""event"":""Undocked"", ""StationName"":""Ray Gateway"", ""StationType"":""Coriolis"", ""MarketID"":3223343616 }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            UndockedEvent @event = (UndockedEvent)events[0];
+            var line = @"{ ""timestamp"":""2018 - 08 - 12T02: 53:41Z"", ""event"":""Undocked"", ""StationName"":""Ray Gateway"", ""StationType"":""Coriolis"", ""MarketID"":3223343616 }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            var @event = (UndockedEvent)events[0];
 
             Assert.AreEqual(3223343616, @event.marketId);
             Assert.AreEqual("Ray Gateway", @event.station);
@@ -1086,9 +1092,9 @@ namespace UnitTests
         [TestMethod]
         public void TestJumpedEventAllegianceThargoid()
         {
-            string line = @"{ ""timestamp"":""2018 - 03 - 25T02: 59:48Z"", ""event"":""FSDJump"", ""StarSystem"":""Pleiades Sector OY-R c4-19"", ""SystemAddress"":5306398479010, ""StarPos"":[-73.81250,-98.62500,-262.31250], ""SystemAllegiance"":""Thargoid"", ""SystemEconomy"":""$economy_None;"", ""SystemEconomy_Localised"":""None"", ""SystemSecondEconomy"":""$economy_None;"", ""SystemSecondEconomy_Localised"":""None"", ""SystemGovernment"":""$government_None;"", ""SystemGovernment_Localised"":""None"", ""SystemSecurity"":""$GAlAXY_MAP_INFO_state_anarchy;"", ""SystemSecurity_Localised"":""Anarchy"", ""Population"":0, ""JumpDist"":13.936, ""FuelUsed"":3.833808, ""FuelLevel"":28.166193 }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            JumpedEvent @event = (JumpedEvent)events[0];
+            var line = @"{ ""timestamp"":""2018 - 03 - 25T02: 59:48Z"", ""event"":""FSDJump"", ""StarSystem"":""Pleiades Sector OY-R c4-19"", ""SystemAddress"":5306398479010, ""StarPos"":[-73.81250,-98.62500,-262.31250], ""SystemAllegiance"":""Thargoid"", ""SystemEconomy"":""$economy_None;"", ""SystemEconomy_Localised"":""None"", ""SystemSecondEconomy"":""$economy_None;"", ""SystemSecondEconomy_Localised"":""None"", ""SystemGovernment"":""$government_None;"", ""SystemGovernment_Localised"":""None"", ""SystemSecurity"":""$GAlAXY_MAP_INFO_state_anarchy;"", ""SystemSecurity_Localised"":""Anarchy"", ""Population"":0, ""JumpDist"":13.936, ""FuelUsed"":3.833808, ""FuelLevel"":28.166193 }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            var @event = (JumpedEvent)events[0];
 
             Assert.AreEqual("Thargoid", @event.controllingfaction.Allegiance.invariantName);
         }
@@ -1096,9 +1102,9 @@ namespace UnitTests
         [ TestMethod ]
         public void TestJumpedEventThargoidProbing ()
         {
-            string line = @"{ ""timestamp"":""2023-05-29T03:02:54Z"", ""event"":""FSDJump"", ""Taxi"":false, ""Multicrew"":false, ""StarSystem"":""Cephei Sector ZZ-Y b3"", ""SystemAddress"":7266682283401, ""StarPos"":[-99.09375,58.71875,-80.09375], ""SystemAllegiance"":"""", ""SystemEconomy"":""$economy_None;"", ""SystemEconomy_Localised"":""None"", ""SystemSecondEconomy"":""$economy_None;"", ""SystemSecondEconomy_Localised"":""None"", ""SystemGovernment"":""$government_None;"", ""SystemGovernment_Localised"":""None"", ""SystemSecurity"":""$GAlAXY_MAP_INFO_state_anarchy;"", ""SystemSecurity_Localised"":""Anarchy"", ""Population"":0, ""Body"":""Cephei Sector ZZ-Y b3"", ""BodyID"":0, ""BodyType"":""Star"", ""ThargoidWar"":{ ""CurrentState"":""Thargoid_Probing"", ""NextStateSuccess"":"""", ""NextStateFailure"":""Thargoid_Controlled"", ""SuccessStateReached"":true, ""WarProgress"":1.291010, ""RemainingPorts"":0 }, ""JumpDist"":14.317, ""FuelUsed"":1.420634, ""FuelLevel"":11.538357 }";
-            List<Event> events = JournalMonitor.ParseJournalEntry( line );
-            JumpedEvent @event = (JumpedEvent)events[ 0 ];
+            var line = @"{ ""timestamp"":""2023-05-29T03:02:54Z"", ""event"":""FSDJump"", ""Taxi"":false, ""Multicrew"":false, ""StarSystem"":""Cephei Sector ZZ-Y b3"", ""SystemAddress"":7266682283401, ""StarPos"":[-99.09375,58.71875,-80.09375], ""SystemAllegiance"":"""", ""SystemEconomy"":""$economy_None;"", ""SystemEconomy_Localised"":""None"", ""SystemSecondEconomy"":""$economy_None;"", ""SystemSecondEconomy_Localised"":""None"", ""SystemGovernment"":""$government_None;"", ""SystemGovernment_Localised"":""None"", ""SystemSecurity"":""$GAlAXY_MAP_INFO_state_anarchy;"", ""SystemSecurity_Localised"":""Anarchy"", ""Population"":0, ""Body"":""Cephei Sector ZZ-Y b3"", ""BodyID"":0, ""BodyType"":""Star"", ""ThargoidWar"":{ ""CurrentState"":""Thargoid_Probing"", ""NextStateSuccess"":"""", ""NextStateFailure"":""Thargoid_Controlled"", ""SuccessStateReached"":true, ""WarProgress"":1.291010, ""RemainingPorts"":0 }, ""JumpDist"":14.317, ""FuelUsed"":1.420634, ""FuelLevel"":11.538357 }";
+            var events = JournalMonitor.ParseJournalEntry( line );
+            var @event = (JumpedEvent)events[ 0 ];
 
             Assert.IsNotNull( @event.ThargoidWar );
             Assert.AreEqual( FactionState.ThargoidProbing, @event.ThargoidWar.CurrentState );
@@ -1106,16 +1112,16 @@ namespace UnitTests
             Assert.AreEqual( FactionState.ThargoidControlled, @event.ThargoidWar.FailureState );
             Assert.IsTrue( @event.ThargoidWar.succeeded );
             Assert.AreEqual( 100M, @event.ThargoidWar.progress );
-            Assert.AreEqual( null, @event.ThargoidWar.remainingDays );
+            Assert.IsNull(@event.ThargoidWar.remainingDays);
             Assert.IsNull( @event.ThargoidWar.remainingPorts );
         }
 
         [TestMethod]
         public void TestJumpedEventThargoidStronghold ()
         {
-            string line = @"{ ""timestamp"":""2023-05-29T03:07:18Z"", ""event"":""FSDJump"", ""Taxi"":false, ""Multicrew"":false, ""StarSystem"":""Cephei Sector BV-Y b4"", ""SystemAddress"":9465705473417, ""StarPos"":[-97.81250,44.31250,-83.84375], ""SystemAllegiance"":""Thargoid"", ""SystemEconomy"":""$economy_None;"", ""SystemEconomy_Localised"":""None"", ""SystemSecondEconomy"":""$economy_None;"", ""SystemSecondEconomy_Localised"":""None"", ""SystemGovernment"":""$government_None;"", ""SystemGovernment_Localised"":""None"", ""SystemSecurity"":""$GAlAXY_MAP_INFO_state_anarchy;"", ""SystemSecurity_Localised"":""Anarchy"", ""Population"":0, ""Body"":""Cephei Sector BV-Y b4 A"", ""BodyID"":1, ""BodyType"":""Star"", ""ThargoidWar"":{ ""CurrentState"":""Thargoid_Stronghold"", ""NextStateSuccess"":"""", ""NextStateFailure"":"""", ""SuccessStateReached"":false, ""WarProgress"":0.000000, ""RemainingPorts"":0, ""EstimatedRemainingTime"":""0 Days"" }, ""JumpDist"":14.941, ""FuelUsed"":1.576375, ""FuelLevel"":10.872703 }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            JumpedEvent @event = (JumpedEvent)events[0];
+            var line = @"{ ""timestamp"":""2023-05-29T03:07:18Z"", ""event"":""FSDJump"", ""Taxi"":false, ""Multicrew"":false, ""StarSystem"":""Cephei Sector BV-Y b4"", ""SystemAddress"":9465705473417, ""StarPos"":[-97.81250,44.31250,-83.84375], ""SystemAllegiance"":""Thargoid"", ""SystemEconomy"":""$economy_None;"", ""SystemEconomy_Localised"":""None"", ""SystemSecondEconomy"":""$economy_None;"", ""SystemSecondEconomy_Localised"":""None"", ""SystemGovernment"":""$government_None;"", ""SystemGovernment_Localised"":""None"", ""SystemSecurity"":""$GAlAXY_MAP_INFO_state_anarchy;"", ""SystemSecurity_Localised"":""Anarchy"", ""Population"":0, ""Body"":""Cephei Sector BV-Y b4 A"", ""BodyID"":1, ""BodyType"":""Star"", ""ThargoidWar"":{ ""CurrentState"":""Thargoid_Stronghold"", ""NextStateSuccess"":"""", ""NextStateFailure"":"""", ""SuccessStateReached"":false, ""WarProgress"":0.000000, ""RemainingPorts"":0, ""EstimatedRemainingTime"":""0 Days"" }, ""JumpDist"":14.941, ""FuelUsed"":1.576375, ""FuelLevel"":10.872703 }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            var @event = (JumpedEvent)events[0];
 
             Assert.IsNotNull( @event.ThargoidWar );
             Assert.AreEqual( FactionState.ThargoidStronghold, @event.ThargoidWar.CurrentState );
@@ -1130,9 +1136,9 @@ namespace UnitTests
         [TestMethod]
         public void TestJumpedEventAllegianceGuardian()
         {
-            string line = @"{ ""timestamp"":""2018-08-25T06:28:04Z"", ""event"":""FSDJump"", ""StarSystem"":""Synuefe EU-Q c21-10"", ""SystemAddress"":2833906537146, ""StarPos"":[758.65625,-176.90625,-133.21875], ""SystemAllegiance"":""Guardian"", ""SystemEconomy"":""$economy_None;"", ""SystemEconomy_Localised"":""None"", ""SystemSecondEconomy"":""$economy_None;"", ""SystemSecondEconomy_Localised"":""None"", ""SystemGovernment"":""$government_None;"", ""SystemGovernment_Localised"":""None"", ""SystemSecurity"":""$GAlAXY_MAP_INFO_state_anarchy;"", ""SystemSecurity_Localised"":""Anarchy"", ""Population"":0, ""JumpDist"":29.867, ""FuelUsed"":1.269155, ""FuelLevel"":18.824537 }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            JumpedEvent @event = (JumpedEvent)events[0];
+            var line = @"{ ""timestamp"":""2018-08-25T06:28:04Z"", ""event"":""FSDJump"", ""StarSystem"":""Synuefe EU-Q c21-10"", ""SystemAddress"":2833906537146, ""StarPos"":[758.65625,-176.90625,-133.21875], ""SystemAllegiance"":""Guardian"", ""SystemEconomy"":""$economy_None;"", ""SystemEconomy_Localised"":""None"", ""SystemSecondEconomy"":""$economy_None;"", ""SystemSecondEconomy_Localised"":""None"", ""SystemGovernment"":""$government_None;"", ""SystemGovernment_Localised"":""None"", ""SystemSecurity"":""$GAlAXY_MAP_INFO_state_anarchy;"", ""SystemSecurity_Localised"":""Anarchy"", ""Population"":0, ""JumpDist"":29.867, ""FuelUsed"":1.269155, ""FuelLevel"":18.824537 }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            var @event = (JumpedEvent)events[0];
 
             Assert.AreEqual("Guardian", @event.controllingfaction.Allegiance.invariantName);
         }
@@ -1140,9 +1146,9 @@ namespace UnitTests
         [TestMethod]
         public void TestFactionKillBondThargoid()
         {
-            string line = @"{""timestamp"":""2018 - 07 - 28T07: 39:54Z"",""event"":""FactionKillBond"",""Reward"":10000,""AwardingFaction"":""$faction_PilotsFederation;"",""AwardingFaction_Localised"":""Pilots Federation"",""VictimFaction"":""$faction_Thargoid;"",""VictimFaction_Localised"":""Thargoids""}";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            BondAwardedEvent @event = (BondAwardedEvent)events[0];
+            var line = @"{""timestamp"":""2018 - 07 - 28T07: 39:54Z"",""event"":""FactionKillBond"",""Reward"":10000,""AwardingFaction"":""$faction_PilotsFederation;"",""AwardingFaction_Localised"":""Pilots Federation"",""VictimFaction"":""$faction_Thargoid;"",""VictimFaction_Localised"":""Thargoids""}";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            var @event = (BondAwardedEvent)events[0];
 
             Assert.AreEqual("Pilots Federation", @event.awardingfaction);
             Assert.AreEqual("Thargoid", @event.victimfaction);
@@ -1151,10 +1157,10 @@ namespace UnitTests
         [TestMethod]
         public void TestUnhandledEvent()
         {
-            string line = @"{ ""timestamp"":""2018 - 10 - 30T20: 45:07Z"", ""event"":""AnyUnhandledEvent""}";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
+            var line = @"{ ""timestamp"":""2018 - 10 - 30T20: 45:07Z"", ""event"":""AnyUnhandledEvent""}";
+            var events = JournalMonitor.ParseJournalEntry(line);
             Assert.AreEqual(1, events.Count);
-            UnhandledEvent @event = (UnhandledEvent)events[0];
+            var @event = (UnhandledEvent)events[0];
 
             Assert.AreEqual("AnyUnhandledEvent", @event.edType);
             Assert.IsNotNull(@event.raw);
@@ -1163,11 +1169,11 @@ namespace UnitTests
         [TestMethod]
         public void TestSquadronStatusEvent()
         {
-            string line = @"{ ""timestamp"":""2018-10-17T16:17:55Z"", ""event"":""SquadronCreated"", ""SquadronName"":""TestSquadron"" }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            Assert.IsTrue(events.Count == 1);
+            var line = @"{ ""timestamp"":""2018-10-17T16:17:55Z"", ""event"":""SquadronCreated"", ""SquadronName"":""TestSquadron"" }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            Assert.AreEqual(1, events.Count);
 
-            SquadronStatusEvent event1 = (SquadronStatusEvent)events[0];
+            var event1 = (SquadronStatusEvent)events[0];
             Assert.AreEqual("TestSquadron", event1.name);
             Assert.AreEqual("created", event1.status);
         }
@@ -1175,11 +1181,11 @@ namespace UnitTests
         [TestMethod]
         public void TestSquadronRankEvent()
         {
-            string line = @"{ ""timestamp"":""2018-10-17T16:17:55Z"", ""event"":""SquadronDemotion"", ""SquadronName"":""TestSquadron"", ""OldRank"":3, ""NewRank"":2 }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            Assert.IsTrue(events.Count == 1);
+            var line = @"{ ""timestamp"":""2018-10-17T16:17:55Z"", ""event"":""SquadronDemotion"", ""SquadronName"":""TestSquadron"", ""OldRank"":3, ""NewRank"":2 }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            Assert.AreEqual(1, events.Count);
 
-            SquadronRankEvent event1 = (SquadronRankEvent)events[0];
+            var event1 = (SquadronRankEvent)events[0];
             Assert.AreEqual("TestSquadron", event1.name);
             Assert.AreEqual(3, event1.oldrank);
             Assert.AreEqual(2, event1.newrank);
@@ -1188,10 +1194,10 @@ namespace UnitTests
         [TestMethod]
         public void TestLocationAllegiance()
         {
-            string line = @"{ ""timestamp"":""2018-12-09T18:39:32Z"", ""event"":""Location"", ""Docked"":false, ""StarSystem"":""Col 285 Sector SP-K b23-7"", ""SystemAddress"":16065459463649, ""StarPos"":[112.31250,13.46875,153.06250], ""SystemAllegiance"":"""", ""SystemEconomy"":""$economy_None;"", ""SystemEconomy_Localised"":""None"", ""SystemSecondEconomy"":""$economy_None;"", ""SystemSecondEconomy_Localised"":""None"", ""SystemGovernment"":""$government_None;"", ""SystemGovernment_Localised"":""None"", ""SystemSecurity"":""$GAlAXY_MAP_INFO_state_anarchy;"", ""SystemSecurity_Localised"":""Anarchy"", ""Population"":0, ""Body"":""Col 285 Sector SP-K b23-7 A"", ""BodyID"":1, ""BodyType"":""Star"" }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
+            var line = @"{ ""timestamp"":""2018-12-09T18:39:32Z"", ""event"":""Location"", ""Docked"":false, ""StarSystem"":""Col 285 Sector SP-K b23-7"", ""SystemAddress"":16065459463649, ""StarPos"":[112.31250,13.46875,153.06250], ""SystemAllegiance"":"""", ""SystemEconomy"":""$economy_None;"", ""SystemEconomy_Localised"":""None"", ""SystemSecondEconomy"":""$economy_None;"", ""SystemSecondEconomy_Localised"":""None"", ""SystemGovernment"":""$government_None;"", ""SystemGovernment_Localised"":""None"", ""SystemSecurity"":""$GAlAXY_MAP_INFO_state_anarchy;"", ""SystemSecurity_Localised"":""Anarchy"", ""Population"":0, ""Body"":""Col 285 Sector SP-K b23-7 A"", ""BodyID"":1, ""BodyType"":""Star"" }";
+            var events = JournalMonitor.ParseJournalEntry(line);
             Assert.AreEqual(1, events.Count);
-            LocationEvent @event = (LocationEvent)events[0];
+            var @event = (LocationEvent)events[0];
 
             Assert.IsNotNull(@event.raw);
             Assert.IsNull(@event.controllingsystemfaction);
@@ -1206,10 +1212,10 @@ namespace UnitTests
             EDDI.Instance.DataProvider = ConfigureTestDataProvider();
             fakeSpanshRestClient.Expect( "systems/field_values/system_names?q=LHS 20", @"{""min_max"":[{""id64"":33656303199641,""name"":""LHS 20"",""x"":11.1875,""y"":-37.375,""z"":-31.84375},{""id64"":2870246319505,""name"":""LHS 2011"",""x"":25.875,""y"":36.34375,""z"":-57.53125},{""id64"":5370319752024,""name"":""LHS 205"",""x"":34.03125,""y"":-22.0625,""z"":12.625},{""id64"":13864825660825,""name"":""LHS 2088"",""x"":-23.3125,""y"":25.71875,""z"":-28.34375},{""id64"":358730437330,""name"":""LHS 200"",""x"":10.84375,""y"":-12.71875,""z"":-22.96875},{""id64"":358663393986,""name"":""LHS 2001"",""x"":-54.0625,""y"":55.21875,""z"":-67.25},{""id64"":670417757585,""name"":""LHS 2038"",""x"":-34.625,""y"":45.375,""z"":-54.03125},{""id64"":670149256593,""name"":""LHS 207"",""x"":-47.84375,""y"":28.65625,""z"":-45.8125},{""id64"":671222867361,""name"":""LHS 203"",""x"":16.46875,""y"":-15.1875,""z"":-20.34375},{""id64"":671491499417,""name"":""LHS 2094"",""x"":35.0,""y"":35.0,""z"":-40.0},{""id64"":27059501999521,""name"":""LHS 2037"",""x"":33.78125,""y"":7.25,""z"":-14.5},{""id64"":671491433881,""name"":""LHS 2026"",""x"":43.34375,""y"":23.5625,""z"":-41.09375},{""id64"":11666339276177,""name"":""LHS 2027"",""x"":26.0625,""y"":34.53125,""z"":-52.40625},{""id64"":7268561135017,""name"":""LHS 2010"",""x"":37.0625,""y"":-2.5,""z"":-4.84375},{""id64"":7267487524241,""name"":""LHS 2018"",""x"":-25.28125,""y"":41.8125,""z"":-53.5625},{""id64"":5369246010144,""name"":""LHS 206"",""x"":20.75,""y"":-18.21875,""z"":-55.9375},{""id64"":2931055135075,""name"":""LHS 2022"",""x"":10.53125,""y"":40.25,""z"":-58.5625},{""id64"":5069269509521,""name"":""LHS 2029"",""x"":27.40625,""y"":31.5,""z"":-45.625},{""id64"":13865362466209,""name"":""LHS 2065"",""x"":19.71875,""y"":11.8125,""z"":-15.84375},{""id64"":13865630967201,""name"":""LHS 2069"",""x"":38.6875,""y"":16.0625,""z"":-22.34375}],""values"":[""LHS 20"",""LHS 2011"",""LHS 205"",""LHS 2088"",""LHS 200"",""LHS 2001"",""LHS 2038"",""LHS 207"",""LHS 203"",""LHS 2094"",""LHS 2037"",""LHS 2026"",""LHS 2027"",""LHS 2010"",""LHS 2018"",""LHS 206"",""LHS 2022"",""LHS 2029"",""LHS 2065"",""LHS 2069""]}" );
 
-            string line = "{ \"timestamp\":\"2018-12-25T20:07:06Z\", \"event\":\"FSDJump\", \"StarSystem\":\"LHS 20\", \"SystemAddress\":33656303199641, \"StarPos\":[11.18750,-37.37500,-31.84375], \"SystemAllegiance\":\"Federation\", \"SystemEconomy\":\"$economy_HighTech;\", \"SystemEconomy_Localised\":\"High Tech\", \"SystemSecondEconomy\":\"$economy_Refinery;\", \"SystemSecondEconomy_Localised\":\"Refinery\", \"SystemGovernment\":\"$government_Democracy;\", \"SystemGovernment_Localised\":\"Democracy\", \"SystemSecurity\":\"$SYSTEM_SECURITY_medium;\", \"SystemSecurity_Localised\":\"Medium Security\", \"Population\":9500553, \"JumpDist\":20.361, \"FuelUsed\":3.065896, \"FuelLevel\":19.762932, \"Factions\":[ { \"Name\":\"Pilots Federation Local Branch\", \"FactionState\":\"None\", \"Government\":\"Democracy\", \"Influence\":0.000000, \"Allegiance\":\"PilotsFederation\", \"Happiness\":\"\", \"MyReputation\":6.106290 }, { \"Name\":\"Shenetserii Confederation\", \"FactionState\":\"None\", \"Government\":\"Confederacy\", \"Influence\":0.127000, \"Allegiance\":\"Federation\", \"Happiness\":\"$Faction_HappinessBand2;\", \"Happiness_Localised\":\"Happy\", \"MyReputation\":18.809999, \"PendingStates\":[ { \"State\":\"War\", \"Trend\":0 } ] }, { \"Name\":\"LHS 20 Company\", \"FactionState\":\"None\", \"Government\":\"Corporate\", \"Influence\":0.127000, \"Allegiance\":\"Federation\", \"Happiness\":\"$Faction_HappinessBand2;\", \"Happiness_Localised\":\"Happy\", \"MyReputation\":4.950000, \"PendingStates\":[ { \"State\":\"War\", \"Trend\":0 } ] }, { \"Name\":\"Traditional LHS 20 Defence Party\", \"FactionState\":\"None\", \"Government\":\"Dictatorship\", \"Influence\":0.087000, \"Allegiance\":\"Independent\", \"Happiness\":\"$Faction_HappinessBand2;\", \"Happiness_Localised\":\"Happy\", \"MyReputation\":2.640000 }, { \"Name\":\"Movement for LHS 20 Liberals\", \"FactionState\":\"CivilWar\", \"Government\":\"Democracy\", \"Influence\":0.226000, \"Allegiance\":\"Federation\", \"Happiness\":\"$Faction_HappinessBand2;\", \"Happiness_Localised\":\"Happy\", \"SquadronFaction\":true, \"HomeSystem\":true, \"MyReputation\":100.000000, \"ActiveStates\":[ { \"State\":\"CivilLiberty\" }, { \"State\":\"Investment\" }, { \"State\":\"CivilWar\" } ] }, { \"Name\":\"Nationalists of LHS 20\", \"FactionState\":\"None\", \"Government\":\"Dictatorship\", \"Influence\":0.105000, \"Allegiance\":\"Independent\", \"Happiness\":\"$Faction_HappinessBand2;\", \"Happiness_Localised\":\"Happy\", \"MyReputation\":0.000000 }, { \"Name\":\"LHS 20 Organisation\", \"FactionState\":\"CivilWar\", \"Government\":\"Anarchy\", \"Influence\":0.166000, \"Allegiance\":\"Independent\", \"Happiness\":\"$Faction_HappinessBand2;\", \"Happiness_Localised\":\"Happy\", \"MyReputation\":5.940000, \"ActiveStates\":[ { \"State\":\"CivilWar\" } ] }, { \"Name\":\"LHS 20 Engineers\", \"FactionState\":\"None\", \"Government\":\"Corporate\", \"Influence\":0.162000, \"Allegiance\":\"Federation\", \"Happiness\":\"$Faction_HappinessBand2;\", \"Happiness_Localised\":\"Happy\", \"MyReputation\":15.000000 } ], \"SystemFaction\":{ \"Name\":\"Movement for LHS 20 Liberals\", \"FactionState\":\"CivilWar\" } }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
+            var line = "{ \"timestamp\":\"2018-12-25T20:07:06Z\", \"event\":\"FSDJump\", \"StarSystem\":\"LHS 20\", \"SystemAddress\":33656303199641, \"StarPos\":[11.18750,-37.37500,-31.84375], \"SystemAllegiance\":\"Federation\", \"SystemEconomy\":\"$economy_HighTech;\", \"SystemEconomy_Localised\":\"High Tech\", \"SystemSecondEconomy\":\"$economy_Refinery;\", \"SystemSecondEconomy_Localised\":\"Refinery\", \"SystemGovernment\":\"$government_Democracy;\", \"SystemGovernment_Localised\":\"Democracy\", \"SystemSecurity\":\"$SYSTEM_SECURITY_medium;\", \"SystemSecurity_Localised\":\"Medium Security\", \"Population\":9500553, \"JumpDist\":20.361, \"FuelUsed\":3.065896, \"FuelLevel\":19.762932, \"Factions\":[ { \"Name\":\"Pilots Federation Local Branch\", \"FactionState\":\"None\", \"Government\":\"Democracy\", \"Influence\":0.000000, \"Allegiance\":\"PilotsFederation\", \"Happiness\":\"\", \"MyReputation\":6.106290 }, { \"Name\":\"Shenetserii Confederation\", \"FactionState\":\"None\", \"Government\":\"Confederacy\", \"Influence\":0.127000, \"Allegiance\":\"Federation\", \"Happiness\":\"$Faction_HappinessBand2;\", \"Happiness_Localised\":\"Happy\", \"MyReputation\":18.809999, \"PendingStates\":[ { \"State\":\"War\", \"Trend\":0 } ] }, { \"Name\":\"LHS 20 Company\", \"FactionState\":\"None\", \"Government\":\"Corporate\", \"Influence\":0.127000, \"Allegiance\":\"Federation\", \"Happiness\":\"$Faction_HappinessBand2;\", \"Happiness_Localised\":\"Happy\", \"MyReputation\":4.950000, \"PendingStates\":[ { \"State\":\"War\", \"Trend\":0 } ] }, { \"Name\":\"Traditional LHS 20 Defence Party\", \"FactionState\":\"None\", \"Government\":\"Dictatorship\", \"Influence\":0.087000, \"Allegiance\":\"Independent\", \"Happiness\":\"$Faction_HappinessBand2;\", \"Happiness_Localised\":\"Happy\", \"MyReputation\":2.640000 }, { \"Name\":\"Movement for LHS 20 Liberals\", \"FactionState\":\"CivilWar\", \"Government\":\"Democracy\", \"Influence\":0.226000, \"Allegiance\":\"Federation\", \"Happiness\":\"$Faction_HappinessBand2;\", \"Happiness_Localised\":\"Happy\", \"SquadronFaction\":true, \"HomeSystem\":true, \"MyReputation\":100.000000, \"ActiveStates\":[ { \"State\":\"CivilLiberty\" }, { \"State\":\"Investment\" }, { \"State\":\"CivilWar\" } ] }, { \"Name\":\"Nationalists of LHS 20\", \"FactionState\":\"None\", \"Government\":\"Dictatorship\", \"Influence\":0.105000, \"Allegiance\":\"Independent\", \"Happiness\":\"$Faction_HappinessBand2;\", \"Happiness_Localised\":\"Happy\", \"MyReputation\":0.000000 }, { \"Name\":\"LHS 20 Organisation\", \"FactionState\":\"CivilWar\", \"Government\":\"Anarchy\", \"Influence\":0.166000, \"Allegiance\":\"Independent\", \"Happiness\":\"$Faction_HappinessBand2;\", \"Happiness_Localised\":\"Happy\", \"MyReputation\":5.940000, \"ActiveStates\":[ { \"State\":\"CivilWar\" } ] }, { \"Name\":\"LHS 20 Engineers\", \"FactionState\":\"None\", \"Government\":\"Corporate\", \"Influence\":0.162000, \"Allegiance\":\"Federation\", \"Happiness\":\"$Faction_HappinessBand2;\", \"Happiness_Localised\":\"Happy\", \"MyReputation\":15.000000 } ], \"SystemFaction\":{ \"Name\":\"Movement for LHS 20 Liberals\", \"FactionState\":\"CivilWar\" } }";
+            var events = JournalMonitor.ParseJournalEntry(line);
             Assert.AreEqual(1, events.Count);
-            JumpedEvent @event = (JumpedEvent)events[0];
+            var @event = (JumpedEvent)events[0];
             Assert.IsNotNull(@event);
             Assert.IsInstanceOfType(@event, typeof(JumpedEvent));
 
@@ -1220,10 +1226,10 @@ namespace UnitTests
         [TestMethod]
         public void TestJournalStoredModulesEventHandler()
         {
-            string line = "{ \"timestamp\":\"2019-01-25T00:06:36Z\", \"event\":\"StoredModules\", \"MarketID\":128928173, \"StationName\":\"Rock of Isolation\", \"StarSystem\":\"Omega Sector OD-S b4-0\", \"Items\":[ { \"Name\":\"$int_shieldgenerator_size7_class3_fast_name;\", \"Name_Localised\":\"Bi-Weave Shield\", \"StorageSlot\":52, \"StarSystem\":\"Omega Sector VE-Q b5-15\", \"MarketID\":128757071, \"TransferCost\":9729, \"TransferTime\":480, \"BuyPrice\":7501033, \"Hot\":false, \"EngineerModifications\":\"ShieldGenerator_Thermic\", \"Level\":5, \"Quality\":0.000000 }, { \"Name\":\"$int_cargorack_size7_class1_name;\", \"Name_Localised\":\"Cargo Rack\", \"StorageSlot\":101, \"StarSystem\":\"Omega Sector OD-S b4-0\", \"MarketID\":128928173, \"TransferCost\":0, \"TransferTime\":0, \"BuyPrice\":976616, \"Hot\":false }, { \"Name\":\"$int_hyperdrive_size6_class5_name;\", \"Name_Localised\":\"FSD\", \"StorageSlot\":53, \"StarSystem\":\"Shinrarta Dezhra\", \"MarketID\":128666762, \"TransferCost\":4535529, \"TransferTime\":55231, \"BuyPrice\":13752602, \"Hot\":false, \"EngineerModifications\":\"FSD_LongRange\", \"Level\":5, \"Quality\":0.000000 }, { \"Name\":\"$int_shieldgenerator_size5_class3_fast_name;\", \"Name_Localised\":\"Bi-Weave Shield\", \"StorageSlot\":116, \"StarSystem\":\"Shinrarta Dezhra\", \"MarketID\":128666762, \"TransferCost\":280636, \"TransferTime\":55231, \"BuyPrice\":850659, \"Hot\":false, \"EngineerModifications\":\"ShieldGenerator_Optimised\", \"Level\":3, \"Quality\":0.000000 }, { \"Name\":\"$hpt_multicannon_gimbal_huge_name;\", \"Name_Localised\":\"Multi-Cannon\", \"StorageSlot\":107, \"StarSystem\":\"Shinrarta Dezhra\", \"MarketID\":128666762, \"TransferCost\":1787862, \"TransferTime\":55231, \"BuyPrice\":5420960, \"Hot\":false, \"EngineerModifications\":\"Weapon_Overcharged\", \"Level\":4, \"Quality\":0.838000 }, { \"Name\":\"$int_repairer_size4_class5_name;\", \"Name_Localised\":\"AFM Unit\", \"StorageSlot\":114, \"StarSystem\":\"Shinrarta Dezhra\", \"MarketID\":128666762, \"TransferCost\":1367146, \"TransferTime\":55231, \"BuyPrice\":4145240, \"Hot\":false, \"EngineerModifications\":\"Misc_Shielded\", \"Level\":3, \"Quality\":1.000000 }, { \"Name\":\"$int_refinery_size4_class5_name;\", \"Name_Localised\":\"Refinery\", \"StorageSlot\":102, \"StarSystem\":\"Omega Sector OD-S b4-0\", \"MarketID\":128928173, \"TransferCost\":0, \"TransferTime\":0, \"BuyPrice\":3730077, \"Hot\":false }, { \"Name\":\"$int_fsdinterdictor_size4_class3_name;\", \"Name_Localised\":\"FSD Interdictor\", \"StorageSlot\":110, \"InTransit\":true, \"BuyPrice\":2311546, \"Hot\":false, \"EngineerModifications\":\"FSDinterdictor_Expanded\", \"Level\":4, \"Quality\":0.979500 }, { \"Name\":\"$int_hullreinforcement_size4_class2_name;\", \"Name_Localised\":\"Hull Reinforcement\", \"StorageSlot\":105, \"InTransit\":true, \"BuyPrice\":171113, \"Hot\":false, \"EngineerModifications\":\"HullReinforcement_HeavyDuty\", \"Level\":4, \"Quality\":0.000000 }, { \"Name\":\"$int_shieldgenerator_size3_class3_fast_name;\", \"Name_Localised\":\"Bi-Weave Shield\", \"StorageSlot\":113, \"StarSystem\":\"Shinrarta Dezhra\", \"MarketID\":128666762, \"TransferCost\":24597, \"TransferTime\":55231, \"BuyPrice\":74284, \"Hot\":false, \"EngineerModifications\":\"ShieldGenerator_Optimised\", \"Level\":5, \"Quality\":0.956700 }, { \"Name\":\"$int_modulereinforcement_size3_class2_name;\", \"Name_Localised\":\"Module Reinforcement\", \"StorageSlot\":120, \"StarSystem\":\"HIP 21066\", \"MarketID\":3221959680, \"TransferCost\":27804, \"TransferTime\":56644, \"BuyPrice\":81900, \"Hot\":false }, { \"Name\":\"$int_hullreinforcement_size3_class2_name;\", \"Name_Localised\":\"Hull Reinforcement\", \"StorageSlot\":115, \"StarSystem\":\"Shinrarta Dezhra\", \"MarketID\":128666762, \"TransferCost\":24408, \"TransferTime\":55231, \"BuyPrice\":73710, \"Hot\":false, \"EngineerModifications\":\"HullReinforcement_HeavyDuty\", \"Level\":4, \"Quality\":0.605000 }, { \"Name\":\"$int_dronecontrol_collection_size3_class2_name;\", \"Name_Localised\":\"Collector\", \"StorageSlot\":118, \"StarSystem\":\"Omega Sector OD-S b4-0\", \"MarketID\":128928173, \"TransferCost\":0, \"TransferTime\":0, \"BuyPrice\":10530, \"Hot\":false, \"EngineerModifications\":\"CollectionLimpet_LightWeight\", \"Level\":5, \"Quality\":0.000000 }, { \"Name\":\"$int_dronecontrol_fueltransfer_size3_class2_name;\", \"Name_Localised\":\"Fuel Transfer\", \"StorageSlot\":57, \"StarSystem\":\"Shinrarta Dezhra\", \"MarketID\":128666762, \"TransferCost\":3225, \"TransferTime\":55231, \"BuyPrice\":9477, \"Hot\":false, \"EngineerModifications\":\"FuelTransferLimpet_LightWeight\", \"Level\":4, \"Quality\":0.000000 }, { \"Name\":\"$hpt_mining_seismchrgwarhd_turret_medium_name;\", \"Name_Localised\":\"Seismic Charge\", \"StorageSlot\":111, \"StarSystem\":\"Omega Sector OD-S b4-0\", \"MarketID\":128928173, \"TransferCost\":0, \"TransferTime\":0, \"BuyPrice\":390988, \"Hot\":false }, { \"Name\":\"$hpt_mining_subsurfdispmisle_turret_medium_name;\", \"Name_Localised\":\"Disp. Missile\", \"StorageSlot\":109, \"StarSystem\":\"Omega Sector OD-S b4-0\", \"MarketID\":128928173, \"TransferCost\":0, \"TransferTime\":0, \"BuyPrice\":334986, \"Hot\":false }, { \"Name\":\"$int_modulereinforcement_size2_class2_name;\", \"Name_Localised\":\"Module Reinforcement\", \"StorageSlot\":112, \"StarSystem\":\"Wayutabal\", \"MarketID\":3224777984, \"TransferCost\":11773, \"TransferTime\":55696, \"BuyPrice\":35100, \"Hot\":false }, { \"Name\":\"$hpt_mininglaser_turret_medium_name;\", \"Name_Localised\":\"Mining Laser\", \"StorageSlot\":108, \"StarSystem\":\"Omega Sector OD-S b4-0\", \"MarketID\":128928173, \"TransferCost\":0, \"TransferTime\":0, \"BuyPrice\":28587, \"Hot\":false }, { \"Name\":\"$int_dronecontrol_prospector_size1_class5_name;\", \"Name_Localised\":\"Prospector\", \"StorageSlot\":104, \"StarSystem\":\"Omega Sector OD-S b4-0\", \"MarketID\":128928173, \"TransferCost\":0, \"TransferTime\":0, \"BuyPrice\":8424, \"Hot\":false }, { \"Name\":\"$hpt_mining_abrblstr_turret_small_name;\", \"Name_Localised\":\"Abrasion Blaster\", \"StorageSlot\":106, \"StarSystem\":\"Omega Sector OD-S b4-0\", \"MarketID\":128928173, \"TransferCost\":0, \"TransferTime\":0, \"BuyPrice\":24114, \"Hot\":false }, { \"Name\":\"$int_corrosionproofcargorack_size1_class2_name;\", \"Name_Localised\":\"Corrosion Resistant Cargo Rack\", \"StorageSlot\":59, \"StarSystem\":\"Maia\", \"MarketID\":128679559, \"TransferCost\":4376, \"TransferTime\":58455, \"BuyPrice\":12249, \"Hot\":false }, { \"Name\":\"$int_corrosionproofcargorack_size1_class2_name;\", \"Name_Localised\":\"Corrosion Resistant Cargo Rack\", \"StorageSlot\":51, \"StarSystem\":\"Maia\", \"MarketID\":128679559, \"TransferCost\":4376, \"TransferTime\":58455, \"BuyPrice\":12249, \"Hot\":false }, { \"Name\":\"$int_corrosionproofcargorack_size1_class2_name;\", \"Name_Localised\":\"Corrosion Resistant Cargo Rack\", \"StorageSlot\":58, \"StarSystem\":\"Shinrarta Dezhra\", \"MarketID\":128666762, \"TransferCost\":3621, \"TransferTime\":55231, \"BuyPrice\":10679, \"Hot\":false }, { \"Name\":\"$hpt_mrascanner_size0_class5_name;\", \"Name_Localised\":\"Pulse Wave\", \"StorageSlot\":100, \"StarSystem\":\"Omega Sector OD-S b4-0\", \"MarketID\":128928173, \"TransferCost\":0, \"TransferTime\":0, \"BuyPrice\":909217, \"Hot\":false }, { \"Name\":\"$hpt_heatsinklauncher_turret_tiny_name;\", \"Name_Localised\":\"Heatsink\", \"StorageSlot\":119, \"StarSystem\":\"Shinrarta Dezhra\", \"MarketID\":128666762, \"TransferCost\":1254, \"TransferTime\":55231, \"BuyPrice\":3500, \"Hot\":false, \"EngineerModifications\":\"HeatSinkLauncher_HeatSinkCapacity\", \"Level\":3, \"Quality\":0.000000 } ] }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
+            var line = "{ \"timestamp\":\"2019-01-25T00:06:36Z\", \"event\":\"StoredModules\", \"MarketID\":128928173, \"StationName\":\"Rock of Isolation\", \"StarSystem\":\"Omega Sector OD-S b4-0\", \"Items\":[ { \"Name\":\"$int_shieldgenerator_size7_class3_fast_name;\", \"Name_Localised\":\"Bi-Weave Shield\", \"StorageSlot\":52, \"StarSystem\":\"Omega Sector VE-Q b5-15\", \"MarketID\":128757071, \"TransferCost\":9729, \"TransferTime\":480, \"BuyPrice\":7501033, \"Hot\":false, \"EngineerModifications\":\"ShieldGenerator_Thermic\", \"Level\":5, \"Quality\":0.000000 }, { \"Name\":\"$int_cargorack_size7_class1_name;\", \"Name_Localised\":\"Cargo Rack\", \"StorageSlot\":101, \"StarSystem\":\"Omega Sector OD-S b4-0\", \"MarketID\":128928173, \"TransferCost\":0, \"TransferTime\":0, \"BuyPrice\":976616, \"Hot\":false }, { \"Name\":\"$int_hyperdrive_size6_class5_name;\", \"Name_Localised\":\"FSD\", \"StorageSlot\":53, \"StarSystem\":\"Shinrarta Dezhra\", \"MarketID\":128666762, \"TransferCost\":4535529, \"TransferTime\":55231, \"BuyPrice\":13752602, \"Hot\":false, \"EngineerModifications\":\"FSD_LongRange\", \"Level\":5, \"Quality\":0.000000 }, { \"Name\":\"$int_shieldgenerator_size5_class3_fast_name;\", \"Name_Localised\":\"Bi-Weave Shield\", \"StorageSlot\":116, \"StarSystem\":\"Shinrarta Dezhra\", \"MarketID\":128666762, \"TransferCost\":280636, \"TransferTime\":55231, \"BuyPrice\":850659, \"Hot\":false, \"EngineerModifications\":\"ShieldGenerator_Optimised\", \"Level\":3, \"Quality\":0.000000 }, { \"Name\":\"$hpt_multicannon_gimbal_huge_name;\", \"Name_Localised\":\"Multi-Cannon\", \"StorageSlot\":107, \"StarSystem\":\"Shinrarta Dezhra\", \"MarketID\":128666762, \"TransferCost\":1787862, \"TransferTime\":55231, \"BuyPrice\":5420960, \"Hot\":false, \"EngineerModifications\":\"Weapon_Overcharged\", \"Level\":4, \"Quality\":0.838000 }, { \"Name\":\"$int_repairer_size4_class5_name;\", \"Name_Localised\":\"AFM Unit\", \"StorageSlot\":114, \"StarSystem\":\"Shinrarta Dezhra\", \"MarketID\":128666762, \"TransferCost\":1367146, \"TransferTime\":55231, \"BuyPrice\":4145240, \"Hot\":false, \"EngineerModifications\":\"Misc_Shielded\", \"Level\":3, \"Quality\":1.000000 }, { \"Name\":\"$int_refinery_size4_class5_name;\", \"Name_Localised\":\"Refinery\", \"StorageSlot\":102, \"StarSystem\":\"Omega Sector OD-S b4-0\", \"MarketID\":128928173, \"TransferCost\":0, \"TransferTime\":0, \"BuyPrice\":3730077, \"Hot\":false }, { \"Name\":\"$int_fsdinterdictor_size4_class3_name;\", \"Name_Localised\":\"FSD Interdictor\", \"StorageSlot\":110, \"InTransit\":true, \"BuyPrice\":2311546, \"Hot\":false, \"EngineerModifications\":\"FSDinterdictor_Expanded\", \"Level\":4, \"Quality\":0.979500 }, { \"Name\":\"$int_hullreinforcement_size4_class2_name;\", \"Name_Localised\":\"Hull Reinforcement\", \"StorageSlot\":105, \"InTransit\":true, \"BuyPrice\":171113, \"Hot\":false, \"EngineerModifications\":\"HullReinforcement_HeavyDuty\", \"Level\":4, \"Quality\":0.000000 }, { \"Name\":\"$int_shieldgenerator_size3_class3_fast_name;\", \"Name_Localised\":\"Bi-Weave Shield\", \"StorageSlot\":113, \"StarSystem\":\"Shinrarta Dezhra\", \"MarketID\":128666762, \"TransferCost\":24597, \"TransferTime\":55231, \"BuyPrice\":74284, \"Hot\":false, \"EngineerModifications\":\"ShieldGenerator_Optimised\", \"Level\":5, \"Quality\":0.956700 }, { \"Name\":\"$int_modulereinforcement_size3_class2_name;\", \"Name_Localised\":\"Module Reinforcement\", \"StorageSlot\":120, \"StarSystem\":\"HIP 21066\", \"MarketID\":3221959680, \"TransferCost\":27804, \"TransferTime\":56644, \"BuyPrice\":81900, \"Hot\":false }, { \"Name\":\"$int_hullreinforcement_size3_class2_name;\", \"Name_Localised\":\"Hull Reinforcement\", \"StorageSlot\":115, \"StarSystem\":\"Shinrarta Dezhra\", \"MarketID\":128666762, \"TransferCost\":24408, \"TransferTime\":55231, \"BuyPrice\":73710, \"Hot\":false, \"EngineerModifications\":\"HullReinforcement_HeavyDuty\", \"Level\":4, \"Quality\":0.605000 }, { \"Name\":\"$int_dronecontrol_collection_size3_class2_name;\", \"Name_Localised\":\"Collector\", \"StorageSlot\":118, \"StarSystem\":\"Omega Sector OD-S b4-0\", \"MarketID\":128928173, \"TransferCost\":0, \"TransferTime\":0, \"BuyPrice\":10530, \"Hot\":false, \"EngineerModifications\":\"CollectionLimpet_LightWeight\", \"Level\":5, \"Quality\":0.000000 }, { \"Name\":\"$int_dronecontrol_fueltransfer_size3_class2_name;\", \"Name_Localised\":\"Fuel Transfer\", \"StorageSlot\":57, \"StarSystem\":\"Shinrarta Dezhra\", \"MarketID\":128666762, \"TransferCost\":3225, \"TransferTime\":55231, \"BuyPrice\":9477, \"Hot\":false, \"EngineerModifications\":\"FuelTransferLimpet_LightWeight\", \"Level\":4, \"Quality\":0.000000 }, { \"Name\":\"$hpt_mining_seismchrgwarhd_turret_medium_name;\", \"Name_Localised\":\"Seismic Charge\", \"StorageSlot\":111, \"StarSystem\":\"Omega Sector OD-S b4-0\", \"MarketID\":128928173, \"TransferCost\":0, \"TransferTime\":0, \"BuyPrice\":390988, \"Hot\":false }, { \"Name\":\"$hpt_mining_subsurfdispmisle_turret_medium_name;\", \"Name_Localised\":\"Disp. Missile\", \"StorageSlot\":109, \"StarSystem\":\"Omega Sector OD-S b4-0\", \"MarketID\":128928173, \"TransferCost\":0, \"TransferTime\":0, \"BuyPrice\":334986, \"Hot\":false }, { \"Name\":\"$int_modulereinforcement_size2_class2_name;\", \"Name_Localised\":\"Module Reinforcement\", \"StorageSlot\":112, \"StarSystem\":\"Wayutabal\", \"MarketID\":3224777984, \"TransferCost\":11773, \"TransferTime\":55696, \"BuyPrice\":35100, \"Hot\":false }, { \"Name\":\"$hpt_mininglaser_turret_medium_name;\", \"Name_Localised\":\"Mining Laser\", \"StorageSlot\":108, \"StarSystem\":\"Omega Sector OD-S b4-0\", \"MarketID\":128928173, \"TransferCost\":0, \"TransferTime\":0, \"BuyPrice\":28587, \"Hot\":false }, { \"Name\":\"$int_dronecontrol_prospector_size1_class5_name;\", \"Name_Localised\":\"Prospector\", \"StorageSlot\":104, \"StarSystem\":\"Omega Sector OD-S b4-0\", \"MarketID\":128928173, \"TransferCost\":0, \"TransferTime\":0, \"BuyPrice\":8424, \"Hot\":false }, { \"Name\":\"$hpt_mining_abrblstr_turret_small_name;\", \"Name_Localised\":\"Abrasion Blaster\", \"StorageSlot\":106, \"StarSystem\":\"Omega Sector OD-S b4-0\", \"MarketID\":128928173, \"TransferCost\":0, \"TransferTime\":0, \"BuyPrice\":24114, \"Hot\":false }, { \"Name\":\"$int_corrosionproofcargorack_size1_class2_name;\", \"Name_Localised\":\"Corrosion Resistant Cargo Rack\", \"StorageSlot\":59, \"StarSystem\":\"Maia\", \"MarketID\":128679559, \"TransferCost\":4376, \"TransferTime\":58455, \"BuyPrice\":12249, \"Hot\":false }, { \"Name\":\"$int_corrosionproofcargorack_size1_class2_name;\", \"Name_Localised\":\"Corrosion Resistant Cargo Rack\", \"StorageSlot\":51, \"StarSystem\":\"Maia\", \"MarketID\":128679559, \"TransferCost\":4376, \"TransferTime\":58455, \"BuyPrice\":12249, \"Hot\":false }, { \"Name\":\"$int_corrosionproofcargorack_size1_class2_name;\", \"Name_Localised\":\"Corrosion Resistant Cargo Rack\", \"StorageSlot\":58, \"StarSystem\":\"Shinrarta Dezhra\", \"MarketID\":128666762, \"TransferCost\":3621, \"TransferTime\":55231, \"BuyPrice\":10679, \"Hot\":false }, { \"Name\":\"$hpt_mrascanner_size0_class5_name;\", \"Name_Localised\":\"Pulse Wave\", \"StorageSlot\":100, \"StarSystem\":\"Omega Sector OD-S b4-0\", \"MarketID\":128928173, \"TransferCost\":0, \"TransferTime\":0, \"BuyPrice\":909217, \"Hot\":false }, { \"Name\":\"$hpt_heatsinklauncher_turret_tiny_name;\", \"Name_Localised\":\"Heatsink\", \"StorageSlot\":119, \"StarSystem\":\"Shinrarta Dezhra\", \"MarketID\":128666762, \"TransferCost\":1254, \"TransferTime\":55231, \"BuyPrice\":3500, \"Hot\":false, \"EngineerModifications\":\"HeatSinkLauncher_HeatSinkCapacity\", \"Level\":3, \"Quality\":0.000000 } ] }";
+            var events = JournalMonitor.ParseJournalEntry(line);
             Assert.AreEqual(1, events.Count);
-            StoredModulesEvent @event = (StoredModulesEvent)events[0];
+            var @event = (StoredModulesEvent)events[0];
             Assert.IsNotNull(@event);
             Assert.IsInstanceOfType(@event, typeof(StoredModulesEvent));
         }
@@ -1231,10 +1237,10 @@ namespace UnitTests
         [TestMethod]
         public void TestJournalSystemScanCompleteEvent()
         {
-            string line = @"{""timestamp"":""2019-03-10T16:09:36Z"", ""event"":""FSSAllBodiesFound"", ""SystemName"":""Dumbae DN-I d10-6057"", ""SystemAddress"":208127228285531, ""Count"":19 }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
+            var line = @"{""timestamp"":""2019-03-10T16:09:36Z"", ""event"":""FSSAllBodiesFound"", ""SystemName"":""Dumbae DN-I d10-6057"", ""SystemAddress"":208127228285531, ""Count"":19 }";
+            var events = JournalMonitor.ParseJournalEntry(line);
             Assert.AreEqual(1, events.Count);
-            SystemScanComplete @event = (SystemScanComplete)events[0];
+            var @event = (SystemScanComplete)events[0];
             Assert.IsNotNull(@event);
             Assert.IsInstanceOfType(@event, typeof(SystemScanComplete));
             Assert.AreEqual("Dumbae DN-I d10-6057", @event.systemname);
@@ -1245,13 +1251,14 @@ namespace UnitTests
         [TestMethod]
         public void TestMultiSellExplorationEvent()
         {
-            string line = @"{ ""timestamp"":""2018-11-14T10:35:35Z"", ""event"":""MultiSellExplorationData"", ""Discovered"":[ { ""SystemName"":""HIP 84742"", ""NumBodies"":23 }, { ""SystemName"":""Col 359 Sector NY-S b20-1"", ""NumBodies"":9 } ], ""BaseValue"":2938186, ""Bonus"":291000, ""TotalEarnings"":3229186 }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
+            var line = @"{ ""timestamp"":""2018-11-14T10:35:35Z"", ""event"":""MultiSellExplorationData"", ""Discovered"":[ { ""SystemName"":""HIP 84742"", ""NumBodies"":23 }, { ""SystemName"":""Col 359 Sector NY-S b20-1"", ""NumBodies"":9 } ], ""BaseValue"":2938186, ""Bonus"":291000, ""TotalEarnings"":3229186 }";
+            var events = JournalMonitor.ParseJournalEntry(line);
             Assert.AreEqual(1, events.Count);
-            ExplorationDataSoldEvent @event = (ExplorationDataSoldEvent)events[0];
+            var @event = (ExplorationDataSoldEvent)events[0];
             Assert.IsNotNull(@event);
             Assert.IsInstanceOfType(@event, typeof(ExplorationDataSoldEvent));
-            Assert.AreEqual(2, @event.systems?.Count);
+            Assert.IsNotNull( @event.systems );
+            Assert.AreEqual(2, @event.systems.Count);
             Assert.AreEqual(2938186M, @event.reward);
             Assert.AreEqual(291000M, @event.bonus);
             Assert.AreEqual(3229186M, @event.total);
@@ -1261,9 +1268,9 @@ namespace UnitTests
         public void TestSignalDetectedEvent()
         {
             // Test a scenario signal
-            string line = @"{ ""timestamp"":""2019-02-06T07:22:27Z"", ""event"":""FSSSignalDiscovered"", ""SystemAddress"":1177567513979, ""SignalName"":""$MULTIPLAYER_SCENARIO42_TITLE;"", ""SignalName_Localised"":""Nav Beacon"" }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            SignalDetectedEvent @event = (SignalDetectedEvent)events[0];
+            var line = @"{ ""timestamp"":""2019-02-06T07:22:27Z"", ""event"":""FSSSignalDiscovered"", ""SystemAddress"":1177567513979, ""SignalName"":""$MULTIPLAYER_SCENARIO42_TITLE;"", ""SignalName_Localised"":""Nav Beacon"" }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            var @event = (SignalDetectedEvent)events[0];
             Assert.IsNotNull(@event);
             Assert.IsInstanceOfType(@event, typeof(SignalDetectedEvent));
             Assert.AreEqual("Nav Beacon", @event.signalSource.invariantName);
@@ -1273,9 +1280,9 @@ namespace UnitTests
         public void TestSignalDetectedEvent2()
         {
             // Test a USS signal
-            string line = @"{ ""timestamp"":""2019-02-17T19:39:57Z"", ""event"":""FSSSignalDiscovered"", ""SystemAddress"":60276065930987, ""SignalName"":""$USS;"", ""SignalName_Localised"":""Unidentified signal source"", ""USSType"":""$USS_Type_ValuableSalvage;"", ""USSType_Localised"":""Encoded emissions"", ""SpawningState"":""$FactionState_War_desc;"", ""SpawningState_Localised"":""The War state represents a conflict between the controlling faction in a system and a new faction that has expanded into the system."", ""SpawningFaction"":""Colonia Council"", ""ThreatLevel"":0, ""TimeRemaining"":2385.815674 }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            SignalDetectedEvent @event = (SignalDetectedEvent)events[0];
+            var line = @"{ ""timestamp"":""2019-02-17T19:39:57Z"", ""event"":""FSSSignalDiscovered"", ""SystemAddress"":60276065930987, ""SignalName"":""$USS;"", ""SignalName_Localised"":""Unidentified signal source"", ""USSType"":""$USS_Type_ValuableSalvage;"", ""USSType_Localised"":""Encoded emissions"", ""SpawningState"":""$FactionState_War_desc;"", ""SpawningState_Localised"":""The War state represents a conflict between the controlling faction in a system and a new faction that has expanded into the system."", ""SpawningFaction"":""Colonia Council"", ""ThreatLevel"":0, ""TimeRemaining"":2385.815674 }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            var @event = (SignalDetectedEvent)events[0];
             Assert.IsNotNull(@event);
             Assert.IsInstanceOfType(@event, typeof(SignalDetectedEvent));
             Assert.AreEqual("Encoded Emissions", @event.signalSource.invariantName);
@@ -1289,9 +1296,9 @@ namespace UnitTests
         public void TestSignalDetectedEvent3()
         {
             // Test a uniquely named object signal
-            string line = @"{ ""timestamp"":""2019-02-17T19:39:39Z"", ""event"":""FSSSignalDiscovered"", ""SystemAddress"":60276065930987, ""SignalName"":""Samson Class Bulk Cargo Ship GDZ-044"" }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            SignalDetectedEvent @event = (SignalDetectedEvent)events[0];
+            var line = @"{ ""timestamp"":""2019-02-17T19:39:39Z"", ""event"":""FSSSignalDiscovered"", ""SystemAddress"":60276065930987, ""SignalName"":""Samson Class Bulk Cargo Ship GDZ-044"" }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            var @event = (SignalDetectedEvent)events[0];
             Assert.IsNotNull(@event);
             Assert.IsInstanceOfType(@event, typeof(SignalDetectedEvent));
             Assert.AreEqual("Samson Class Bulk Cargo Ship GDZ-044", @event.source);
@@ -1301,9 +1308,9 @@ namespace UnitTests
         public void TestSignalDetectedEvent4()
         {
             // Test a carrier signal source
-            string line = @"{ ""timestamp"":""2021-01-11T19:44:08Z"", ""event"":""FSSSignalDiscovered"", ""SystemAddress"":1733119939274, ""SignalName"":""PBSF SPACE ODDITY XBH-64Y"", ""SignalType"":""FleetCarrier"", ""IsStation"":true }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            SignalDetectedEvent @event = (SignalDetectedEvent)events[0];
+            var line = @"{ ""timestamp"":""2021-01-11T19:44:08Z"", ""event"":""FSSSignalDiscovered"", ""SystemAddress"":1733119939274, ""SignalName"":""PBSF SPACE ODDITY XBH-64Y"", ""SignalType"":""FleetCarrier"", ""IsStation"":true }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            var @event = (SignalDetectedEvent)events[0];
             Assert.IsNotNull(@event);
             Assert.IsInstanceOfType(@event, typeof(SignalDetectedEvent));
             Assert.AreEqual("PBSF SPACE ODDITY", @event.signalSource.localizedName);
@@ -1319,8 +1326,8 @@ namespace UnitTests
         {
             // Test a powerplay wreckage signal source
             var line = @"{""timestamp"":""2024-10-22T19:57:06Z"",""event"":""FSSSignalDiscovered"",""SystemAddress"":2557686551258,""SignalName"":""$USS_PowerEmissions;"",""SignalName_Localised"":""Unidentified signal source"",""SignalType"":""USS"",""USSType"":""$USS_Type_PowerEmissions;"",""USSType_Localised"":""Power Wreckage Signature"",""SpawningPower"":""Archon Delaine"",""ThreatLevel"":3,""TimeRemaining"":2549.222656}";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            SignalDetectedEvent @event = (SignalDetectedEvent)events[0];
+            var events = JournalMonitor.ParseJournalEntry(line);
+            var @event = (SignalDetectedEvent)events[0];
             Assert.IsNotNull( @event );
             Assert.IsInstanceOfType( @event, typeof( SignalDetectedEvent ) );
             Assert.AreEqual( 2557686551258U, @event.systemAddress );
@@ -1336,11 +1343,11 @@ namespace UnitTests
         {
             EDDI.Instance.CurrentStarSystem = new StarSystem { systemname = "TestSystem", systemAddress = 6606892846275 };
 
-            string line0 = @"{ ""timestamp"":""2019-02-04T02:20:28Z"", ""event"":""FSSSignalDiscovered"", ""SystemAddress"":6606892846275, ""SignalName"":""$NumberStation;"", ""SignalName_Localised"":""Unregistered Comms Beacon"" }";
-            string line1 = @"{ ""timestamp"":""2019-02-04T02:25:03Z"", ""event"":""FSSSignalDiscovered"", ""SystemAddress"":6606892846275, ""SignalName"":""$NumberStation;"", ""SignalName_Localised"":""Unregistered Comms Beacon"" }";
-            string line2 = @"{ ""timestamp"":""2019-02-04T02:28:26Z"", ""event"":""FSSSignalDiscovered"", ""SystemAddress"":6606892846275, ""SignalName"":""$Fixed_Event_Life_Ring;"", ""SignalName_Localised"":""Notable stellar phenomena"" }";
-            string line3 = @"{ ""timestamp"":""2019-02-04T02:38:53Z"", ""event"":""FSSSignalDiscovered"", ""SystemAddress"":6606892846275, ""SignalName"":""$Fixed_Event_Life_Ring;"", ""SignalName_Localised"":""Notable stellar phenomena"" }";
-            string line4 = @"{ ""timestamp"":""2019-02-04T02:38:53Z"", ""event"":""FSSSignalDiscovered"", ""SystemAddress"":6606892846275, ""SignalName"":""$NumberStation;"", ""SignalName_Localised"":""Unregistered Comms Beacon"" }";
+            var line0 = @"{ ""timestamp"":""2019-02-04T02:20:28Z"", ""event"":""FSSSignalDiscovered"", ""SystemAddress"":6606892846275, ""SignalName"":""$NumberStation;"", ""SignalName_Localised"":""Unregistered Comms Beacon"" }";
+            var line1 = @"{ ""timestamp"":""2019-02-04T02:25:03Z"", ""event"":""FSSSignalDiscovered"", ""SystemAddress"":6606892846275, ""SignalName"":""$NumberStation;"", ""SignalName_Localised"":""Unregistered Comms Beacon"" }";
+            var line2 = @"{ ""timestamp"":""2019-02-04T02:28:26Z"", ""event"":""FSSSignalDiscovered"", ""SystemAddress"":6606892846275, ""SignalName"":""$Fixed_Event_Life_Ring;"", ""SignalName_Localised"":""Notable stellar phenomena"" }";
+            var line3 = @"{ ""timestamp"":""2019-02-04T02:38:53Z"", ""event"":""FSSSignalDiscovered"", ""SystemAddress"":6606892846275, ""SignalName"":""$Fixed_Event_Life_Ring;"", ""SignalName_Localised"":""Notable stellar phenomena"" }";
+            var line4 = @"{ ""timestamp"":""2019-02-04T02:38:53Z"", ""event"":""FSSSignalDiscovered"", ""SystemAddress"":6606892846275, ""SignalName"":""$NumberStation;"", ""SignalName_Localised"":""Unregistered Comms Beacon"" }";
 
             var events0 = JournalMonitor.ParseJournalEntry(line0);
             var event0 = (SignalDetectedEvent)events0[0];
@@ -1376,13 +1383,13 @@ namespace UnitTests
         [TestMethod]
         public void TestFSDJumpConflicts()
         {
-            string line = @"{ ""timestamp"":""2019-06-30T05:38:53Z"", ""event"":""FSDJump"", ""StarSystem"":""Ogmar"", ""SystemAddress"":84180519395914, ""StarPos"":[-9534.00000,-905.28125,19802.03125], ""SystemAllegiance"":""Independent"", ""SystemEconomy"":""$economy_HighTech;"", ""SystemEconomy_Localised"":""High Tech"", ""SystemSecondEconomy"":""$economy_None;"", ""SystemSecondEconomy_Localised"":""None"", ""SystemGovernment"":""$government_Confederacy;"", ""SystemGovernment_Localised"":""Confederacy"", ""SystemSecurity"":""$SYSTEM_SECURITY_medium;"", ""SystemSecurity_Localised"":""Medium Security"", ""Population"":133000, ""Body"":""Ogmar A"", ""BodyID"":1, ""BodyType"":""Star"", ""JumpDist"":8.625, ""FuelUsed"":0.151982, ""FuelLevel"":31.695932, ""Factions"":[ { ""Name"":""Jaques"", ""FactionState"":""Election"", ""Government"":""Cooperative"", ""Influence"":0.104895, ""Allegiance"":""Independent"", ""Happiness"":""$Faction_HappinessBand1;"", ""Happiness_Localised"":""Elated"", ""MyReputation"":100.000000, ""ActiveStates"":[ { ""State"":""Election"" } ] }, { ""Name"":""Colonia Research Department"", ""FactionState"":""None"", ""Government"":""Cooperative"", ""Influence"":0.078921, ""Allegiance"":""Independent"", ""Happiness"":""$Faction_HappinessBand2;"", ""Happiness_Localised"":""Happy"", ""MyReputation"":21.639999, ""RecoveringStates"":[ { ""State"":""Outbreak"", ""Trend"":0 } ] }, { ""Name"":""Pilots' Federation Local Branch"", ""FactionState"":""None"", ""Government"":""Democracy"", ""Influence"":0.000000, ""Allegiance"":""PilotsFederation"", ""Happiness"":"""", ""MyReputation"":100.000000 }, { ""Name"":""Colonia Mining Enterprise"", ""FactionState"":""None"", ""Government"":""Cooperative"", ""Influence"":0.052947, ""Allegiance"":""Independent"", ""Happiness"":""$Faction_HappinessBand2;"", ""Happiness_Localised"":""Happy"", ""MyReputation"":100.000000 }, { ""Name"":""Colonia Co-operative"", ""FactionState"":""Election"", ""Government"":""Cooperative"", ""Influence"":0.104895, ""Allegiance"":""Independent"", ""Happiness"":""$Faction_HappinessBand2;"", ""Happiness_Localised"":""Happy"", ""MyReputation"":71.470001, ""PendingStates"":[ { ""State"":""Expansion"", ""Trend"":0 } ], ""ActiveStates"":[ { ""State"":""Outbreak"" }, { ""State"":""Election"" } ] }, { ""Name"":""Colonia Agricultural Co-operative"", ""FactionState"":""None"", ""Government"":""Cooperative"", ""Influence"":0.076923, ""Allegiance"":""Independent"", ""Happiness"":""$Faction_HappinessBand2;"", ""Happiness_Localised"":""Happy"", ""MyReputation"":6.640000, ""RecoveringStates"":[ { ""State"":""Outbreak"", ""Trend"":0 } ] }, { ""Name"":""GalCop Colonial Defence Commission"", ""FactionState"":""Boom"", ""Government"":""Confederacy"", ""Influence"":0.449550, ""Allegiance"":""Independent"", ""Happiness"":""$Faction_HappinessBand2;"", ""Happiness_Localised"":""Happy"", ""MyReputation"":100.000000, ""ActiveStates"":[ { ""State"":""Boom"" } ] }, { ""Name"":""Colonia Tech Combine"", ""FactionState"":""None"", ""Government"":""Cooperative"", ""Influence"":0.090909, ""Allegiance"":""Independent"", ""Happiness"":""$Faction_HappinessBand2;"", ""Happiness_Localised"":""Happy"", ""MyReputation"":0.000000, ""RecoveringStates"":[ { ""State"":""Outbreak"", ""Trend"":0 } ] }, { ""Name"":""Milanov's Reavers"", ""FactionState"":""None"", ""Government"":""Anarchy"", ""Influence"":0.040959, ""Allegiance"":""Independent"", ""Happiness"":""$Faction_HappinessBand2;"", ""Happiness_Localised"":""Happy"", ""MyReputation"":0.000000, ""RecoveringStates"":[ { ""State"":""Outbreak"", ""Trend"":0 } ] } ], ""SystemFaction"":{ ""Name"":""GalCop Colonial Defence Commission"", ""FactionState"":""Boom"" }, ""Conflicts"":[ { ""WarType"":""election"", ""Status"":""active"", ""Faction1"":{ ""Name"":""Jaques"", ""Stake"":""Crockett Gateway"", ""WonDays"":1 }, ""Faction2"":{ ""Name"":""Colonia Co-operative"", ""Stake"":"""", ""WonDays"":2 } } ] }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            JumpedEvent @event = (JumpedEvent)events[0];
+            var line = @"{ ""timestamp"":""2019-06-30T05:38:53Z"", ""event"":""FSDJump"", ""StarSystem"":""Ogmar"", ""SystemAddress"":84180519395914, ""StarPos"":[-9534.00000,-905.28125,19802.03125], ""SystemAllegiance"":""Independent"", ""SystemEconomy"":""$economy_HighTech;"", ""SystemEconomy_Localised"":""High Tech"", ""SystemSecondEconomy"":""$economy_None;"", ""SystemSecondEconomy_Localised"":""None"", ""SystemGovernment"":""$government_Confederacy;"", ""SystemGovernment_Localised"":""Confederacy"", ""SystemSecurity"":""$SYSTEM_SECURITY_medium;"", ""SystemSecurity_Localised"":""Medium Security"", ""Population"":133000, ""Body"":""Ogmar A"", ""BodyID"":1, ""BodyType"":""Star"", ""JumpDist"":8.625, ""FuelUsed"":0.151982, ""FuelLevel"":31.695932, ""Factions"":[ { ""Name"":""Jaques"", ""FactionState"":""Election"", ""Government"":""Cooperative"", ""Influence"":0.104895, ""Allegiance"":""Independent"", ""Happiness"":""$Faction_HappinessBand1;"", ""Happiness_Localised"":""Elated"", ""MyReputation"":100.000000, ""ActiveStates"":[ { ""State"":""Election"" } ] }, { ""Name"":""Colonia Research Department"", ""FactionState"":""None"", ""Government"":""Cooperative"", ""Influence"":0.078921, ""Allegiance"":""Independent"", ""Happiness"":""$Faction_HappinessBand2;"", ""Happiness_Localised"":""Happy"", ""MyReputation"":21.639999, ""RecoveringStates"":[ { ""State"":""Outbreak"", ""Trend"":0 } ] }, { ""Name"":""Pilots' Federation Local Branch"", ""FactionState"":""None"", ""Government"":""Democracy"", ""Influence"":0.000000, ""Allegiance"":""PilotsFederation"", ""Happiness"":"""", ""MyReputation"":100.000000 }, { ""Name"":""Colonia Mining Enterprise"", ""FactionState"":""None"", ""Government"":""Cooperative"", ""Influence"":0.052947, ""Allegiance"":""Independent"", ""Happiness"":""$Faction_HappinessBand2;"", ""Happiness_Localised"":""Happy"", ""MyReputation"":100.000000 }, { ""Name"":""Colonia Co-operative"", ""FactionState"":""Election"", ""Government"":""Cooperative"", ""Influence"":0.104895, ""Allegiance"":""Independent"", ""Happiness"":""$Faction_HappinessBand2;"", ""Happiness_Localised"":""Happy"", ""MyReputation"":71.470001, ""PendingStates"":[ { ""State"":""Expansion"", ""Trend"":0 } ], ""ActiveStates"":[ { ""State"":""Outbreak"" }, { ""State"":""Election"" } ] }, { ""Name"":""Colonia Agricultural Co-operative"", ""FactionState"":""None"", ""Government"":""Cooperative"", ""Influence"":0.076923, ""Allegiance"":""Independent"", ""Happiness"":""$Faction_HappinessBand2;"", ""Happiness_Localised"":""Happy"", ""MyReputation"":6.640000, ""RecoveringStates"":[ { ""State"":""Outbreak"", ""Trend"":0 } ] }, { ""Name"":""GalCop Colonial Defence Commission"", ""FactionState"":""Boom"", ""Government"":""Confederacy"", ""Influence"":0.449550, ""Allegiance"":""Independent"", ""Happiness"":""$Faction_HappinessBand2;"", ""Happiness_Localised"":""Happy"", ""MyReputation"":100.000000, ""ActiveStates"":[ { ""State"":""Boom"" } ] }, { ""Name"":""Colonia Tech Combine"", ""FactionState"":""None"", ""Government"":""Cooperative"", ""Influence"":0.090909, ""Allegiance"":""Independent"", ""Happiness"":""$Faction_HappinessBand2;"", ""Happiness_Localised"":""Happy"", ""MyReputation"":0.000000, ""RecoveringStates"":[ { ""State"":""Outbreak"", ""Trend"":0 } ] }, { ""Name"":""Milanov's Reavers"", ""FactionState"":""None"", ""Government"":""Anarchy"", ""Influence"":0.040959, ""Allegiance"":""Independent"", ""Happiness"":""$Faction_HappinessBand2;"", ""Happiness_Localised"":""Happy"", ""MyReputation"":0.000000, ""RecoveringStates"":[ { ""State"":""Outbreak"", ""Trend"":0 } ] } ], ""SystemFaction"":{ ""Name"":""GalCop Colonial Defence Commission"", ""FactionState"":""Boom"" }, ""Conflicts"":[ { ""WarType"":""election"", ""Status"":""active"", ""Faction1"":{ ""Name"":""Jaques"", ""Stake"":""Crockett Gateway"", ""WonDays"":1 }, ""Faction2"":{ ""Name"":""Colonia Co-operative"", ""Stake"":"""", ""WonDays"":2 } } ] }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            var @event = (JumpedEvent)events[0];
             Assert.IsNotNull(@event);
             Assert.IsInstanceOfType(@event, typeof(JumpedEvent));
             Assert.IsNotNull(@event.conflicts);
-            Assert.AreEqual(1, @event.conflicts.Count());
+            Assert.AreEqual(1, @event.conflicts.Count);
             Assert.AreEqual("Election", @event.conflicts[0].factionState.invariantName);
             Assert.AreEqual("active", @event.conflicts[0].status);
             Assert.AreEqual("Crockett Gateway", @event.conflicts[0].stake);
@@ -1397,21 +1404,21 @@ namespace UnitTests
         [TestMethod]
         public void TestStatisticsWithoutThargoidEncounters()
         {
-            string line = @"{ ""timestamp"":""2019 - 09 - 13T23: 08:23Z"", ""event"":""Statistics"", ""Bank_Account"":{ ""Current_Wealth"":102745031, ""Spent_On_Ships"":63159760, ""Spent_On_Outfitting"":68503498, ""Spent_On_Repairs"":61377, ""Spent_On_Fuel"":18207, ""Spent_On_Ammo_Consumables"":26558, ""Insurance_Claims"":2, ""Spent_On_Insurance"":1981088, ""Owned_Ship_Count"":1 }, ""Combat"":{ ""Bounties_Claimed"":14, ""Bounty_Hunting_Profit"":318587, ""Combat_Bonds"":0, ""Combat_Bond_Profits"":0, ""Assassinations"":1, ""Assassination_Profits"":496428, ""Highest_Single_Reward"":96725, ""Skimmers_Killed"":0 }, ""Crime"":{ ""Notoriety"":0, ""Fines"":10, ""Total_Fines"":115301, ""Bounties_Received"":1, ""Total_Bounties"":400, ""Highest_Bounty"":400 }, ""Smuggling"":{ ""Black_Markets_Traded_With"":1, ""Black_Markets_Profits"":67, ""Resources_Smuggled"":2, ""Average_Profit"":33.5, ""Highest_Single_Transaction"":42 }, ""Trading"":{ ""Markets_Traded_With"":15, ""Market_Profits"":12890065, ""Resources_Traded"":11297, ""Average_Profit"":96917.781954887, ""Highest_Single_Transaction"":682212 }, ""Mining"":{ ""Mining_Profits"":0, ""Quantity_Mined"":0, ""Materials_Collected"":726 }, ""Exploration"":{ ""Systems_Visited"":334, ""Exploration_Profits"":6162412, ""Planets_Scanned_To_Level_2"":909, ""Planets_Scanned_To_Level_3"":909, ""Efficient_Scans"":3, ""Highest_Payout"":279383, ""Total_Hyperspace_Distance"":8890, ""Total_Hyperspace_Jumps"":482, ""Greatest_Distance_From_Start"":877.74392687704, ""Time_Played"":310680 }, ""Passengers"":{ ""Passengers_Missions_Accepted"":88, ""Passengers_Missions_Bulk"":1025, ""Passengers_Missions_VIP"":14, ""Passengers_Missions_Delivered"":1039, ""Passengers_Missions_Ejected"":0 }, ""Search_And_Rescue"":{ ""SearchRescue_Traded"":0, ""SearchRescue_Profit"":0, ""SearchRescue_Count"":0 }, ""Crafting"":{ ""Count_Of_Used_Engineers"":2, ""Recipes_Generated"":52, ""Recipes_Generated_Rank_1"":33, ""Recipes_Generated_Rank_2"":11, ""Recipes_Generated_Rank_3"":5, ""Recipes_Generated_Rank_4"":3, ""Recipes_Generated_Rank_5"":0 }, ""Crew"":{  }, ""Multicrew"":{ ""Multicrew_Time_Total"":7083, ""Multicrew_Gunner_Time_Total"":0, ""Multicrew_Fighter_Time_Total"":1769, ""Multicrew_Credits_Total"":104161, ""Multicrew_Fines_Total"":100 }, ""Material_Trader_Stats"":{ ""Trades_Completed"":3, ""Materials_Traded"":56, ""Raw_Materials_Traded"":56, ""Grade_1_Materials_Traded"":56 } }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
+            var line = @"{ ""timestamp"":""2019 - 09 - 13T23: 08:23Z"", ""event"":""Statistics"", ""Bank_Account"":{ ""Current_Wealth"":102745031, ""Spent_On_Ships"":63159760, ""Spent_On_Outfitting"":68503498, ""Spent_On_Repairs"":61377, ""Spent_On_Fuel"":18207, ""Spent_On_Ammo_Consumables"":26558, ""Insurance_Claims"":2, ""Spent_On_Insurance"":1981088, ""Owned_Ship_Count"":1 }, ""Combat"":{ ""Bounties_Claimed"":14, ""Bounty_Hunting_Profit"":318587, ""Combat_Bonds"":0, ""Combat_Bond_Profits"":0, ""Assassinations"":1, ""Assassination_Profits"":496428, ""Highest_Single_Reward"":96725, ""Skimmers_Killed"":0 }, ""Crime"":{ ""Notoriety"":0, ""Fines"":10, ""Total_Fines"":115301, ""Bounties_Received"":1, ""Total_Bounties"":400, ""Highest_Bounty"":400 }, ""Smuggling"":{ ""Black_Markets_Traded_With"":1, ""Black_Markets_Profits"":67, ""Resources_Smuggled"":2, ""Average_Profit"":33.5, ""Highest_Single_Transaction"":42 }, ""Trading"":{ ""Markets_Traded_With"":15, ""Market_Profits"":12890065, ""Resources_Traded"":11297, ""Average_Profit"":96917.781954887, ""Highest_Single_Transaction"":682212 }, ""Mining"":{ ""Mining_Profits"":0, ""Quantity_Mined"":0, ""Materials_Collected"":726 }, ""Exploration"":{ ""Systems_Visited"":334, ""Exploration_Profits"":6162412, ""Planets_Scanned_To_Level_2"":909, ""Planets_Scanned_To_Level_3"":909, ""Efficient_Scans"":3, ""Highest_Payout"":279383, ""Total_Hyperspace_Distance"":8890, ""Total_Hyperspace_Jumps"":482, ""Greatest_Distance_From_Start"":877.74392687704, ""Time_Played"":310680 }, ""Passengers"":{ ""Passengers_Missions_Accepted"":88, ""Passengers_Missions_Bulk"":1025, ""Passengers_Missions_VIP"":14, ""Passengers_Missions_Delivered"":1039, ""Passengers_Missions_Ejected"":0 }, ""Search_And_Rescue"":{ ""SearchRescue_Traded"":0, ""SearchRescue_Profit"":0, ""SearchRescue_Count"":0 }, ""Crafting"":{ ""Count_Of_Used_Engineers"":2, ""Recipes_Generated"":52, ""Recipes_Generated_Rank_1"":33, ""Recipes_Generated_Rank_2"":11, ""Recipes_Generated_Rank_3"":5, ""Recipes_Generated_Rank_4"":3, ""Recipes_Generated_Rank_5"":0 }, ""Crew"":{  }, ""Multicrew"":{ ""Multicrew_Time_Total"":7083, ""Multicrew_Gunner_Time_Total"":0, ""Multicrew_Fighter_Time_Total"":1769, ""Multicrew_Credits_Total"":104161, ""Multicrew_Fines_Total"":100 }, ""Material_Trader_Stats"":{ ""Trades_Completed"":3, ""Materials_Traded"":56, ""Raw_Materials_Traded"":56, ""Grade_1_Materials_Traded"":56 } }";
+            var events = JournalMonitor.ParseJournalEntry(line);
             // Ideally we'd assert that it logs no warnings but that's not easy without mocking the logging framework.
             // Instead we test for a stanza that comes after the missing TG_ENCOUNTERS stanza.
             Assert.AreEqual(1, events.Count);
-            StatisticsEvent statisticsEvent = (StatisticsEvent)events[0];
+            var statisticsEvent = (StatisticsEvent)events[0];
             Assert.AreEqual(7083, statisticsEvent.multicrew.timetotalseconds);
         }
 
         [TestMethod]
         public void TestReputationWithoutIndependent()
         {
-            string line = @"{ ""timestamp"":""2019 - 09 - 13T23: 08:20Z"", ""event"":""Reputation"", ""Empire"":18.287001, ""Federation"":75.703102, ""Alliance"":1.179020 }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            CommanderReputationEvent reputationEvent = (CommanderReputationEvent)events[0];
+            var line = @"{ ""timestamp"":""2019 - 09 - 13T23: 08:20Z"", ""event"":""Reputation"", ""Empire"":18.287001, ""Federation"":75.703102, ""Alliance"":1.179020 }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            var reputationEvent = (CommanderReputationEvent)events[0];
             Assert.AreEqual(18.287001M, reputationEvent.empire);
             Assert.AreEqual(75.703102M, reputationEvent.federation);
             Assert.AreEqual(1.179020M, reputationEvent.alliance);
@@ -1421,9 +1428,9 @@ namespace UnitTests
         [TestMethod]
         public void TestTouchdownEventBio()
         {
-            string line = "{ \"timestamp\":\"2019 - 09 - 26T06: 42:43Z\", \"event\":\"Touchdown\", \"PlayerControlled\":true, \"Taxi\":false, \"Multicrew\":false, \"StarSystem\":\"Nervi\", \"SystemAddress\":2518721481067, \"Body\":\"Nervi 2 a\", \"BodyID\":17, \"OnStation\":false, \"OnPlanet\":true, \"Latitude\":-44.165684, \"Longitude\":-123.219307, \"NearestDestination\":\"$SAA_Unknown_Signal:#type=$SAA_SignalType_Biological;:#index=15;\", \"NearestDestination_Localised\":\"Surface signal: Biological (15)\" }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            TouchdownEvent @event = (TouchdownEvent)events[0];
+            var line = "{ \"timestamp\":\"2019 - 09 - 26T06: 42:43Z\", \"event\":\"Touchdown\", \"PlayerControlled\":true, \"Taxi\":false, \"Multicrew\":false, \"StarSystem\":\"Nervi\", \"SystemAddress\":2518721481067, \"Body\":\"Nervi 2 a\", \"BodyID\":17, \"OnStation\":false, \"OnPlanet\":true, \"Latitude\":-44.165684, \"Longitude\":-123.219307, \"NearestDestination\":\"$SAA_Unknown_Signal:#type=$SAA_SignalType_Biological;:#index=15;\", \"NearestDestination_Localised\":\"Surface signal: Biological (15)\" }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            var @event = (TouchdownEvent)events[0];
             Assert.IsTrue(@event.playercontrolled);
             Assert.AreEqual(-44.165684M, @event.latitude);
             Assert.AreEqual(-123.219307M, @event.longitude);
@@ -1433,9 +1440,9 @@ namespace UnitTests
         [TestMethod]
         public void TestTouchdownEventGuardian()
         {
-            string line = "{ \"timestamp\":\"2019 - 09 - 26T04: 55:43Z\", \"event\":\"Touchdown\", \"PlayerControlled\":true, \"Taxi\":false, \"Multicrew\":false, \"StarSystem\":\"Nervi\", \"SystemAddress\":2518721481067, \"Body\":\"Nervi 2 a\", \"BodyID\":17, \"OnStation\":false, \"OnPlanet\":true, \"Latitude\":-44.464405, \"Longitude\":-95.072144, \"NearestDestination\":\"$Ancient_Tiny_003:#index=1;\", \"NearestDestination_Localised\":\"Guardian Structure\" }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            TouchdownEvent @event = (TouchdownEvent)events[0];
+            var line = "{ \"timestamp\":\"2019 - 09 - 26T04: 55:43Z\", \"event\":\"Touchdown\", \"PlayerControlled\":true, \"Taxi\":false, \"Multicrew\":false, \"StarSystem\":\"Nervi\", \"SystemAddress\":2518721481067, \"Body\":\"Nervi 2 a\", \"BodyID\":17, \"OnStation\":false, \"OnPlanet\":true, \"Latitude\":-44.464405, \"Longitude\":-95.072144, \"NearestDestination\":\"$Ancient_Tiny_003:#index=1;\", \"NearestDestination_Localised\":\"Guardian Structure\" }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            var @event = (TouchdownEvent)events[0];
             Assert.IsTrue(@event.playercontrolled);
             Assert.AreEqual(-44.464405M, @event.latitude);
             Assert.AreEqual(-95.072144M, @event.longitude);
@@ -1445,38 +1452,43 @@ namespace UnitTests
         [TestMethod]
         public void TestEngineerProgress()
         {
-            string startupLine = "{ \"timestamp\":\"2018-05-04T13:58:22Z\", \"event\":\"EngineerProgress\", \"Engineers\":[ { \"Engineer\":\"Zacariah Nemo\", \"EngineerID\":300050, \"Progress\":\"Invited\" }, { \"Engineer\":\"Marco Qwent\", \"EngineerID\":300200, \"Progress\":\"Unlocked\", \"RankProgress\":37, \"Rank\":4 }, { \"Engineer\":\"Hera Tani\", \"EngineerID\":300090, \"Progress\":\"Unlocked\", \"RankProgress\":0, \"Rank\":3 }, { \"Engineer\":\"Tod 'The Blaster' McQuinn\", \"EngineerID\":300260, \"Progress\":\"Unlocked\", \"RankProgress\":97, \"Rank\":3 }, { \"Engineer\":\"Selene Jean\", \"EngineerID\":300210, \"Progress\":\"Known\" }, { \"Engineer\":\"Lei Cheung\", \"EngineerID\":300120, \"Progress\":\"Known\" }, { \"Engineer\":\"Juri Ishmaak\", \"EngineerID\":300250, \"Progress\":\"Known\" }, { \"Engineer\":\"Felicity Farseer\", \"EngineerID\":300100, \"Progress\":\"Unlocked\", \"RankProgress\":0, \"Rank\":5 }, { \"Engineer\":\"Professor Palin\", \"EngineerID\":300220, \"Progress\":\"Invited\" }, { \"Engineer\":\"Elvira Martuuk\", \"EngineerID\":300160, \"Progress\":\"Unlocked\", \"RankProgress\":0, \"Rank\":5 }, { \"Engineer\":\"Lori Jameson\", \"EngineerID\":300230, \"Progress\":\"Known\" }, { \"Engineer\":\"The Dweller\", \"EngineerID\":300180, \"Progress\":\"Unlocked\", \"RankProgress\":0, \"Rank\":5 }, { \"Engineer\":\"Liz Ryder\", \"EngineerID\":300080, \"Progress\":\"Unlocked\", \"RankProgress\":93, \"Rank\":3 }, { \"Engineer\":\"Ram Tah\", \"EngineerID\":300110, \"Progress\":\"Unlocked\", \"RankProgress\":31, \"Rank\":3 } ] }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(startupLine);
-            EngineerProgressedEvent startupEvent = (EngineerProgressedEvent)events[0];
+            var startupLine = "{ \"timestamp\":\"2018-05-04T13:58:22Z\", \"event\":\"EngineerProgress\", \"Engineers\":[ { \"Engineer\":\"Zacariah Nemo\", \"EngineerID\":300050, \"Progress\":\"Invited\" }, { \"Engineer\":\"Marco Qwent\", \"EngineerID\":300200, \"Progress\":\"Unlocked\", \"RankProgress\":37, \"Rank\":4 }, { \"Engineer\":\"Hera Tani\", \"EngineerID\":300090, \"Progress\":\"Unlocked\", \"RankProgress\":0, \"Rank\":3 }, { \"Engineer\":\"Tod 'The Blaster' McQuinn\", \"EngineerID\":300260, \"Progress\":\"Unlocked\", \"RankProgress\":97, \"Rank\":3 }, { \"Engineer\":\"Selene Jean\", \"EngineerID\":300210, \"Progress\":\"Known\" }, { \"Engineer\":\"Lei Cheung\", \"EngineerID\":300120, \"Progress\":\"Known\" }, { \"Engineer\":\"Juri Ishmaak\", \"EngineerID\":300250, \"Progress\":\"Known\" }, { \"Engineer\":\"Felicity Farseer\", \"EngineerID\":300100, \"Progress\":\"Unlocked\", \"RankProgress\":0, \"Rank\":5 }, { \"Engineer\":\"Professor Palin\", \"EngineerID\":300220, \"Progress\":\"Invited\" }, { \"Engineer\":\"Elvira Martuuk\", \"EngineerID\":300160, \"Progress\":\"Unlocked\", \"RankProgress\":0, \"Rank\":5 }, { \"Engineer\":\"Lori Jameson\", \"EngineerID\":300230, \"Progress\":\"Known\" }, { \"Engineer\":\"The Dweller\", \"EngineerID\":300180, \"Progress\":\"Unlocked\", \"RankProgress\":0, \"Rank\":5 }, { \"Engineer\":\"Liz Ryder\", \"EngineerID\":300080, \"Progress\":\"Unlocked\", \"RankProgress\":93, \"Rank\":3 }, { \"Engineer\":\"Ram Tah\", \"EngineerID\":300110, \"Progress\":\"Unlocked\", \"RankProgress\":31, \"Rank\":3 } ] }";
+            var events = JournalMonitor.ParseJournalEntry(startupLine);
+            var startupEvent = (EngineerProgressedEvent)events[0];
             Assert.IsNull(startupEvent.Engineer);
-            Assert.AreEqual("Invited", Engineer.FromName("Zacariah Nemo")?.stage);
-            Assert.IsNull(Engineer.FromName("Zacariah Nemo")?.rank);
+            var zacariahNemo = Engineer.FromName( "Zacariah Nemo" );
+            Assert.IsNotNull(zacariahNemo);
+            Assert.AreEqual("Invited", zacariahNemo.stage);
+            Assert.IsNull( zacariahNemo.rank);
 
             // When an engineer is unlocked, there should be an event for the change in stage and a second event for the change in rank...
-            string updateLine = "{ \"timestamp\":\"2018-01-16T09:34:36Z\", \"event\":\"EngineerProgress\", \"Engineer\":\"Zacariah Nemo\", \"EngineerID\":300050, \"Progress\":\"Unlocked\", \"Rank\":1, \"RankProgress\":0 }";
+            var updateLine = "{ \"timestamp\":\"2018-01-16T09:34:36Z\", \"event\":\"EngineerProgress\", \"Engineer\":\"Zacariah Nemo\", \"EngineerID\":300050, \"Progress\":\"Unlocked\", \"Rank\":1, \"RankProgress\":0 }";
             events = JournalMonitor.ParseJournalEntry(updateLine);
             Assert.AreEqual(2, events.Count);
-            EngineerProgressedEvent stageEvent = (EngineerProgressedEvent)events[0];
-            Assert.AreEqual("Zacariah Nemo", stageEvent.Engineer?.name);
-            Assert.AreEqual(300050, stageEvent.Engineer?.id);
-            Assert.AreEqual("Unlocked", stageEvent.Engineer?.stage);
-            EngineerProgressedEvent rankEvent = (EngineerProgressedEvent)events[1];
-            Assert.AreEqual(1, rankEvent.Engineer?.rank);
+            var stageEvent = (EngineerProgressedEvent)events[0];
+            Assert.IsNotNull(stageEvent.Engineer);
+            Assert.AreEqual("Zacariah Nemo", stageEvent.Engineer.name);
+            Assert.AreEqual(300050, stageEvent.Engineer.id);
+            Assert.AreEqual("Unlocked", stageEvent.Engineer.stage);
+            var rankEvent = (EngineerProgressedEvent)events[1];
+            Assert.IsNotNull(rankEvent.Engineer);
+            Assert.AreEqual(1, rankEvent.Engineer.rank);
 
             // We expect one event for the change in rank...
-            string updateLine2 = "{ \"timestamp\":\"2018-01-16T09:34:36Z\", \"event\":\"EngineerProgress\", \"Engineer\":\"Zacariah Nemo\", \"EngineerID\":300050, \"Progress\":\"Unlocked\", \"Rank\":2, \"RankProgress\":0 }";
+            var updateLine2 = "{ \"timestamp\":\"2018-01-16T09:34:36Z\", \"event\":\"EngineerProgress\", \"Engineer\":\"Zacariah Nemo\", \"EngineerID\":300050, \"Progress\":\"Unlocked\", \"Rank\":2, \"RankProgress\":0 }";
             events = JournalMonitor.ParseJournalEntry(updateLine2);
             Assert.AreEqual(1, events.Count);
-            EngineerProgressedEvent rankEvent2 = (EngineerProgressedEvent)events[0];
-            Assert.AreEqual(2, rankEvent2.Engineer?.rank);
+            var rankEvent2 = (EngineerProgressedEvent)events[0];
+            Assert.IsNotNull(rankEvent2.Engineer);
+            Assert.AreEqual(2, rankEvent2.Engineer.rank);
         }
 
         [TestMethod]
         public void TestCarrierJumpedEventDocked()
         {
-            string line = "{\"timestamp\":\"2020-05-17T14:07:24Z\",\"event\":\"CarrierJump\",\"Docked\":true,\"StationName\":\"G53-K3Q\",\"StationType\":\"FleetCarrier\",\"MarketID\":3700571136,\"StationFaction\":{\"Name\":\"FleetCarrier\"},\"StationGovernment\":\"$government_Carrier;\",\"StationGovernment_Localised\":\"Private Ownership \",\"StationServices\":[\"dock\",\"autodock\",\"blackmarket\",\"commodities\",\"contacts\",\"exploration\",\"crewlounge\",\"rearm\",\"refuel\",\"repair\",\"engineer\",\"flightcontroller\",\"stationoperations\",\"stationMenu\",\"carriermanagement\",\"carrierfuel\",\"voucherredemption\"],\"StationEconomy\":\"$economy_Carrier;\",\"StationEconomy_Localised\":\"Private Enterprise\",\"StationEconomies\":[{\"Name\":\"$economy_Carrier;\",\"Name_Localised\":\"Private Enterprise\",\"Proportion\":1}],\"StarSystem\":\"Aparctias\",\"SystemAddress\":358797513434,\"StarPos\":[25.1875,-56.375,22.90625],\"SystemAllegiance\":\"Independent\",\"SystemEconomy\":\"$economy_Colony;\",\"SystemEconomy_Localised\":\"Colony\",\"SystemSecondEconomy\":\"$economy_Refinery;\",\"SystemSecondEconomy_Localised\":\"Refinery\",\"SystemGovernment\":\"$government_Dictatorship;\",\"SystemGovernment_Localised\":\"Dictatorship\",\"SystemSecurity\":\"$SYSTEM_SECURITY_medium;\",\"SystemSecurity_Localised\":\"Medium Security\",\"Population\":80000,\"Body\":\"Aparctias\",\"BodyID\":0,\"BodyType\":\"Star\",\"ControllingPower\":\"Yuri Grom\",\"Powers\":[\"Yuri Grom\"],\"PowerplayState\":\"Exploited\",\"Factions\":[{\"Name\":\"Union of Aparctias Future\",\"FactionState\":\"None\",\"Government\":\"Democracy\",\"Influence\":0.062,\"Allegiance\":\"Federation\",\"Happiness\":\"$Faction_HappinessBand2;\",\"Happiness_Localised\":\"Happy\",\"MyReputation\":0},{\"Name\":\"Monarchy of Aparctias\",\"FactionState\":\"None\",\"Government\":\"Feudal\",\"Influence\":0.035,\"Allegiance\":\"Independent\",\"Happiness\":\"$Faction_HappinessBand2;\",\"Happiness_Localised\":\"Happy\",\"MyReputation\":0},{\"Name\":\"Aparctias Purple Council\",\"FactionState\":\"Boom\",\"Government\":\"Anarchy\",\"Influence\":0.049,\"Allegiance\":\"Independent\",\"Happiness\":\"$Faction_HappinessBand2;\",\"Happiness_Localised\":\"Happy\",\"MyReputation\":0,\"ActiveStates\":[{\"State\":\"Boom\"}]},{\"Name\":\"Beta-3 Tucani Silver Allied Net\",\"FactionState\":\"None\",\"Government\":\"Corporate\",\"Influence\":0.096,\"Allegiance\":\"Federation\",\"Happiness\":\"$Faction_HappinessBand2;\",\"Happiness_Localised\":\"Happy\",\"MyReputation\":0.32538},{\"Name\":\"Falcons' Nest\",\"FactionState\":\"None\",\"Government\":\"Confederacy\",\"Influence\":0.078,\"Allegiance\":\"Federation\",\"Happiness\":\"$Faction_HappinessBand2;\",\"Happiness_Localised\":\"Happy\",\"MyReputation\":0,\"RecoveringStates\":[{\"State\":\"NaturalDisaster\",\"Trend\":0}]},{\"Name\":\"EG Union\",\"FactionState\":\"War\",\"Government\":\"Dictatorship\",\"Influence\":0.34,\"Allegiance\":\"Independent\",\"Happiness\":\"$Faction_HappinessBand2;\",\"Happiness_Localised\":\"Happy\",\"MyReputation\":0,\"ActiveStates\":[{\"State\":\"Boom\"},{\"State\":\"War\"}]},{\"Name\":\"Paladin Consortium\",\"FactionState\":\"War\",\"Government\":\"Democracy\",\"Influence\":0.34,\"Allegiance\":\"Independent\",\"Happiness\":\"$Faction_HappinessBand2;\",\"Happiness_Localised\":\"Happy\",\"MyReputation\":0,\"PendingStates\":[{\"State\":\"Boom\",\"Trend\":0},{\"State\":\"CivilLiberty\",\"Trend\":0}],\"ActiveStates\":[{\"State\":\"War\"}]}],\"SystemFaction\":{\"Name\":\"EG Union\",\"FactionState\":\"War\"},\"Conflicts\":[{\"WarType\":\"war\",\"Status\":\"active\",\"Faction1\":{\"Name\":\"EG Union\",\"Stake\":\"Hancock Refinery\",\"WonDays\":1},\"Faction2\":{\"Name\":\"Paladin Consortium\",\"Stake\":\"\",\"WonDays\":0}}]}";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            CarrierJumpedEvent @event = (CarrierJumpedEvent)events[0];
+            var line = "{\"timestamp\":\"2020-05-17T14:07:24Z\",\"event\":\"CarrierJump\",\"Docked\":true,\"StationName\":\"G53-K3Q\",\"StationType\":\"FleetCarrier\",\"MarketID\":3700571136,\"StationFaction\":{\"Name\":\"FleetCarrier\"},\"StationGovernment\":\"$government_Carrier;\",\"StationGovernment_Localised\":\"Private Ownership \",\"StationServices\":[\"dock\",\"autodock\",\"blackmarket\",\"commodities\",\"contacts\",\"exploration\",\"crewlounge\",\"rearm\",\"refuel\",\"repair\",\"engineer\",\"flightcontroller\",\"stationoperations\",\"stationMenu\",\"carriermanagement\",\"carrierfuel\",\"voucherredemption\"],\"StationEconomy\":\"$economy_Carrier;\",\"StationEconomy_Localised\":\"Private Enterprise\",\"StationEconomies\":[{\"Name\":\"$economy_Carrier;\",\"Name_Localised\":\"Private Enterprise\",\"Proportion\":1}],\"StarSystem\":\"Aparctias\",\"SystemAddress\":358797513434,\"StarPos\":[25.1875,-56.375,22.90625],\"SystemAllegiance\":\"Independent\",\"SystemEconomy\":\"$economy_Colony;\",\"SystemEconomy_Localised\":\"Colony\",\"SystemSecondEconomy\":\"$economy_Refinery;\",\"SystemSecondEconomy_Localised\":\"Refinery\",\"SystemGovernment\":\"$government_Dictatorship;\",\"SystemGovernment_Localised\":\"Dictatorship\",\"SystemSecurity\":\"$SYSTEM_SECURITY_medium;\",\"SystemSecurity_Localised\":\"Medium Security\",\"Population\":80000,\"Body\":\"Aparctias\",\"BodyID\":0,\"BodyType\":\"Star\",\"ControllingPower\":\"Yuri Grom\",\"Powers\":[\"Yuri Grom\"],\"PowerplayState\":\"Exploited\",\"Factions\":[{\"Name\":\"Union of Aparctias Future\",\"FactionState\":\"None\",\"Government\":\"Democracy\",\"Influence\":0.062,\"Allegiance\":\"Federation\",\"Happiness\":\"$Faction_HappinessBand2;\",\"Happiness_Localised\":\"Happy\",\"MyReputation\":0},{\"Name\":\"Monarchy of Aparctias\",\"FactionState\":\"None\",\"Government\":\"Feudal\",\"Influence\":0.035,\"Allegiance\":\"Independent\",\"Happiness\":\"$Faction_HappinessBand2;\",\"Happiness_Localised\":\"Happy\",\"MyReputation\":0},{\"Name\":\"Aparctias Purple Council\",\"FactionState\":\"Boom\",\"Government\":\"Anarchy\",\"Influence\":0.049,\"Allegiance\":\"Independent\",\"Happiness\":\"$Faction_HappinessBand2;\",\"Happiness_Localised\":\"Happy\",\"MyReputation\":0,\"ActiveStates\":[{\"State\":\"Boom\"}]},{\"Name\":\"Beta-3 Tucani Silver Allied Net\",\"FactionState\":\"None\",\"Government\":\"Corporate\",\"Influence\":0.096,\"Allegiance\":\"Federation\",\"Happiness\":\"$Faction_HappinessBand2;\",\"Happiness_Localised\":\"Happy\",\"MyReputation\":0.32538},{\"Name\":\"Falcons' Nest\",\"FactionState\":\"None\",\"Government\":\"Confederacy\",\"Influence\":0.078,\"Allegiance\":\"Federation\",\"Happiness\":\"$Faction_HappinessBand2;\",\"Happiness_Localised\":\"Happy\",\"MyReputation\":0,\"RecoveringStates\":[{\"State\":\"NaturalDisaster\",\"Trend\":0}]},{\"Name\":\"EG Union\",\"FactionState\":\"War\",\"Government\":\"Dictatorship\",\"Influence\":0.34,\"Allegiance\":\"Independent\",\"Happiness\":\"$Faction_HappinessBand2;\",\"Happiness_Localised\":\"Happy\",\"MyReputation\":0,\"ActiveStates\":[{\"State\":\"Boom\"},{\"State\":\"War\"}]},{\"Name\":\"Paladin Consortium\",\"FactionState\":\"War\",\"Government\":\"Democracy\",\"Influence\":0.34,\"Allegiance\":\"Independent\",\"Happiness\":\"$Faction_HappinessBand2;\",\"Happiness_Localised\":\"Happy\",\"MyReputation\":0,\"PendingStates\":[{\"State\":\"Boom\",\"Trend\":0},{\"State\":\"CivilLiberty\",\"Trend\":0}],\"ActiveStates\":[{\"State\":\"War\"}]}],\"SystemFaction\":{\"Name\":\"EG Union\",\"FactionState\":\"War\"},\"Conflicts\":[{\"WarType\":\"war\",\"Status\":\"active\",\"Faction1\":{\"Name\":\"EG Union\",\"Stake\":\"Hancock Refinery\",\"WonDays\":1},\"Faction2\":{\"Name\":\"Paladin Consortium\",\"Stake\":\"\",\"WonDays\":0}}]}";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            var @event = (CarrierJumpedEvent)events[0];
             Assert.IsTrue(@event.docked);
             Assert.AreEqual("G53-K3Q", @event.carriername);
             Assert.AreEqual("Fleet Carrier", @event.carrierType.invariantName);
@@ -1504,7 +1516,9 @@ namespace UnitTests
             Assert.AreEqual("Exploited", @event.PowerState.invariantName);
             Assert.AreEqual(7, @event.factions.Count);
             Assert.AreEqual("EG Union", @event.controllingsystemfaction.name);
-            Assert.AreEqual("War", @event.controllingsystemfaction.presences.FirstOrDefault(p => p.systemName == "Aparctias")?.FactionState.invariantName);
+            var factionState = @event.controllingsystemfaction.presences.FirstOrDefault( p => p.systemName == "Aparctias" )?.FactionState;
+            Assert.IsNotNull(factionState);
+            Assert.AreEqual("War", factionState.invariantName);
             Assert.AreEqual(1, @event.conflicts.Count);
             Assert.AreEqual("EG Union", @event.conflicts[0].faction1);
             Assert.AreEqual("Paladin Consortium", @event.conflicts[0].faction2);
@@ -1518,11 +1532,11 @@ namespace UnitTests
             var @event = (CarrierJumpedEvent)events[0];
             Assert.IsFalse(@event.docked);
             Assert.IsTrue(@event.onFoot);
-            Assert.AreEqual(null, @event.carriername);
-            Assert.AreEqual(null, @event.carrierType?.invariantName);
-            Assert.AreEqual(null, @event.carrierId);
-            Assert.AreEqual(null, @event.carrierFaction?.name);
-            Assert.AreEqual(null, @event.carrierFaction?.Government.invariantName);
+            Assert.IsNull(@event.carriername);
+            Assert.IsNull(@event.carrierType?.invariantName);
+            Assert.IsNull(@event.carrierId);
+            Assert.IsNull(@event.carrierFaction?.name);
+            Assert.IsNull(@event.carrierFaction?.Government.invariantName);
             Assert.AreEqual(0, @event.carrierServices.Count);
             Assert.AreEqual(0, @event.carrierEconomies.Count);
             Assert.AreEqual( "Pro Eurl WL-P c5-24", @event.systemname);
@@ -1530,31 +1544,31 @@ namespace UnitTests
             Assert.AreEqual( 2191.1875M, @event.x);
             Assert.AreEqual( 0.34375M, @event.y);
             Assert.AreEqual( 476.78125M, @event.z);
-            Assert.AreEqual(null, @event.controllingsystemfaction?.Allegiance.invariantName);
+            Assert.IsNull(@event.controllingsystemfaction?.Allegiance.invariantName);
             Assert.AreEqual("None", @event.systemEconomy.invariantName);
             Assert.AreEqual("None", @event.systemEconomy2.invariantName);
-            Assert.AreEqual(null, @event.controllingsystemfaction?.Government.invariantName);
+            Assert.IsNull(@event.controllingsystemfaction?.Government.invariantName);
             Assert.AreEqual("Anarchy", @event.securityLevel.invariantName);
             Assert.AreEqual(0, @event.population);
             Assert.AreEqual( "Pro Eurl WL-P c5-24 A", @event.bodyname);
             Assert.AreEqual(2, @event.bodyId);
             Assert.AreEqual("Star", @event.bodyType.invariantName);
-            Assert.AreEqual(null, @event.Power?.invariantName);
+            Assert.IsNull(@event.Power?.invariantName);
             Assert.AreEqual("None", @event.PowerState.invariantName);
             Assert.AreEqual(0, @event.factions.Count);
-            Assert.AreEqual(null, @event.controllingsystemfaction?.name);
+            Assert.IsNull(@event.controllingsystemfaction?.name);
             Assert.AreEqual(0, @event.conflicts.Count);
         }
 
         [TestMethod]
         public void TestShipRepairedEvent()
         {
-            string line = "{ \"timestamp\":\"2016-09-25T12:31:38Z\", \"event\":\"Repair\", \"Item\":\"Wear\", \"Cost\":2824 }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            ShipRepairedEvent @event = (ShipRepairedEvent)events[0];
+            var line = "{ \"timestamp\":\"2016-09-25T12:31:38Z\", \"event\":\"Repair\", \"Item\":\"Wear\", \"Cost\":2824 }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            var @event = (ShipRepairedEvent)events[0];
             Assert.IsInstanceOfType(@event.items, typeof(List<string>));
             Assert.IsInstanceOfType(@event.modules, typeof(List<Module>));
-            Assert.AreEqual(EddiDataDefinitions.Properties.Modules.ShipIntegrity, @event.items?[0]);
+            Assert.AreEqual(EddiDataDefinitions.Properties.Modules.ShipIntegrity, @event.items[0]);
             Assert.AreEqual(0, @event.modules.Count);
             Assert.AreEqual(2824, @event.price);
         }
@@ -1562,9 +1576,9 @@ namespace UnitTests
         [TestMethod]
         public void TestShipRepairedEvent2()
         {
-            string line = "{ \"timestamp\":\"2020-03-31T13:39:42Z\", \"event\":\"Repair\", \"Items\":[ \"$hpt_dumbfiremissilerack_fixed_large_name;\", \"$hpt_beamlaser_gimbal_medium_name;\", \"$hpt_railgun_fixed_medium_name;\", \"$hpt_beamlaser_gimbal_medium_name;\", \"$hpt_dumbfiremissilerack_fixed_large_name;\" ], \"Cost\":34590 }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            ShipRepairedEvent @event = (ShipRepairedEvent)events[0];
+            var line = "{ \"timestamp\":\"2020-03-31T13:39:42Z\", \"event\":\"Repair\", \"Items\":[ \"$hpt_dumbfiremissilerack_fixed_large_name;\", \"$hpt_beamlaser_gimbal_medium_name;\", \"$hpt_railgun_fixed_medium_name;\", \"$hpt_beamlaser_gimbal_medium_name;\", \"$hpt_dumbfiremissilerack_fixed_large_name;\" ], \"Cost\":34590 }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            var @event = (ShipRepairedEvent)events[0];
             Assert.IsInstanceOfType(@event.items, typeof(List<string>));
             Assert.IsInstanceOfType(@event.modules, typeof(List<Module>));
             Assert.AreEqual(0, @event.items.Count);
@@ -1575,9 +1589,9 @@ namespace UnitTests
         [TestMethod]
         public void TestShipRepairedEvent3()
         {
-            string line = "{ \"timestamp\":\"2020-05-13T08:45:03Z\", \"event\":\"RepairAll\", \"Cost\":104817 }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            ShipRepairedEvent @event = (ShipRepairedEvent)events[0];
+            var line = "{ \"timestamp\":\"2020-05-13T08:45:03Z\", \"event\":\"RepairAll\", \"Cost\":104817 }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            var @event = (ShipRepairedEvent)events[0];
             Assert.IsInstanceOfType(@event.items, typeof(List<string>));
             Assert.IsInstanceOfType(@event.modules, typeof(List<Module>));
             Assert.AreEqual("All", @event.items[0]);
@@ -1588,12 +1602,12 @@ namespace UnitTests
         [TestMethod]
         public void TestShipRepairedEvent4()
         {
-            string line = "{ \"timestamp\":\"2020-03-31T13:39:42Z\", \"event\":\"Repair\", \"Items\":[ \"Wear\" ], \"Cost\":2824 }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            ShipRepairedEvent @event = (ShipRepairedEvent)events[0];
+            var line = "{ \"timestamp\":\"2020-03-31T13:39:42Z\", \"event\":\"Repair\", \"Items\":[ \"Wear\" ], \"Cost\":2824 }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            var @event = (ShipRepairedEvent)events[0];
             Assert.IsInstanceOfType(@event.items, typeof(List<string>));
             Assert.IsInstanceOfType(@event.modules, typeof(List<Module>));
-            Assert.AreEqual(EddiDataDefinitions.Properties.Modules.ShipIntegrity, @event.items?[0]);
+            Assert.AreEqual(EddiDataDefinitions.Properties.Modules.ShipIntegrity, @event.items[0]);
             Assert.AreEqual(0, @event.modules.Count);
             Assert.AreEqual(2824, @event.price);
         }
@@ -1623,9 +1637,9 @@ namespace UnitTests
         [TestMethod]
         public void TestShipInterdictedByPlayerEvent()
         {
-            string line = @"{ ""timestamp"":""2021-01-14T16:15:01Z"", ""event"":""Interdicted"", ""Submitted"":true, ""Interdictor"":""Blaes"", ""IsPlayer"":true, ""CombatRank"":5 }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line);
-            ShipInterdictedEvent @event = (ShipInterdictedEvent)events[0];
+            var line = @"{ ""timestamp"":""2021-01-14T16:15:01Z"", ""event"":""Interdicted"", ""Submitted"":true, ""Interdictor"":""Blaes"", ""IsPlayer"":true, ""CombatRank"":5 }";
+            var events = JournalMonitor.ParseJournalEntry(line);
+            var @event = (ShipInterdictedEvent)events[0];
             Assert.AreEqual("Ship interdicted", @event.type);
             Assert.IsTrue(@event.submitted);
             Assert.AreEqual("Blaes", @event.interdictor);
@@ -1637,25 +1651,25 @@ namespace UnitTests
         [TestMethod]
         public void TestAFMURepairsEvent()
         {
-            string line1 = @"{ ""timestamp"":""2021-01-30T00:28:18Z"", ""event"":""AfmuRepairs"", ""Module"":""$int_modulereinforcement_size2_class2_name;"", ""Module_Localised"":""Module Reinforcement"", ""FullyRepaired"":false, ""Health"":1.000000 }";
-            List<Event> events = JournalMonitor.ParseJournalEntry(line1);
-            ShipAfmuRepairedEvent event1 = (ShipAfmuRepairedEvent)events[0];
+            var line1 = @"{ ""timestamp"":""2021-01-30T00:28:18Z"", ""event"":""AfmuRepairs"", ""Module"":""$int_modulereinforcement_size2_class2_name;"", ""Module_Localised"":""Module Reinforcement"", ""FullyRepaired"":false, ""Health"":1.000000 }";
+            var events = JournalMonitor.ParseJournalEntry(line1);
+            var event1 = (ShipAfmuRepairedEvent)events[0];
             Assert.AreEqual("Module Reinforcement Package", event1.item);
             Assert.AreEqual(1M, event1.health);
             // There is an FDev bug that can set `repairedfully` to false even when the module health is full.
             // This appears to be a unique problem with Module Reinforcement Packages. We need to work around this.
             Assert.IsTrue(event1.repairedfully);
 
-            string line2 = @"{ ""timestamp"":""2020-05-31T16:37:08Z"", ""event"":""AfmuRepairs"", ""Module"":""$hpt_multicannon_gimbal_small_name;"", ""Module_Localised"":""Multi-Cannon"", ""FullyRepaired"":true, ""Health"":1.000000 }";
+            var line2 = @"{ ""timestamp"":""2020-05-31T16:37:08Z"", ""event"":""AfmuRepairs"", ""Module"":""$hpt_multicannon_gimbal_small_name;"", ""Module_Localised"":""Multi-Cannon"", ""FullyRepaired"":true, ""Health"":1.000000 }";
             events = JournalMonitor.ParseJournalEntry(line2);
-            ShipAfmuRepairedEvent event2 = (ShipAfmuRepairedEvent)events[0];
+            var event2 = (ShipAfmuRepairedEvent)events[0];
             Assert.AreEqual("1G gimballed Multi-Cannon", event2.item);
             Assert.AreEqual(1M, event2.health);
             Assert.IsTrue(event2.repairedfully);
 
-            string line3 = @"{ ""timestamp"":""2020-05-31T16:38:56Z"", ""event"":""AfmuRepairs"", ""Module"":""$hpt_beamlaser_gimbal_medium_name;"", ""Module_Localised"":""Beam Laser"", ""FullyRepaired"":false, ""Health"":0.993321 }";
+            var line3 = @"{ ""timestamp"":""2020-05-31T16:38:56Z"", ""event"":""AfmuRepairs"", ""Module"":""$hpt_beamlaser_gimbal_medium_name;"", ""Module_Localised"":""Beam Laser"", ""FullyRepaired"":false, ""Health"":0.993321 }";
             events = JournalMonitor.ParseJournalEntry(line3);
-            ShipAfmuRepairedEvent event3 = (ShipAfmuRepairedEvent)events[0];
+            var event3 = (ShipAfmuRepairedEvent)events[0];
             Assert.AreEqual("2D gimballed Beam Laser", event3.item);
             Assert.AreEqual(0.993321M, event3.health);
             Assert.IsFalse(event3.repairedfully);
@@ -1664,7 +1678,7 @@ namespace UnitTests
         [TestMethod]
         public void TestCommunityGoalsEvent()
         {
-            string line = @"{
+            var line = @"{
                ""timestamp"": ""2021-02-27T15:32:42Z"",
                ""event"": ""CommunityGoal"",
                ""CurrentGoals"": [
@@ -1698,14 +1712,14 @@ namespace UnitTests
             Assert.AreEqual("Sirius", goal.system);
             Assert.AreEqual("Spirit of Laelaps", goal.station);
             Assert.AreEqual(DateTime.Parse("2021-03-04T06:00:00Z").ToUniversalTime(), goal.expiryDateTime);
-            Assert.AreEqual(false, goal.iscomplete);
+            Assert.IsFalse(goal.iscomplete);
             Assert.AreEqual(163782436330, goal.total);
             Assert.AreEqual(84049848, goal.contribution);
             Assert.AreEqual(8354, goal.contributors);
             Assert.AreEqual(8, goal.toptier);
             Assert.AreEqual("", goal.toptierreward);
             Assert.AreEqual(10, goal.topranksize);
-            Assert.AreEqual(false, goal.toprank);
+            Assert.IsFalse(goal.toprank);
             Assert.AreEqual(5, goal.tier);
             Assert.AreEqual(10, goal.percentileband);
             Assert.AreEqual(100000000, goal.tierreward);
@@ -1714,7 +1728,7 @@ namespace UnitTests
         [TestMethod]
         public void TestCommanderContinuedOnFoot()
         {
-            string line = @"{
+            var line = @"{
                 ""timestamp"": ""2021-04-30T21:50:03Z"",
                 ""event"": ""LoadGame"",
                 ""FID"": ""F100000"",
@@ -1756,7 +1770,7 @@ namespace UnitTests
         [TestMethod]
         public void TestCommanderContinuedInApexTaxi()
         {
-            string line = @"{
+            var line = @"{
                 ""timestamp"": ""2021-04-30T21:59:36Z"",
                 ""event"": ""LoadGame"",
                 ""FID"": ""F100000"",
@@ -1793,7 +1807,7 @@ namespace UnitTests
         [TestMethod]
         public void TestCommanderContinuedCQC()
         {
-            string line = @"{
+            var line = @"{
                 ""timestamp"": ""2021-04-30T21:59:36Z"",
                 ""event"": ""LoadGame"",
                 ""FID"": ""F100000"",
@@ -1813,7 +1827,7 @@ namespace UnitTests
         [TestMethod]
         public void TestCommanderContinuedShip()
         {
-            string line = @"{
+            var line = @"{
                 ""timestamp"": ""2021-05-01T03:12:27Z"",
                 ""event"": ""LoadGame"",
                 ""FID"": ""F100000"",
@@ -1868,7 +1882,7 @@ namespace UnitTests
 
         [DataTestMethod]
         [DataRow(@"{ ""timestamp"":""2021-05-03T22:22:12Z"", ""event"":""Embark"", ""SRV"":false, ""Taxi"":false, ""Multicrew"":false, ""ID"":6, ""StarSystem"":""Sumod"", ""SystemAddress"":3961847269739, ""Body"":""Sharp Dock"", ""BodyID"":56, ""OnStation"":true, ""OnPlanet"":false, ""StationName"":""Sharp Dock"", ""StationType"":""Coriolis"", ""MarketID"":32239521286 }", false, true, false, false, 6, "Sumod", 3961847269739UL, "Sharp Dock", 56, "Sharp Dock", "Coriolis Starport", 32239521286, true, false)] // Embarking from an orbital station to your ship
-        [DataRow(@"{ ""timestamp"":""2021-05-02T22:51:54Z"", ""event"":""Embark"", ""SRV"":true, ""Taxi"":false, ""Multicrew"":false, ""ID"":53, ""StarSystem"":""Nervi"", ""SystemAddress"":2518721481067, ""Body"":""Nervi 2 a"", ""BodyID"":17, ""OnStation"":false, ""OnPlanet"":true }", false, false, true, false, 53, "Nervi", 2518721481067UL, "Nervi 2 a", 17, null, null, null, false, true)] // Embarking from a surface to an SRV
+        [DataRow(@"{ ""timestamp"":""2021-05-02T22:51:54Z"", ""event"":""Embark"", ""SRV"":true, ""Taxi"":false, ""Multicrew"":false, ""ID"":53, ""StarSystem"":""Nervi"", ""SystemAddress"":2518721481067, ""Body"":""Nervi 2 a"", ""BodyID"":17, ""OnStation"":false, ""OnPlanet"":true }", false, false, true, false, 53, "Nervi", 2518721481067UL, "Nervi 2 a", 17, null, "", null, false, true)] // Embarking from a surface to an SRV
         [DataRow(@"{ ""timestamp"":""2021-05-03T21:51:47Z"", ""event"":""Embark"", ""SRV"":false, ""Taxi"":true, ""Multicrew"":false, ""StarSystem"":""Firenses"", ""SystemAddress"":2868635379121, ""Body"":""Roberts Gateway"", ""BodyID"":44, ""OnStation"":true, ""OnPlanet"":false, ""StationName"":""Roberts Gateway"", ""StationType"":""Coriolis"", ""MarketID"":32216360961 }", false, false, false, true, null, "Firenses", 2868635379121UL, "Roberts Gateway", 44, "Roberts Gateway", "Coriolis Starport", 32216360961, true, false)] // Embarking from an orbital station to a taxi
         public void TestEmbarkEvent(string line, bool toMulticrew, bool toShip, bool toSRV, bool toTaxi, int? toLocalId, string systemName, ulong systemAddress, string bodyName, int? bodyId, string station, string stationType, long? marketId, bool onStation, bool onPlanet)
         {
@@ -1885,7 +1899,7 @@ namespace UnitTests
             Assert.AreEqual(bodyName, @event.bodyname);
             Assert.AreEqual(bodyId, @event.bodyId);
             Assert.AreEqual(station, @event.station);
-            Assert.AreEqual(stationType, @event.stationModel?.invariantName);
+            Assert.AreEqual(stationType, @event.stationModel?.invariantName ?? string.Empty );
             Assert.AreEqual(marketId, @event.marketId);
             Assert.AreEqual(onPlanet, @event.onplanet);
             Assert.AreEqual(onStation, @event.onstation);
@@ -1894,7 +1908,7 @@ namespace UnitTests
         [DataTestMethod]
         [DataRow(@"{ ""timestamp"":""2021-05-03T21:57:16Z"", ""event"":""Disembark"", ""SRV"":false, ""Taxi"":true, ""Multicrew"":false, ""StarSystem"":""Sumod"", ""SystemAddress"":3961847269739, ""Body"":""Sharp Dock"", ""BodyID"":56, ""OnStation"":true, ""OnPlanet"":false, ""StationName"":""Sharp Dock"", ""StationType"":""Coriolis"", ""MarketID"":32239521286 }", false, false, false, true, null, "Sumod", 3961847269739UL, "Sharp Dock", 56, "Sharp Dock", "Coriolis Starport", 32239521286, true, false)] // Disembarking from a taxi to an orbital station
         [DataRow(@"{ ""timestamp"":""2021-05-03T21:47:38Z"", ""event"":""Disembark"", ""SRV"":false, ""Taxi"":false, ""Multicrew"":false, ""ID"":6, ""StarSystem"":""Firenses"", ""SystemAddress"":2868635379121, ""Body"":""Roberts Gateway"", ""BodyID"":44, ""OnStation"":true, ""OnPlanet"":false, ""StationName"":""Roberts Gateway"", ""StationType"":""Coriolis"", ""MarketID"":32216360961 }", false, true, false, false, 6, "Firenses", 2868635379121UL, "Roberts Gateway", 44, "Roberts Gateway", "Coriolis Starport", 32216360961, true, false)] // Disembarking from your ship to an orbital station
-        [DataRow(@"{ ""timestamp"":""2021-05-02T22:52:25Z"", ""event"":""Disembark"", ""SRV"":true, ""Taxi"":false, ""Multicrew"":false, ""ID"":53, ""StarSystem"":""Nervi"", ""SystemAddress"":2518721481067, ""Body"":""Nervi 2 a"", ""BodyID"":17, ""OnStation"":false, ""OnPlanet"":true }", false, false, true, false, 53, "Nervi", 2518721481067UL, "Nervi 2 a", 17, null, null, null, false, true)] // Disembarking to an SRV from on foot
+        [DataRow(@"{ ""timestamp"":""2021-05-02T22:52:25Z"", ""event"":""Disembark"", ""SRV"":true, ""Taxi"":false, ""Multicrew"":false, ""ID"":53, ""StarSystem"":""Nervi"", ""SystemAddress"":2518721481067, ""Body"":""Nervi 2 a"", ""BodyID"":17, ""OnStation"":false, ""OnPlanet"":true }", false, false, true, false, 53, "Nervi", 2518721481067UL, "Nervi 2 a", 17, null, "", null, false, true)] // Disembarking to an SRV from on foot
         public void TestDisembarkEvent(string line, bool fromMulticrew, bool fromShip, bool fromSRV, bool fromTaxi, int? fromLocalId, string systemName, ulong systemAddress, string bodyName, int? bodyId, string station, string stationType, long? marketId, bool onStation, bool onPlanet)
         {
             var events = JournalMonitor.ParseJournalEntry(line);
@@ -1910,7 +1924,7 @@ namespace UnitTests
             Assert.AreEqual(bodyName, @event.bodyname);
             Assert.AreEqual(bodyId, @event.bodyId);
             Assert.AreEqual(station, @event.station);
-            Assert.AreEqual(stationType, @event.stationModel?.invariantName);
+            Assert.AreEqual(stationType, @event.stationModel?.invariantName ?? string.Empty);
             Assert.AreEqual(marketId, @event.marketId);
             Assert.AreEqual(onPlanet, @event.onplanet);
             Assert.AreEqual(onStation, @event.onstation);
@@ -1938,8 +1952,9 @@ namespace UnitTests
             if (isAdded)
             {
                 var addedItem = @event.added[0];
-                Assert.AreEqual(expectedInvariantName, addedItem.microResource?.invariantName);
-                Assert.AreEqual(expectedInvariantCategory, addedItem.microResource?.Category?.invariantName);
+                Assert.IsNotNull( addedItem.microResource );
+                Assert.AreEqual(expectedInvariantName, addedItem.microResource.invariantName);
+                Assert.AreEqual(expectedInvariantCategory, addedItem.microResource.Category.invariantName);
                 Assert.AreEqual(nullableIntConverter(expectedOwnerId), addedItem.ownerId);
                 Assert.AreEqual(nullableLongConverter(expectedMissionId), addedItem.missionId);
                 Assert.AreEqual(expectedAmount, addedItem.amount);
@@ -1947,8 +1962,9 @@ namespace UnitTests
             else
             {
                 var removedItem = @event.removed[0];
-                Assert.AreEqual(expectedInvariantName, removedItem.microResource?.invariantName);
-                Assert.AreEqual(expectedInvariantCategory, removedItem.microResource?.Category?.invariantName);
+                Assert.IsNotNull( removedItem.microResource );
+                Assert.AreEqual(expectedInvariantName, removedItem.microResource.invariantName);
+                Assert.AreEqual(expectedInvariantCategory, removedItem.microResource.Category.invariantName);
                 Assert.AreEqual(nullableIntConverter(expectedOwnerId), removedItem.ownerId);
                 Assert.AreEqual(nullableLongConverter(expectedMissionId), removedItem.missionId);
                 Assert.AreEqual(expectedAmount, removedItem.amount);
@@ -1992,9 +2008,9 @@ namespace UnitTests
             var @event = (MicroResourcesPurchasedEvent)events[0];
 
             Assert.AreEqual(1, @event.resourceamounts.Count);
-            Assert.AreEqual("Medkit", @event.resourceamounts[0]?.invariantName);
-            Assert.AreEqual(MicroResourceCategory.Consumables.invariantName, @event.resourceamounts[ 0 ]?.invariantCategory);
-            Assert.AreEqual(2, @event.resourceamounts[ 0 ]?.amount);
+            Assert.AreEqual("Medkit", @event.resourceamounts[0].invariantName);
+            Assert.AreEqual(MicroResourceCategory.Consumables.invariantName, @event.resourceamounts[ 0 ].invariantCategory);
+            Assert.AreEqual(2, @event.resourceamounts[ 0 ].amount);
             Assert.AreEqual(2000, @event.price);
             Assert.AreEqual(3221524992, @event.marketid);
 
@@ -2004,9 +2020,9 @@ namespace UnitTests
             @event = (MicroResourcesPurchasedEvent)events[0];
 
             Assert.AreEqual( 1, @event.resourceamounts.Count );
-            Assert.AreEqual( "Optical Fiber", @event.resourceamounts[ 0 ]?.invariantName );
-            Assert.AreEqual( MicroResourceCategory.Components.invariantName, @event.resourceamounts[ 0 ]?.invariantCategory );
-            Assert.AreEqual( 10, @event.resourceamounts[ 0 ]?.amount );
+            Assert.AreEqual( "Optical Fiber", @event.resourceamounts[ 0 ].invariantName );
+            Assert.AreEqual( MicroResourceCategory.Components.invariantName, @event.resourceamounts[ 0 ].invariantCategory );
+            Assert.AreEqual( 10, @event.resourceamounts[ 0 ].amount );
             Assert.AreEqual( 6000, @event.price );
             Assert.AreEqual( 3707594240, @event.marketid );
         }
@@ -2041,13 +2057,13 @@ namespace UnitTests
             if (commodityDefinition != null)
             {
                 Assert.AreEqual(commodity, commodityDefinition.invariantName);
-                Assert.AreEqual(category, commodityDefinition?.Category?.invariantName);
+                Assert.AreEqual(category, commodityDefinition.Category.invariantName);
             }
             var materialDefinition = Material.FromEDName(@event.materialAmount?.edname);
             if (materialDefinition != null)
             {
                 Assert.AreEqual(material, materialDefinition.invariantName);
-                Assert.AreEqual(category, materialDefinition?.Category?.invariantName);
+                Assert.AreEqual(category, materialDefinition.Category.invariantName);
             }
             Assert.AreEqual(amount, @event.amount);
             Assert.AreEqual(total, @event.total);
@@ -2081,9 +2097,9 @@ namespace UnitTests
         [ TestMethod ]
         public void TestBountyAwardedOdyssey ()
         {
-            string line1 = @"{ ""timestamp"":""2023-01-28T23:36:38Z"", ""event"":""Bounty"", ""Rewards"":[ { ""Faction"":""Duwali Liberty Party"", ""Reward"":2050 } ], ""Target"":""citizensuitai_scientific"", ""Target_Localised"":""Researcher"", ""TotalReward"":2050, ""VictimFaction"":""Duwali Partnership"" }";
-            string line2 = @"{ ""timestamp"":""2023-01-28T23:36:59Z"", ""event"":""Bounty"", ""Rewards"":[ { ""Faction"":""Defence Party of Duwali"", ""Reward"":14100 } ], ""Target"":""citizensuitai_industrial"", ""Target_Localised"":""Technician"", ""TotalReward"":14100, ""VictimFaction"":""Duwali Partnership"" }";
-            string line3 = @"{ ""timestamp"":""2023-10-20T23:43:59Z"", ""event"":""Bounty"", ""Rewards"":[ { ""Faction"":""New Gungkuni Alliance"", ""Reward"":67748 } ], ""PilotName"":""$npc_name_decorate:#name=Morty;"", ""PilotName_Localised"":""Morty"", ""Target"":""cobramkiii"", ""Target_Localised"":""Cobra Mk III"", ""TotalReward"":67748, ""VictimFaction"":""Copityar Purple Posse"" }";
+            var line1 = @"{ ""timestamp"":""2023-01-28T23:36:38Z"", ""event"":""Bounty"", ""Rewards"":[ { ""Faction"":""Duwali Liberty Party"", ""Reward"":2050 } ], ""Target"":""citizensuitai_scientific"", ""Target_Localised"":""Researcher"", ""TotalReward"":2050, ""VictimFaction"":""Duwali Partnership"" }";
+            var line2 = @"{ ""timestamp"":""2023-01-28T23:36:59Z"", ""event"":""Bounty"", ""Rewards"":[ { ""Faction"":""Defence Party of Duwali"", ""Reward"":14100 } ], ""Target"":""citizensuitai_industrial"", ""Target_Localised"":""Technician"", ""TotalReward"":14100, ""VictimFaction"":""Duwali Partnership"" }";
+            var line3 = @"{ ""timestamp"":""2023-10-20T23:43:59Z"", ""event"":""Bounty"", ""Rewards"":[ { ""Faction"":""New Gungkuni Alliance"", ""Reward"":67748 } ], ""PilotName"":""$npc_name_decorate:#name=Morty;"", ""PilotName_Localised"":""Morty"", ""Target"":""cobramkiii"", ""Target_Localised"":""Cobra Mk III"", ""TotalReward"":67748, ""VictimFaction"":""Copityar Purple Posse"" }";
 
             var events1 = JournalMonitor.ParseJournalEntry( line1 );
             Assert.AreEqual( 1, events1.Count );
@@ -2094,7 +2110,7 @@ namespace UnitTests
             Assert.AreEqual( 2050, event1.rewards[ 0 ].amount );
             Assert.AreEqual( "Researcher", event1.target );
             Assert.AreEqual( 2050, event1.reward );
-            Assert.AreEqual( null, event1.pilot );
+            Assert.IsNull(event1.pilot);
             Assert.AreEqual( "Duwali Partnership", event1.faction );
 
             var events2 = JournalMonitor.ParseJournalEntry( line2 );
@@ -2106,7 +2122,7 @@ namespace UnitTests
             Assert.AreEqual( 14100, event2.rewards[ 0 ].amount );
             Assert.AreEqual( "Technician", event2.target );
             Assert.AreEqual( 14100, event2.reward );
-            Assert.AreEqual( null, event2.pilot );
+            Assert.IsNull(event2.pilot);
             Assert.AreEqual( "Duwali Partnership", event2.faction );
 
             var events3 = JournalMonitor.ParseJournalEntry( line3 );
@@ -2204,7 +2220,8 @@ namespace UnitTests
 
             // Test that the current star system has been updated
             var currentStarSystem = EDDI.Instance.CurrentStarSystem;
-            Assert.AreEqual( 1, currentStarSystem?.bodies.Count );
+            Assert.IsNotNull(currentStarSystem);
+            Assert.AreEqual( 1, currentStarSystem.bodies.Count );
 
             // Scan 1
             events = JournalMonitor.ParseJournalEntry(scan1);
@@ -2212,8 +2229,8 @@ namespace UnitTests
             EDDI.Instance.eventHandler( (StarScannedEvent)events[ 0 ] );
 
             // Test that the temporary star has been replaced by the main star
-            Assert.AreEqual(1, currentStarSystem?.bodies.Count);
-            var mainStar = currentStarSystem?.bodies.FirstOrDefault();
+            Assert.AreEqual(1, currentStarSystem.bodies.Count);
+            var mainStar = currentStarSystem.bodies.FirstOrDefault();
             Assert.IsNotNull( mainStar );
             Assert.AreEqual( BodyType.Star, mainStar.bodyType );
             Assert.AreEqual( "TestSystem", mainStar.systemname );
@@ -2515,31 +2532,36 @@ namespace UnitTests
         }
 
         [DataTestMethod]
-        [DataRow( @"{ ""timestamp"":""2024-03-18T06:14:12Z"", ""event"":""ShipTargeted"", ""TargetLocked"":false }", false, null, null, null, null, null, null, null, null, null, null, null )]
-        [DataRow( @"{ ""timestamp"":""2022-02-19T02:01:44Z"", ""event"":""ShipTargeted"", ""TargetLocked"":true, ""Ship"":""empire_eagle"", ""Ship_Localised"":""Imperial Eagle"", ""ScanStage"":0 }", true, 0, "empire_eagle", null, null, null, null, null, null, null, null, null )]
-        [DataRow( @"{ ""timestamp"":""2022-02-19T02:01:45Z"", ""event"":""ShipTargeted"", ""TargetLocked"":true, ""Ship"":""empire_eagle"", ""Ship_Localised"":""Imperial Eagle"", ""ScanStage"":1, ""PilotName"":""$npc_name_decorate:#name=Syncronax;"", ""PilotName_Localised"":""Syncronax"", ""PilotRank"":""Dangerous"" }", true, 1, "empire_eagle", "Syncronax", "Dangerous", null, null, null, null, null, null, null )]
-        [DataRow( @"{ ""timestamp"":""2022-02-19T02:01:47Z"", ""event"":""ShipTargeted"", ""TargetLocked"":true, ""Ship"":""empire_eagle"", ""Ship_Localised"":""Imperial Eagle"", ""ScanStage"":2, ""PilotName"":""$npc_name_decorate:#name=Syncronax;"", ""PilotName_Localised"":""Syncronax"", ""PilotRank"":""Dangerous"", ""ShieldHealth"":100.000000, ""HullHealth"":100.000000 }", true, 2, "empire_eagle", "Syncronax", "Dangerous", "100", "100", null, null, null, null, null )]
+        [DataRow( @"{ ""timestamp"":""2024-03-18T06:14:12Z"", ""event"":""ShipTargeted"", ""TargetLocked"":false }", false, null, null, null, "", null, null, null, "", null, null, null )]
+        [DataRow( @"{ ""timestamp"":""2022-02-19T02:01:44Z"", ""event"":""ShipTargeted"", ""TargetLocked"":true, ""Ship"":""empire_eagle"", ""Ship_Localised"":""Imperial Eagle"", ""ScanStage"":0 }", true, 0, "empire_eagle", null, "", null, null, null, "", null, null, null )]
+        [DataRow( @"{ ""timestamp"":""2022-02-19T02:01:45Z"", ""event"":""ShipTargeted"", ""TargetLocked"":true, ""Ship"":""empire_eagle"", ""Ship_Localised"":""Imperial Eagle"", ""ScanStage"":1, ""PilotName"":""$npc_name_decorate:#name=Syncronax;"", ""PilotName_Localised"":""Syncronax"", ""PilotRank"":""Dangerous"" }", true, 1, "empire_eagle", "Syncronax", "Dangerous", null, null, null, "", null, null, null )]
+        [DataRow( @"{ ""timestamp"":""2022-02-19T02:01:47Z"", ""event"":""ShipTargeted"", ""TargetLocked"":true, ""Ship"":""empire_eagle"", ""Ship_Localised"":""Imperial Eagle"", ""ScanStage"":2, ""PilotName"":""$npc_name_decorate:#name=Syncronax;"", ""PilotName_Localised"":""Syncronax"", ""PilotRank"":""Dangerous"", ""ShieldHealth"":100.000000, ""HullHealth"":100.000000 }", true, 2, "empire_eagle", "Syncronax", "Dangerous", "100", "100", null, "", null, null, null )]
         [DataRow( @"{ ""timestamp"":""2022-02-19T02:01:49Z"", ""event"":""ShipTargeted"", ""TargetLocked"":true, ""Ship"":""empire_eagle"", ""Ship_Localised"":""Imperial Eagle"", ""ScanStage"":3, ""PilotName"":""$npc_name_decorate:#name=Syncronax;"", ""PilotName_Localised"":""Syncronax"", ""PilotRank"":""Dangerous"", ""ShieldHealth"":100.000000, ""HullHealth"":100.000000, ""Faction"":""Chun Independent Bond"", ""LegalStatus"":""Wanted"", ""Bounty"":79880 }", true, 3, "empire_eagle", "Syncronax", "Dangerous", "100", "100", "Chun Independent Bond", "Wanted", 79880, null, null )]
         [DataRow( @"{ ""timestamp"":""2024-03-31T00:54:01Z"", ""event"":""ShipTargeted"", ""TargetLocked"":true, ""Ship"":""anaconda"", ""ScanStage"":3, ""PilotName"":""$Name_AX_Military; Gregory"", ""PilotRank"":""Master"", ""ShieldHealth"":100.000000, ""HullHealth"":100.000000, ""Faction"":""Earls of Barati"", ""LegalStatus"":""Lawless"", ""Subsystem"":""$modularcargobaydoor_name;"", ""Subsystem_Localised"":""Cargo Hatch"", ""SubsystemHealth"":100.000000 }", true, 3, "anaconda", "Gregory", "Master", "100", "100", "Earls of Barati", "Lawless", null, "Cargo Hatch", "100" )]
         [DataRow( @"{ ""timestamp"":""2021-03-01T01:16:34Z"", ""event"":""ShipTargeted"", ""TargetLocked"":true, ""Ship"":""anaconda"", ""ScanStage"":3, ""PilotName"":""$npc_name_decorate:#name=Haggis Gregson;"", ""PilotName_Localised"":""Haggis Gregson"", ""PilotRank"":""Elite"", ""ShieldHealth"":94.133560, ""HullHealth"":100.000000, ""Faction"":""Bugaguti People's Co-operative"", ""LegalStatus"":""Wanted"", ""Bounty"":224775, ""Subsystem"":""$ext_drive_class7_a_name;"", ""Subsystem_Localised"":""Drive"", ""SubsystemHealth"":100.000000 }", true, 3, "anaconda", "Haggis Gregson", "Elite", "94.133560", "100", "Bugaguti People's Co-operative", "Wanted", 224775, "Thrusters", "100" )]
         public void TestShipTargeted ( string line, bool targetLocked, int? scanStage, string edModel, string pilotName, string rankEDName, string shieldHealth, string hullHealth, string faction, string legalStatus, int? bounty, string subsystemLocalizedName, string subsystemHealth )
         {
             var events = JournalMonitor.ParseJournalEntry(line);
-            Assert.IsTrue( events.Count == 1 );
+            Assert.AreEqual(1, events.Count);
             var @event = (ShipTargetedEvent)events[ 0 ];
 
             Assert.AreEqual( targetLocked, @event.targetlocked);
-            Assert.AreEqual( ShipDefinitions.FromEDModel( edModel, false )?.model, @event.ship);
-            Assert.AreEqual( scanStage, @event.scanstage );
-            Assert.AreEqual( pilotName, @event.name );
-            Assert.AreEqual( rankEDName, @event.CombatRank?.invariantName);
-            Assert.AreEqual( shieldHealth is null ? null : (decimal?)Convert.ToDecimal( shieldHealth ), @event.shieldhealth);
-            Assert.AreEqual( hullHealth is null ? null : (decimal?)Convert.ToDecimal( hullHealth), @event.hullhealth );
-            Assert.AreEqual( faction, @event.faction );
-            Assert.AreEqual( legalStatus, @event.LegalStatus?.invariantName );
-            Assert.AreEqual( bounty, @event.bounty );
-            Assert.AreEqual( subsystemLocalizedName, @event.subsystem );
-            Assert.AreEqual( subsystemHealth is null ? null : (decimal?)Convert.ToDecimal(subsystemHealth), @event.subsystemhealth );
+            if ( targetLocked )
+            {
+                var shipDef = ShipDefinitions.FromEDModel( edModel, false );
+                Assert.IsNotNull( shipDef );
+                Assert.AreEqual( shipDef.model, @event.ship );
+                Assert.AreEqual( scanStage, @event.scanstage );
+                Assert.AreEqual( pilotName, @event.name );
+                Assert.AreEqual( rankEDName, @event.CombatRank?.invariantName ?? string.Empty );
+                Assert.AreEqual( shieldHealth is null ? null : (decimal?)Convert.ToDecimal( shieldHealth ), @event.shieldhealth );
+                Assert.AreEqual( hullHealth is null ? null : (decimal?)Convert.ToDecimal( hullHealth ), @event.hullhealth );
+                Assert.AreEqual( faction, @event.faction );
+                Assert.AreEqual( legalStatus, @event.LegalStatus?.invariantName ?? string.Empty );
+                Assert.AreEqual( bounty, @event.bounty );
+                Assert.AreEqual( subsystemLocalizedName, @event.subsystem );
+                Assert.AreEqual( subsystemHealth is null ? null : (decimal?)Convert.ToDecimal( subsystemHealth ), @event.subsystemhealth );
+            }
         }
 
         [TestMethod, DoNotParallelize]
@@ -2549,7 +2571,7 @@ namespace UnitTests
             var honk = @"{ ""timestamp"":""2022-02-18T07:14:02Z"", ""event"":""FSSDiscoveryScan"", ""Progress"":0.193470, ""BodyCount"":27, ""NonBodyCount"":10, ""SystemName"":""Wolf 1414"", ""SystemAddress"":83718345434 }";
             var secondstar = @"{ ""timestamp"":""2022-02-18T07:14:03Z"", ""event"":""Scan"", ""ScanType"":""Detailed"", ""BodyName"":""Wolf 1414 B"", ""BodyID"":2, ""Parents"":[ {""Null"":0} ], ""StarSystem"":""Wolf 1414"", ""SystemAddress"":83718345434, ""DistanceFromArrivalLS"":1472.392323, ""StarType"":""M"", ""Subclass"":3, ""StellarMass"":0.367188, ""Radius"":408410944.000000, ""AbsoluteMagnitude"":8.709381, ""Age_MY"":3118, ""SurfaceTemperature"":3087.000000, ""Luminosity"":""Va"", ""SemiMajorAxis"":293087559938.430786, ""Eccentricity"":0.295083, ""OrbitalInclination"":34.113437, ""Periapsis"":123.694292, ""OrbitalPeriod"":196849131.584167, ""AscendingNode"":31.266731, ""MeanAnomaly"":53.999018, ""RotationPeriod"":255361.700784, ""AxialTilt"":0.000000, ""WasDiscovered"":true, ""WasMapped"":false }";
 
-            List<Event> events = new List<Event>();
+            var events = new List<Event>();
             events.AddRange( JournalMonitor.ParseJournalEntries( new[] { autoscan, honk, secondstar } ) );
             Assert.IsTrue( events.LastOrDefault() is DiscoveryScanEvent );
         }
@@ -2612,7 +2634,7 @@ namespace UnitTests
             Assert.AreEqual( "int_dronecontrol_collection_size3_class5", @event.module.edname.ToLowerInvariant() );
             Assert.AreEqual( "Krait Mk. II", @event.ship );
             Assert.AreEqual( 81, @event.shipid );
-            Assert.AreEqual( true, @event.engineermodifications.Length > 0 );
+            Assert.IsTrue( @event.engineermodifications.Length > 0 );
         }
 
         [TestMethod]

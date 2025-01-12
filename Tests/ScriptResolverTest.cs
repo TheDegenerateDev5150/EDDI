@@ -9,9 +9,9 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows;
 
-namespace UnitTests
+namespace Tests
 {
-    [TestClass]
+    [TestClass, TestCategory("UnitTests")]
     public class ScriptResolverTest : TestBase
     {
         [TestInitialize]
@@ -73,8 +73,8 @@ namespace UnitTests
                 ["OneOf"] = Value.FromFunction(ScriptResolver.GetCustomFunctions().FirstOrDefault(f => f.name == "OneOf")?.function)
             };
 
-            List<string> results = new List<string>();
-            for (int i = 0; i < 1000; i++)
+            var results = new List<string>();
+            for (var i = 0; i < 1000; i++)
             {
                 results.Add(Render(template, vars).Trim());
             }
@@ -88,19 +88,19 @@ namespace UnitTests
             results.RemoveAll(result => result == @"The letter is d.");
             Assert.IsTrue(results.Contains(@"The letter is ."));
             results.RemoveAll(result => result == @"The letter is .");
-            Assert.IsTrue(results.Count == 0);
+            Assert.AreEqual(0, results.Count);
         }
 
         [TestMethod]
         public void TestResolverSimple()
         {
-            Dictionary<string, Script> scripts = new Dictionary<string, Script>
+            var scripts = new Dictionary<string, Script>
             {
                 {"test", new Script("test", null, false, "Hello {name}")}
             };
-            ScriptResolver resolver = new ScriptResolver(scripts);
+            var resolver = new ScriptResolver(scripts);
             var dict = new Dictionary<string, Tuple<Type, Value>> { ["name"] = new Tuple<Type, Value>(typeof(string), "world") };
-            string result = resolver.resolveFromName("test", dict, true);
+            var result = resolver.resolveFromName("test", dict, true);
             Assert.AreEqual("Hello world", result);
         }
 
@@ -114,36 +114,36 @@ namespace UnitTests
             };
             var resolver = new ScriptResolver(scripts);
             var dict = new Dictionary<string, Tuple<Type, Value>> { ["name"] = new Tuple<Type, Value>(typeof(string), "world") };
-            string result = resolver.resolveFromName("test", dict, true);
+            var result = resolver.resolveFromName("test", dict, true);
             Assert.AreEqual("Well Hello world", result);
         }
 
         [TestMethod]
         public void TestResolverNativeSetCustomFunction()
         {
-            Dictionary<string, Script> scripts = new Dictionary<string, Script>
+            var scripts = new Dictionary<string, Script>
             {
                 {"test", new Script("test", null, false, "{set x to \"Hello\"} {OneOf(\"{x} world\")}")}
             };
-            ScriptResolver resolver = new ScriptResolver(scripts);
+            var resolver = new ScriptResolver(scripts);
             var dict = new Dictionary<string, Tuple < Type, Value >>();
-            string result = resolver.resolveFromName("test", dict, true);
+            var result = resolver.resolveFromName("test", dict, true);
             Assert.AreEqual("Hello world", result);
         }
 
         [TestMethod]
         public void TestResolverRecursedCustomFunctions()
         {
-            Dictionary<string, Script> scripts = new Dictionary<string, Script>
+            var scripts = new Dictionary<string, Script>
             {
                 {"test", new Script("test", null, false, "The letter is {OneOf(\"a\", F(\"func\"), \"{c}\")}.")},
                 {"func", new Script("func", null, false, "b")}
             };
-            ScriptResolver resolver = new ScriptResolver(scripts);
+            var resolver = new ScriptResolver(scripts);
             var dict = new Dictionary<string, Tuple<Type, Value>> { ["c"] = new Tuple<Type, Value>(typeof(string), "c") };
 
-            List<string> results = new List<string>();
-            for (int i = 0; i < 1000; i++)
+            var results = new List<string>();
+            for (var i = 0; i < 1000; i++)
             {
                 results.Add(resolver.resolveFromName("test", dict, true));
             }
@@ -153,20 +153,20 @@ namespace UnitTests
             results.RemoveAll(result => result == @"The letter is b.");
             Assert.IsTrue(results.Contains(@"The letter is c."));
             results.RemoveAll(result => result == @"The letter is c.");
-            Assert.IsTrue(results.Count == 0);
+            Assert.AreEqual(0, results.Count);
         }
 
         [TestMethod]
         public void TestResolverCallsign()
         {
-            Assert.AreEqual(new Regex("[^a-zA-Z0-9]").Replace("a-b. c", "").ToUpperInvariant().Substring(0, 3), "ABC");
+            Assert.AreEqual( "ABC", new Regex("[^a-zA-Z0-9]").Replace("a-b. c", "").ToUpperInvariant().Substring(0, 3) );
         }
 
         [TestMethod]
         public void TestUpgradeScript_FromDefault()
         {
-            Script script = new Script("testScript", "Test script", false, "Test script", 3, "Test script");
-            Script newDefaultScript = new Script("testScript", "Updated Test script Description", true, "Updated Test script", 3, "Updated Test script");
+            var script = new Script("testScript", "Test script", false, "Test script", 3, "Test script");
+            var newDefaultScript = new Script("testScript", "Updated Test script Description", true, "Updated Test script", 3, "Updated Test script");
 
             Assert.IsTrue(script.Default);
             Assert.AreEqual(script.Name, newDefaultScript.Name);
@@ -177,7 +177,7 @@ namespace UnitTests
             Assert.AreNotEqual(script.defaultValue, newDefaultScript.defaultValue);
             Assert.AreNotEqual(script.Priority, newDefaultScript.Priority);
 
-            Script upgradedScript = Personality.UpgradeScript(script, newDefaultScript);
+            var upgradedScript = Personality.UpgradeScript(script, newDefaultScript);
 
             Assert.IsTrue(upgradedScript.Default);
 
@@ -191,8 +191,8 @@ namespace UnitTests
         [TestMethod]
         public void TestUpgradeScript_FromCustomized()
         {
-            Script script = new Script("testScript", "Test script", true, "Test script customized", 4, "Test script");
-            Script newDefaultScript = new Script("testScript", "Updated Test script Description", true, "Updated Test script", 3, "Updated Test script");
+            var script = new Script("testScript", "Test script", true, "Test script customized", 4, "Test script");
+            var newDefaultScript = new Script("testScript", "Updated Test script Description", true, "Updated Test script", 3, "Updated Test script");
 
             Assert.IsFalse(script.Default);
             Assert.AreEqual(script.Name, newDefaultScript.Name);
@@ -203,7 +203,7 @@ namespace UnitTests
             Assert.AreNotEqual(script.defaultValue, newDefaultScript.defaultValue);
             Assert.AreNotEqual(script.Priority, newDefaultScript.Priority);
 
-            Script upgradedScript = Personality.UpgradeScript(script, newDefaultScript);
+            var upgradedScript = Personality.UpgradeScript(script, newDefaultScript);
 
             Assert.IsFalse(upgradedScript.Default);
 
@@ -219,13 +219,13 @@ namespace UnitTests
         {
             var testThread = new Thread(() =>
             {
-                Dictionary<string, Script> scripts = new Dictionary<string, Script>
+                var scripts = new Dictionary<string, Script>
                 {
                     {"test1", new Script("test1", null, false, @"{SetClipboard(""A"")}")},
                     {"test2", new Script("test2", null, false, @"{SetClipboard(""B"")}")},
                     {"test3", new Script("test3", null, false, @"{SetClipboard(""C"")}")},
                 };
-                ScriptResolver resolver = new ScriptResolver(scripts);
+                var resolver = new ScriptResolver(scripts);
                 var dict = new Dictionary<string, Tuple<Type, Value>>();
 
                 resolver.resolveFromName("test1", dict, true);

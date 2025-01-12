@@ -5,9 +5,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using Utilities;
 
-namespace UnitTests
+namespace Tests
 {
-    [TestClass]
+    [TestClass, TestCategory("UnitTests")]
     public class StatusMonitorTests : TestBase
     {
         readonly StatusService statusService = new StatusService();
@@ -19,49 +19,49 @@ namespace UnitTests
             MakeSafe();
         }
 
-        [TestMethod]
-        public void TestParseStatusFlagsDocked()
+        [ TestMethod ]
+        public void TestParseStatusFlagsDocked ()
         {
-            string line = "{ \"timestamp\":\"2018-03-25T00:39:48Z\", \"event\":\"Status\", \"Flags\":16842765, \"Pips\":[5,2,5], \"FireGroup\":0, \"GuiFocus\":0 }";
-            Status status = StatusService.Instance.ParseStatusEntry(line);
+            var line = "{ \"timestamp\":\"2018-03-25T00:39:48Z\", \"event\":\"Status\", \"Flags\":16842765, \"Pips\":[5,2,5], \"FireGroup\":0, \"GuiFocus\":0 }";
+            var status = StatusService.Instance.ParseStatusEntry( line );
 
             // Variables set from status flags (when not signed in, flags are set to '0')
-            DateTime expectedTimestamp = new DateTime(2018, 3, 25, 0, 39, 48, DateTimeKind.Utc);
-            Assert.AreEqual(expectedTimestamp, status.timestamp);
-            Assert.AreEqual(status.flags, (Status.Flags)16842765);
-            Assert.AreEqual(status.vehicle, "Ship");
-            Assert.IsFalse(status.being_interdicted);
-            Assert.IsFalse(status.in_danger);
-            Assert.IsFalse(status.near_surface);
-            Assert.IsFalse(status.overheating);
-            Assert.IsFalse(status.low_fuel);
-            Assert.AreEqual(status.fsd_status, "masslock");
-            Assert.IsFalse(status.srv_drive_assist);
-            Assert.IsFalse(status.srv_under_ship);
-            Assert.IsFalse(status.srv_turret_deployed);
-            Assert.IsFalse(status.srv_handbrake_activated);
-            Assert.IsFalse(status.scooping_fuel);
-            Assert.IsFalse(status.silent_running);
-            Assert.IsFalse(status.cargo_scoop_deployed);
-            Assert.IsFalse(status.lights_on);
-            Assert.IsFalse(status.in_wing);
-            Assert.IsFalse(status.hardpoints_deployed);
-            Assert.IsFalse(status.flight_assist_off);
-            Assert.IsFalse(status.supercruise);
-            Assert.IsTrue(status.shields_up);
-            Assert.IsTrue(status.landing_gear_down);
-            Assert.IsFalse(status.landed);
-            Assert.IsTrue(status.docked);
+            var expectedTimestamp = new DateTime( 2018, 3, 25, 0, 39, 48, DateTimeKind.Utc );
+            Assert.AreEqual( expectedTimestamp, status.timestamp );
+            Assert.AreEqual( (Status.Flags)16842765, status.flags );
+            Assert.AreEqual( "Ship", status.vehicle );
+            Assert.IsFalse( status.being_interdicted );
+            Assert.IsFalse( status.in_danger );
+            Assert.IsFalse( status.near_surface );
+            Assert.IsFalse( status.overheating );
+            Assert.IsFalse( status.low_fuel );
+            Assert.AreEqual( "masslock", status.fsd_status );
+            Assert.IsFalse( status.srv_drive_assist );
+            Assert.IsFalse( status.srv_under_ship );
+            Assert.IsFalse( status.srv_turret_deployed );
+            Assert.IsFalse( status.srv_handbrake_activated );
+            Assert.IsFalse( status.scooping_fuel );
+            Assert.IsFalse( status.silent_running );
+            Assert.IsFalse( status.cargo_scoop_deployed );
+            Assert.IsFalse( status.lights_on );
+            Assert.IsFalse( status.in_wing );
+            Assert.IsFalse( status.hardpoints_deployed );
+            Assert.IsFalse( status.flight_assist_off );
+            Assert.IsFalse( status.supercruise );
+            Assert.IsTrue( status.shields_up );
+            Assert.IsTrue( status.landing_gear_down );
+            Assert.IsFalse( status.landed );
+            Assert.IsTrue( status.docked );
         }
 
         [TestMethod]
         public void TestParseStatusFlagsDockedOdyssey()
         {
-            string line = "{ \"timestamp\":\"2021-05-01T21:04:13Z\", \"event\":\"Status\", \"Flags\":151060493, \"Flags2\":0, \"Pips\":[4,8,0], \"FireGroup\":0, \"GuiFocus\":0, \"Fuel\":{ \"FuelMain\":32.000000, \"FuelReservoir\":0.630000 }, \"Cargo\":0.000000, \"LegalState\":\"Clean\" }";
-            Status status = statusService.ParseStatusEntry(line);
+            var line = "{ \"timestamp\":\"2021-05-01T21:04:13Z\", \"event\":\"Status\", \"Flags\":151060493, \"Flags2\":0, \"Pips\":[4,8,0], \"FireGroup\":0, \"GuiFocus\":0, \"Fuel\":{ \"FuelMain\":32.000000, \"FuelReservoir\":0.630000 }, \"Cargo\":0.000000, \"LegalState\":\"Clean\" }";
+            var status = statusService.ParseStatusEntry(line);
 
             // Variables set from status flags (when not signed in, flags are set to '0')
-            DateTime expectedTimestamp = new DateTime(2021, 5, 1, 21, 4, 13, DateTimeKind.Utc);
+            var expectedTimestamp = new DateTime(2021, 5, 1, 21, 4, 13, DateTimeKind.Utc);
             Assert.AreEqual(expectedTimestamp, status.timestamp);
             Assert.AreEqual((Status.Flags)151060493, status.flags);
             Assert.AreEqual((Status.Flags2)0, status.flags2);
@@ -121,11 +121,11 @@ namespace UnitTests
         [TestMethod]
         public void TestParseStatusFlagsDockedDropshipOdyssey()
         {
-            string line = "{ \"timestamp\":\"2021-05-01T23:10:06Z\", \"event\":\"Status\", \"Flags\":16842761, \"Flags2\":2, \"Pips\":[4,4,4], \"FireGroup\":0, \"GuiFocus\":0, \"Fuel\":{ \"FuelMain\":8.000000, \"FuelReservoir\":0.570000 }, \"Cargo\":0.000000, \"LegalState\":\"Clean\" }";
-            Status status = statusService.ParseStatusEntry(line);
+            var line = "{ \"timestamp\":\"2021-05-01T23:10:06Z\", \"event\":\"Status\", \"Flags\":16842761, \"Flags2\":2, \"Pips\":[4,4,4], \"FireGroup\":0, \"GuiFocus\":0, \"Fuel\":{ \"FuelMain\":8.000000, \"FuelReservoir\":0.570000 }, \"Cargo\":0.000000, \"LegalState\":\"Clean\" }";
+            var status = statusService.ParseStatusEntry(line);
 
             // Variables set from status flags (when not signed in, flags are set to '0')
-            DateTime expectedTimestamp = new DateTime(2021, 5, 1, 23, 10, 06, DateTimeKind.Utc);
+            var expectedTimestamp = new DateTime(2021, 5, 1, 23, 10, 06, DateTimeKind.Utc);
             Assert.AreEqual(expectedTimestamp, status.timestamp);
             Assert.AreEqual((Status.Flags)16842761, status.flags);
             Assert.AreEqual((Status.Flags2)2, status.flags2);
@@ -185,11 +185,11 @@ namespace UnitTests
         [TestMethod]
         public void TestParseStatusFlagsSupercruiseTaxiOdyssey()
         {
-            string line = "{ \"timestamp\":\"2021-05-01T22:30:27Z\", \"event\":\"Status\", \"Flags\":16777240, \"Flags2\":2, \"Pips\":[4,4,4], \"FireGroup\":0, \"GuiFocus\":0, \"Fuel\":{ \"FuelMain\":8.000000, \"FuelReservoir\":0.360000 }, \"Cargo\":0.000000, \"LegalState\":\"Clean\" }";
-            Status status = statusService.ParseStatusEntry(line);
+            var line = "{ \"timestamp\":\"2021-05-01T22:30:27Z\", \"event\":\"Status\", \"Flags\":16777240, \"Flags2\":2, \"Pips\":[4,4,4], \"FireGroup\":0, \"GuiFocus\":0, \"Fuel\":{ \"FuelMain\":8.000000, \"FuelReservoir\":0.360000 }, \"Cargo\":0.000000, \"LegalState\":\"Clean\" }";
+            var status = statusService.ParseStatusEntry(line);
 
             // Variables set from status flags (when not signed in, flags are set to '0')
-            DateTime expectedTimestamp = new DateTime(2021, 5, 1, 22, 30, 27, DateTimeKind.Utc);
+            var expectedTimestamp = new DateTime(2021, 5, 1, 22, 30, 27, DateTimeKind.Utc);
             Assert.AreEqual(expectedTimestamp, status.timestamp);
             Assert.AreEqual((Status.Flags)16777240, status.flags);
             Assert.AreEqual((Status.Flags2)2, status.flags2);
@@ -249,11 +249,11 @@ namespace UnitTests
         [TestMethod]
         public void TestParseStatusFlagsInFighterOdyssey()
         {
-            string line = "{ \"timestamp\":\"2021-05-01T21:15:30Z\", \"event\":\"Status\", \"Flags\":34078792, \"Flags2\":0, \"Pips\":[2,8,2], \"FireGroup\":0, \"GuiFocus\":0, \"Fuel\":{ \"FuelMain\":0.000000, \"FuelReservoir\":0.240000 }, \"Cargo\":0.000000, \"LegalState\":\"Clean\" }";
-            Status status = statusService.ParseStatusEntry(line);
+            var line = "{ \"timestamp\":\"2021-05-01T21:15:30Z\", \"event\":\"Status\", \"Flags\":34078792, \"Flags2\":0, \"Pips\":[2,8,2], \"FireGroup\":0, \"GuiFocus\":0, \"Fuel\":{ \"FuelMain\":0.000000, \"FuelReservoir\":0.240000 }, \"Cargo\":0.000000, \"LegalState\":\"Clean\" }";
+            var status = statusService.ParseStatusEntry(line);
 
             // Variables set from status flags (when not signed in, flags are set to '0')
-            DateTime expectedTimestamp = new DateTime(2021, 5, 1, 21, 15, 30, DateTimeKind.Utc);
+            var expectedTimestamp = new DateTime(2021, 5, 1, 21, 15, 30, DateTimeKind.Utc);
             Assert.AreEqual(expectedTimestamp, status.timestamp);
             Assert.AreEqual((Status.Flags)34078792, status.flags);
             Assert.AreEqual((Status.Flags2)0, status.flags2);
@@ -313,11 +313,11 @@ namespace UnitTests
         [TestMethod]
         public void TestParseStatusFlagsLandedInShipOdyssey()
         {
-            string line = "{ \"timestamp\":\"2021-05-01T21:24:57Z\", \"event\":\"Status\", \"Flags\":153157646, \"Flags2\":0, \"Pips\":[4,8,0], \"FireGroup\":0, \"GuiFocus\":0, \"Fuel\":{ \"FuelMain\":32.000000, \"FuelReservoir\":0.384769 }, \"Cargo\":0.000000, \"LegalState\":\"Clean\", \"Latitude\":40.761524, \"Longitude\":65.103111, \"Heading\":32, \"Altitude\":0, \"BodyName\":\"Nervi 2 a\", \"PlanetRadius\":866740.562500 }";
-            Status status = statusService.ParseStatusEntry(line);
+            var line = "{ \"timestamp\":\"2021-05-01T21:24:57Z\", \"event\":\"Status\", \"Flags\":153157646, \"Flags2\":0, \"Pips\":[4,8,0], \"FireGroup\":0, \"GuiFocus\":0, \"Fuel\":{ \"FuelMain\":32.000000, \"FuelReservoir\":0.384769 }, \"Cargo\":0.000000, \"LegalState\":\"Clean\", \"Latitude\":40.761524, \"Longitude\":65.103111, \"Heading\":32, \"Altitude\":0, \"BodyName\":\"Nervi 2 a\", \"PlanetRadius\":866740.562500 }";
+            var status = statusService.ParseStatusEntry(line);
 
             // Variables set from status flags (when not signed in, flags are set to '0')
-            DateTime expectedTimestamp = new DateTime(2021, 5, 1, 21, 24, 57, DateTimeKind.Utc);
+            var expectedTimestamp = new DateTime(2021, 5, 1, 21, 24, 57, DateTimeKind.Utc);
             Assert.AreEqual(expectedTimestamp, status.timestamp);
             Assert.AreEqual((Status.Flags)153157646, status.flags);
             Assert.AreEqual((Status.Flags2)0, status.flags2);
@@ -377,11 +377,11 @@ namespace UnitTests
         [TestMethod]
         public void TestParseStatusFlagsInSRVOdyssey()
         {
-            string line = "{ \"timestamp\":\"2021-05-01T21:26:19Z\", \"event\":\"Status\", \"Flags\":203423752, \"Flags2\":0, \"Pips\":[7,4,1], \"FireGroup\":0, \"GuiFocus\":0, \"Fuel\":{ \"FuelMain\":0.000000, \"FuelReservoir\":0.447595 }, \"Cargo\":0.000000, \"LegalState\":\"Clean\", \"Latitude\":40.745747, \"Longitude\":65.096542, \"Heading\":159, \"Altitude\":0, \"BodyName\":\"Nervi 2 a\", \"PlanetRadius\":866740.562500 }";
-            Status status = statusService.ParseStatusEntry(line);
+            var line = "{ \"timestamp\":\"2021-05-01T21:26:19Z\", \"event\":\"Status\", \"Flags\":203423752, \"Flags2\":0, \"Pips\":[7,4,1], \"FireGroup\":0, \"GuiFocus\":0, \"Fuel\":{ \"FuelMain\":0.000000, \"FuelReservoir\":0.447595 }, \"Cargo\":0.000000, \"LegalState\":\"Clean\", \"Latitude\":40.745747, \"Longitude\":65.096542, \"Heading\":159, \"Altitude\":0, \"BodyName\":\"Nervi 2 a\", \"PlanetRadius\":866740.562500 }";
+            var status = statusService.ParseStatusEntry(line);
 
             // Variables set from status flags (when not signed in, flags are set to '0')
-            DateTime expectedTimestamp = new DateTime(2021, 5, 1, 21, 26, 19, DateTimeKind.Utc);
+            var expectedTimestamp = new DateTime(2021, 5, 1, 21, 26, 19, DateTimeKind.Utc);
             Assert.AreEqual(expectedTimestamp, status.timestamp);
             Assert.AreEqual((Status.Flags)203423752, status.flags);
             Assert.AreEqual((Status.Flags2)0, status.flags2);
@@ -441,11 +441,11 @@ namespace UnitTests
         [TestMethod]
         public void TestParseStatusFlagsOnFootOnPlanetOdyssey()
         {
-            string line = "{ \"timestamp\":\"2021-05-01T21:30:38Z\", \"event\":\"Status\", \"Flags\":2097152, \"Flags2\":273, \"Oxygen\":1.000000, \"Health\":1.000000, \"Temperature\":163.527100, \"SelectedWeapon\":\"$humanoid_fists_name;\", \"SelectedWeapon_Localised\":\"Unarmed\", \"Gravity\":0.101595, \"LegalState\":\"Clean\", \"Latitude\":40.741016, \"Longitude\":65.076881, \"Heading\":-165, \"BodyName\":\"Nervi 2 a\" }";
-            Status status = statusService.ParseStatusEntry(line);
+            var line = "{ \"timestamp\":\"2021-05-01T21:30:38Z\", \"event\":\"Status\", \"Flags\":2097152, \"Flags2\":273, \"Oxygen\":1.000000, \"Health\":1.000000, \"Temperature\":163.527100, \"SelectedWeapon\":\"$humanoid_fists_name;\", \"SelectedWeapon_Localised\":\"Unarmed\", \"Gravity\":0.101595, \"LegalState\":\"Clean\", \"Latitude\":40.741016, \"Longitude\":65.076881, \"Heading\":-165, \"BodyName\":\"Nervi 2 a\" }";
+            var status = statusService.ParseStatusEntry(line);
 
             // Variables set from status flags (when not signed in, flags are set to '0')
-            DateTime expectedTimestamp = new DateTime(2021, 5, 1, 21, 30, 38, DateTimeKind.Utc);
+            var expectedTimestamp = new DateTime(2021, 5, 1, 21, 30, 38, DateTimeKind.Utc);
             Assert.AreEqual(expectedTimestamp, status.timestamp);
             Assert.AreEqual((Status.Flags)2097152, status.flags);
             Assert.AreEqual((Status.Flags2)273, status.flags2);
@@ -510,11 +510,11 @@ namespace UnitTests
         [TestMethod]
         public void TestParseStatusFlagsOnFootOnStationOdyssey()
         {
-            string line = "{ \"timestamp\":\"2021-05-01T21:00:10Z\", \"event\":\"Status\", \"Flags\":0, \"Flags2\":9, \"Oxygen\":1.000000, \"Health\":1.000000, \"Temperature\":293.000000, \"SelectedWeapon\":\"\", \"LegalState\":\"Clean\", \"BodyName\":\"Savitskaya Vision\" }";
-            Status status = statusService.ParseStatusEntry(line);
+            var line = "{ \"timestamp\":\"2021-05-01T21:00:10Z\", \"event\":\"Status\", \"Flags\":0, \"Flags2\":9, \"Oxygen\":1.000000, \"Health\":1.000000, \"Temperature\":293.000000, \"SelectedWeapon\":\"\", \"LegalState\":\"Clean\", \"BodyName\":\"Savitskaya Vision\" }";
+            var status = statusService.ParseStatusEntry(line);
 
             // Variables set from status flags (when not signed in, flags are set to '0')
-            DateTime expectedTimestamp = new DateTime(2021, 5, 1, 21, 00, 10, DateTimeKind.Utc);
+            var expectedTimestamp = new DateTime(2021, 5, 1, 21, 00, 10, DateTimeKind.Utc);
             Assert.AreEqual(expectedTimestamp, status.timestamp);
             Assert.AreEqual((Status.Flags)0, status.flags);
             Assert.AreEqual((Status.Flags2)9, status.flags2);
@@ -576,79 +576,79 @@ namespace UnitTests
             Assert.IsNull(status.gravity);
         }
 
-        [TestMethod]
-        public void TestParseStatusFlagsNormalSpace()
+        [ TestMethod ]
+        public void TestParseStatusFlagsNormalSpace ()
         {
-            string line = "{ \"timestamp\":\"2018-03-25T00:39:48Z\", \"event\":\"Status\", \"Flags\":16777320, \"Pips\":[7,1,4], \"FireGroup\":0, \"GuiFocus\":0 }";
-            Status status = statusService.ParseStatusEntry(line);
+            var line = "{ \"timestamp\":\"2018-03-25T00:39:48Z\", \"event\":\"Status\", \"Flags\":16777320, \"Pips\":[7,1,4], \"FireGroup\":0, \"GuiFocus\":0 }";
+            var status = statusService.ParseStatusEntry( line );
 
             // Variables set from status flags (when not signed in, flags are set to '0')
-            Assert.AreEqual(status.flags, (Status.Flags)16777320);
-            Assert.AreEqual(status.vehicle, "Ship");
-            Assert.IsFalse(status.being_interdicted);
-            Assert.IsFalse(status.in_danger);
-            Assert.IsFalse(status.near_surface);
-            Assert.IsFalse(status.overheating);
-            Assert.IsFalse(status.low_fuel);
-            Assert.AreEqual(status.fsd_status, "ready");
-            Assert.IsFalse(status.srv_drive_assist);
-            Assert.IsFalse(status.srv_under_ship);
-            Assert.IsFalse(status.srv_turret_deployed);
-            Assert.IsFalse(status.srv_handbrake_activated);
-            Assert.IsFalse(status.scooping_fuel);
-            Assert.IsFalse(status.silent_running);
-            Assert.IsFalse(status.cargo_scoop_deployed);
-            Assert.IsFalse(status.lights_on);
-            Assert.IsFalse(status.in_wing);
-            Assert.IsTrue(status.hardpoints_deployed);
-            Assert.IsTrue(status.flight_assist_off);
-            Assert.IsFalse(status.supercruise);
-            Assert.IsTrue(status.shields_up);
-            Assert.IsFalse(status.landing_gear_down);
-            Assert.IsFalse(status.landed);
-            Assert.IsFalse(status.docked);
+            Assert.AreEqual( (Status.Flags)16777320, status.flags );
+            Assert.AreEqual( "Ship", status.vehicle );
+            Assert.IsFalse( status.being_interdicted );
+            Assert.IsFalse( status.in_danger );
+            Assert.IsFalse( status.near_surface );
+            Assert.IsFalse( status.overheating );
+            Assert.IsFalse( status.low_fuel );
+            Assert.AreEqual( "ready", status.fsd_status );
+            Assert.IsFalse( status.srv_drive_assist );
+            Assert.IsFalse( status.srv_under_ship );
+            Assert.IsFalse( status.srv_turret_deployed );
+            Assert.IsFalse( status.srv_handbrake_activated );
+            Assert.IsFalse( status.scooping_fuel );
+            Assert.IsFalse( status.silent_running );
+            Assert.IsFalse( status.cargo_scoop_deployed );
+            Assert.IsFalse( status.lights_on );
+            Assert.IsFalse( status.in_wing );
+            Assert.IsTrue( status.hardpoints_deployed );
+            Assert.IsTrue( status.flight_assist_off );
+            Assert.IsFalse( status.supercruise );
+            Assert.IsTrue( status.shields_up );
+            Assert.IsFalse( status.landing_gear_down );
+            Assert.IsFalse( status.landed );
+            Assert.IsFalse( status.docked );
         }
 
-        [TestMethod]
-        public void TestParseStatusFlagsSrv()
+        [ TestMethod ]
+        public void TestParseStatusFlagsSrv ()
         {
-            string line = "{ \"timestamp\":\"2018-03-25T00:39:48Z\", \"event\":\"Status\", \"Flags\":69255432, \"Pips\":[2,8,2], \"FireGroup\":0, \"GuiFocus\":0, \"Latitude\":-5.683115, \"Longitude\":-10.957623, \"Heading\":249, \"Altitude\":0, \"BodyName\":\"Myeia Thaa QI - B d13 - 1 1\", \"PlanetRadius\":2140275.000000}";
-            Status status = statusService.ParseStatusEntry(line);
+            var line = "{ \"timestamp\":\"2018-03-25T00:39:48Z\", \"event\":\"Status\", \"Flags\":69255432, \"Pips\":[2,8,2], \"FireGroup\":0, \"GuiFocus\":0, \"Latitude\":-5.683115, \"Longitude\":-10.957623, \"Heading\":249, \"Altitude\":0, \"BodyName\":\"Myeia Thaa QI - B d13 - 1 1\", \"PlanetRadius\":2140275.000000}";
+            var status = statusService.ParseStatusEntry( line );
 
             // Variables set from status flags (when not signed in, flags are set to '0')
-            Assert.AreEqual(status.flags, (Status.Flags)69255432);
-            Assert.AreEqual(status.vehicle, "SRV");
-            Assert.IsFalse(status.being_interdicted);
-            Assert.IsFalse(status.in_danger);
-            Assert.IsTrue(status.near_surface);
-            Assert.IsFalse(status.overheating);
-            Assert.IsFalse(status.low_fuel);
-            Assert.AreEqual(status.fsd_status, "ready");
-            Assert.IsTrue(status.srv_drive_assist);
-            Assert.IsTrue(status.srv_under_ship);
-            Assert.IsFalse(status.srv_turret_deployed);
-            Assert.IsFalse(status.srv_handbrake_activated);
-            Assert.IsFalse(status.scooping_fuel);
-            Assert.IsFalse(status.silent_running);
-            Assert.IsFalse(status.cargo_scoop_deployed);
-            Assert.IsTrue(status.lights_on);
-            Assert.IsFalse(status.in_wing);
-            Assert.IsFalse(status.hardpoints_deployed);
-            Assert.IsFalse(status.flight_assist_off);
-            Assert.IsFalse(status.supercruise);
-            Assert.IsTrue(status.shields_up);
-            Assert.IsFalse(status.landing_gear_down);
-            Assert.IsFalse(status.landed);
-            Assert.IsFalse(status.docked);
-            Assert.AreEqual("Myeia Thaa QI - B d13 - 1 1", status.bodyname);
-            Assert.AreEqual(2140275.000000M, status.planetradius);
+            Assert.AreEqual( (Status.Flags)69255432, status.flags );
+            Assert.AreEqual( "SRV", status.vehicle );
+            Assert.IsFalse( status.being_interdicted );
+            Assert.IsFalse( status.in_danger );
+            Assert.IsTrue( status.near_surface );
+            Assert.IsFalse( status.overheating );
+            Assert.IsFalse( status.low_fuel );
+            Assert.AreEqual( "ready", status.fsd_status );
+            Assert.IsTrue( status.srv_drive_assist );
+            Assert.IsTrue( status.srv_under_ship );
+            Assert.IsFalse( status.srv_turret_deployed );
+            Assert.IsFalse( status.srv_handbrake_activated );
+            Assert.IsFalse( status.scooping_fuel );
+            Assert.IsFalse( status.silent_running );
+            Assert.IsFalse( status.cargo_scoop_deployed );
+            Assert.IsTrue( status.lights_on );
+            Assert.IsFalse( status.in_wing );
+            Assert.IsFalse( status.hardpoints_deployed );
+            Assert.IsFalse( status.flight_assist_off );
+            Assert.IsFalse( status.supercruise );
+            Assert.IsTrue( status.shields_up );
+            Assert.IsFalse( status.landing_gear_down );
+            Assert.IsFalse( status.landed );
+            Assert.IsFalse( status.docked );
+            Assert.AreEqual( "Myeia Thaa QI - B d13 - 1 1", status.bodyname );
+            Assert.AreEqual( 2140275.000000M, status.planetradius );
         }
 
         [TestMethod]
         public void TestParseStatusFlagsSupercruise()
         {
-            string line = "{ \"timestamp\":\"2018-03-25T00:39:48Z\", \"event\":\"Status\", \"Flags\":16777240, \"Pips\":[7,1,4], \"FireGroup\":0, \"GuiFocus\":0, \"Fuel\":{ \"FuelMain\":26.589718, \"FuelReservoir\":0.484983 }, \"Cargo\":3.000000, \"LegalState\":\"Clean\" }";
-            Status status = statusService.ParseStatusEntry(line);
+            var line = "{ \"timestamp\":\"2018-03-25T00:39:48Z\", \"event\":\"Status\", \"Flags\":16777240, \"Pips\":[7,1,4], \"FireGroup\":0, \"GuiFocus\":0, \"Fuel\":{ \"FuelMain\":26.589718, \"FuelReservoir\":0.484983 }, \"Cargo\":3.000000, \"LegalState\":\"Clean\" }";
+            var status = statusService.ParseStatusEntry(line);
 
             // Variables set from status flags (when not signed in, flags are set to '0')
             Assert.AreEqual((Status.Flags)16777240, status.flags);
@@ -664,8 +664,8 @@ namespace UnitTests
         [TestMethod]
         public void TestParseStatusPips()
         {
-            string line = "{ \"timestamp\":\"2018-03-25T00:39:48Z\", \"event\":\"Status\", \"Flags\":16842765, \"Pips\":[5,2,5], \"FireGroup\":0, \"GuiFocus\":0 }";
-            Status status = statusService.ParseStatusEntry(line);
+            var line = "{ \"timestamp\":\"2018-03-25T00:39:48Z\", \"event\":\"Status\", \"Flags\":16842765, \"Pips\":[5,2,5], \"FireGroup\":0, \"GuiFocus\":0 }";
+            var status = statusService.ParseStatusEntry(line);
 
             Assert.AreEqual(2.5M, status.pips_sys);
             Assert.AreEqual(1M, status.pips_eng);
@@ -675,8 +675,8 @@ namespace UnitTests
         [TestMethod]
         public void TestParseStatusFiregroup()
         {
-            string line = "{ \"timestamp\":\"2018-03-25T00:39:48Z\", \"event\":\"Status\", \"Flags\":16842765, \"Pips\":[5,2,5], \"FireGroup\":1, \"GuiFocus\":0 }";
-            Status status = statusService.ParseStatusEntry(line);
+            var line = "{ \"timestamp\":\"2018-03-25T00:39:48Z\", \"event\":\"Status\", \"Flags\":16842765, \"Pips\":[5,2,5], \"FireGroup\":1, \"GuiFocus\":0 }";
+            var status = statusService.ParseStatusEntry(line);
 
             Assert.AreEqual(1, status.firegroup);
         }
@@ -684,8 +684,8 @@ namespace UnitTests
         [TestMethod]
         public void TestParseStatusGuiFocus()
         {
-            string line = "{ \"timestamp\":\"2018-03-25T00:39:48Z\", \"event\":\"Status\", \"Flags\":16842765, \"Pips\":[5,2,5], \"FireGroup\":1, \"GuiFocus\":5 }";
-            Status status = statusService.ParseStatusEntry(line);
+            var line = "{ \"timestamp\":\"2018-03-25T00:39:48Z\", \"event\":\"Status\", \"Flags\":16842765, \"Pips\":[5,2,5], \"FireGroup\":1, \"GuiFocus\":5 }";
+            var status = statusService.ParseStatusEntry(line);
 
             Assert.AreEqual("station services", status.gui_focus);
         }
@@ -693,8 +693,8 @@ namespace UnitTests
         [TestMethod]
         public void TestParseStatusGps1()
         {
-            string line = "{ \"timestamp\":\"2018-03-25T00:39:48Z\", \"event\":\"Status\", \"Flags\":16842765, \"Pips\":[5,2,5], \"FireGroup\":1, \"GuiFocus\":0 }";
-            Status status = statusService.ParseStatusEntry(line);
+            var line = "{ \"timestamp\":\"2018-03-25T00:39:48Z\", \"event\":\"Status\", \"Flags\":16842765, \"Pips\":[5,2,5], \"FireGroup\":1, \"GuiFocus\":0 }";
+            var status = statusService.ParseStatusEntry(line);
 
             Assert.IsNull(status.latitude);
             Assert.IsNull(status.longitude);
@@ -705,8 +705,8 @@ namespace UnitTests
         [TestMethod]
         public void TestParseStatusGps2()
         {
-            string line = "{ \"timestamp\":\"2018-03-25T00:39:48Z\", \"event\":\"Status\", \"Flags\":69255432, \"Pips\":[2,8,2], \"FireGroup\":0, \"GuiFocus\":0, \"Latitude\":-5.683115, \"Longitude\":-10.957623, \"Heading\":249, \"Altitude\":0}";
-            Status status = statusService.ParseStatusEntry(line);
+            var line = "{ \"timestamp\":\"2018-03-25T00:39:48Z\", \"event\":\"Status\", \"Flags\":69255432, \"Pips\":[2,8,2], \"FireGroup\":0, \"GuiFocus\":0, \"Latitude\":-5.683115, \"Longitude\":-10.957623, \"Heading\":249, \"Altitude\":0}";
+            var status = statusService.ParseStatusEntry(line);
 
             Assert.AreEqual(-5.683115M, status.latitude);
             Assert.AreEqual(-10.957623M, status.longitude);
@@ -714,37 +714,38 @@ namespace UnitTests
             Assert.AreEqual(249M, status.heading);
         }
 
-        [TestMethod]
-        public void TestParseStatusFlagsAnalysisFssMode()
+        [ TestMethod ]
+        public void TestParseStatusFlagsAnalysisFssMode ()
         {
-            string line = "{ \"timestamp\":\"2018 - 11 - 15T04: 41:06Z\", \"event\":\"Status\", \"Flags\":151519320, \"Pips\":[4,4,4], \"FireGroup\":2, \"GuiFocus\":9, \"Fuel\":{ \"FuelMain\":15.260000, \"FuelReservoir\":0.444812 }, \"Cargo\":39.000000 }";
-            Status status = statusService.ParseStatusEntry(line);
+            var line = "{ \"timestamp\":\"2018 - 11 - 15T04: 41:06Z\", \"event\":\"Status\", \"Flags\":151519320, \"Pips\":[4,4,4], \"FireGroup\":2, \"GuiFocus\":9, \"Fuel\":{ \"FuelMain\":15.260000, \"FuelReservoir\":0.444812 }, \"Cargo\":39.000000 }";
+            var status = statusService.ParseStatusEntry( line );
 
-            Assert.AreEqual(true, status.analysis_mode);
-            Assert.AreEqual("fss mode", status.gui_focus);
+            Assert.IsTrue( status.analysis_mode );
+            Assert.AreEqual( "fss mode", status.gui_focus );
         }
 
-        [TestMethod]
-        public void TestParseStatusFlagsAnalysisSaaMode()
+        [ TestMethod ]
+        public void TestParseStatusFlagsAnalysisSaaMode ()
         {
-            string line = "{ \"timestamp\":\"2018 - 11 - 15T04: 47:51Z\", \"event\":\"Status\", \"Flags\":150995032, \"Pips\":[4,4,4], \"FireGroup\":2, \"GuiFocus\":10, \"Fuel\":{ \"FuelMain\":15.260000, \"FuelReservoir\":0.444812 }, \"Cargo\":39.000000 }";
-            Status status = statusService.ParseStatusEntry(line);
+            var line =
+                "{ \"timestamp\":\"2018 - 11 - 15T04: 47:51Z\", \"event\":\"Status\", \"Flags\":150995032, \"Pips\":[4,4,4], \"FireGroup\":2, \"GuiFocus\":10, \"Fuel\":{ \"FuelMain\":15.260000, \"FuelReservoir\":0.444812 }, \"Cargo\":39.000000 }";
+            var status = statusService.ParseStatusEntry( line );
 
-            Assert.AreEqual(true, status.analysis_mode);
-            Assert.AreEqual("saa mode", status.gui_focus);
+            Assert.IsTrue( status.analysis_mode );
+            Assert.AreEqual( "saa mode", status.gui_focus );
         }
 
-        [TestMethod]
-        public void TestParseStatusFlagsNightMode()
+        [ TestMethod ]
+        public void TestParseStatusFlagsNightMode ()
         {
             var line = "{ \"timestamp\":\"2018 - 11 - 15T04: 58:37Z\", \"event\":\"Status\", \"Flags\":422117640, \"Pips\":[4,4,4], \"FireGroup\":2, \"GuiFocus\":0, \"Fuel\":{ \"FuelMain\":29.0, \"FuelReservoir\":0.564209 }, \"Cargo\":39.000000, \"Latitude\":88.365417, \"Longitude\":99.356514, \"Heading\":29, \"Altitude\":36 }";
-            var status = statusService.ParseStatusEntry(line);
+            var status = statusService.ParseStatusEntry( line );
 
-            Assert.AreEqual(true, status.night_vision);
-            Assert.AreEqual(true, status.lights_on);
-            Assert.AreEqual("none", status.gui_focus);
-            Assert.AreEqual(29.564209M, status.fuel);
-            Assert.AreEqual(39, status.cargo_carried);
+            Assert.IsTrue( status.night_vision );
+            Assert.IsTrue( status.lights_on );
+            Assert.AreEqual( "none", status.gui_focus );
+            Assert.AreEqual( 29.564209M, status.fuel );
+            Assert.AreEqual( 39, status.cargo_carried );
         }
 
         [ TestMethod ]
@@ -757,9 +758,9 @@ namespace UnitTests
         [ DataTestMethod ]
         [ DataRow ( "{ \"timestamp\":\"2021-05-01T21:00:10Z\", \"event\":\"Status\", \"Flags\":0, \"Flags2\":9, \"Oxygen\":1.000000, \"Health\":1.000000, \"Temperature\":293.000000, \"SelectedWeapon\":\"\", \"LegalState\":\"Clean\", \"BodyName\":\"Savitskaya Vision\" }" ) ]
         [ DataRow ( "{ \"timestamp\":\"2018-03-25T00:39:48Z\", \"event\":\"Status\", \"Flags\":69255432, \"Pips\":[2,8,2], \"FireGroup\":0, \"GuiFocus\":0, \"Latitude\":-5.683115, \"Longitude\":-10.957623, \"Heading\":249, \"Altitude\":0}" ) ]
-        [ DataRow ( "{ \"timestamp\":\"2018 - 11 - 15T04: 41:06Z\", \"event\":\"Status\", \"Flags\":151519320, \"Pips\":[4,4,4], \"FireGroup\":2, \"GuiFocus\":9, \"Fuel\":{ \"FuelMain\":15.260000, \"FuelReservoir\":0.444812 }, \"Cargo\":39.000000 }" ) ]
-        [ DataRow ( "{ \"timestamp\":\"2018 - 11 - 15T04: 58:37Z\", \"event\":\"Status\", \"Flags\":422117640, \"Pips\":[4,4,4], \"FireGroup\":2, \"GuiFocus\":0, \"Fuel\":{ \"FuelMain\":29.0, \"FuelReservoir\":0.564209 }, \"Cargo\":39.000000, \"Latitude\":88.365417, \"Longitude\":99.356514, \"Heading\":29, \"Altitude\":36 }" ) ]
-        [ DataRow ( "{ \"timestamp\":\"2018 - 11 - 15T04: 47:51Z\", \"event\":\"Status\", \"Flags\":150995032, \"Pips\":[4,4,4], \"FireGroup\":2, \"GuiFocus\":10, \"Fuel\":{ \"FuelMain\":15.260000, \"FuelReservoir\":0.444812 }, \"Cargo\":39.000000 }" ) ]
+        [ DataRow ( "{ \"timestamp\":\"2018-11-15T04:41:06Z\", \"event\":\"Status\", \"Flags\":151519320, \"Pips\":[4,4,4], \"FireGroup\":2, \"GuiFocus\":9, \"Fuel\":{ \"FuelMain\":15.260000, \"FuelReservoir\":0.444812 }, \"Cargo\":39.000000 }" ) ]
+        [ DataRow ( "{ \"timestamp\":\"2018-11-15T04:58:37Z\", \"event\":\"Status\", \"Flags\":422117640, \"Pips\":[4,4,4], \"FireGroup\":2, \"GuiFocus\":0, \"Fuel\":{ \"FuelMain\":29.0, \"FuelReservoir\":0.564209 }, \"Cargo\":39.000000, \"Latitude\":88.365417, \"Longitude\":99.356514, \"Heading\":29, \"Altitude\":36 }" ) ]
+        [ DataRow ( "{ \"timestamp\":\"2018-11-15T04:47:51Z\", \"event\":\"Status\", \"Flags\":150995032, \"Pips\":[4,4,4], \"FireGroup\":2, \"GuiFocus\":10, \"Fuel\":{ \"FuelMain\":15.260000, \"FuelReservoir\":0.444812 }, \"Cargo\":39.000000 }" ) ]
         public void TestStatusMonitorHandleStatus (string line)
         {
             var currentStatus = statusService.ParseStatusEntry( line );

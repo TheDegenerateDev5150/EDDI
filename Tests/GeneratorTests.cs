@@ -7,9 +7,9 @@ using System.IO;
 using System.Linq;
 using Utilities;
 
-namespace GeneratorTests
+namespace Tests
 {
-    [TestClass]
+    [TestClass, TestCategory(nameof(GeneratorTests))]
     public class GeneratorTests
     {
         private string initialCurrentDirectory;
@@ -18,7 +18,7 @@ namespace GeneratorTests
         public void SetOutputDirectory()
         {
             initialCurrentDirectory = Directory.GetCurrentDirectory();
-            string newCurrentDirectory = initialCurrentDirectory.Replace(@"Tests\", "");
+            var newCurrentDirectory = initialCurrentDirectory.Replace(@"Tests\", "");
             Directory.SetCurrentDirectory(newCurrentDirectory);
         }
 
@@ -28,12 +28,12 @@ namespace GeneratorTests
             Directory.SetCurrentDirectory(initialCurrentDirectory);
         }
 
-        [TestMethod, TestCategory("DocGen")]
+        [TestMethod]
         public void TestGenerateWikiEvents()
         {
-            foreach (KeyValuePair<string, Type> entry in Events.TYPES.OrderBy(i => i.Key))
+            foreach (var entry in Events.TYPES.OrderBy(i => i.Key))
             {
-                List<string> output = new List<string>
+                var output = new List<string>
                 {
                     Events.DESCRIPTIONS[entry.Key] + ".",
                     ""
@@ -127,10 +127,10 @@ namespace GeneratorTests
             }
         }
 
-        [TestMethod, TestCategory("DocGen")]
+        [TestMethod]
         public void TestGenerateWikiEventsList()
         {
-            List<string> output = new List<string>
+            var output = new List<string>
             {
 
                 // This is the header row for the index of events
@@ -140,7 +140,7 @@ namespace GeneratorTests
             };
 
             // This is the list of events in markdown format
-            foreach (KeyValuePair<string, Type> entry in Events.TYPES.OrderBy(i => i.Key))
+            foreach (var entry in Events.TYPES.OrderBy(i => i.Key))
             {
                 output.Add("## [" + entry.Key + "](" + entry.Key.Replace(" ", "-") + "-event)");
                 output.Add(Events.DESCRIPTIONS[entry.Key] + ".");
@@ -150,12 +150,12 @@ namespace GeneratorTests
             File.WriteAllLines(@"Wiki\Events.md", output);
         }
 
-        [TestMethod, TestCategory("DocGen")]
+        [TestMethod]
         // Generates the list of keywords used by the Cottle grammar "SpeechResponder\Cottle.xshd".
         // Paste the output into the "Custom properties" section of that file.
         public void TestGenerateEventVariables()
         {
-            SortedSet<string> eventVars = new SortedSet<string>();
+            var eventVars = new SortedSet<string>();
 
             foreach (var type in Events.TYPES)
             {
@@ -166,13 +166,13 @@ namespace GeneratorTests
                 }
             }
 
-            string output = "      <Word>" + string.Join("</Word>\r\n      <Word>", eventVars) + " </Word>\r\n";
+            var output = "      <Word>" + string.Join("</Word>\r\n      <Word>", eventVars) + " </Word>\r\n";
             Directory.CreateDirectory(@"Cottle\");
             File.WriteAllText(@"Cottle\Custom keywords.txt", output);
         }
 
         // Generates a list of custom script resolver functions in the file `Help.md`.
-        [TestMethod, TestCategory("DocGen")]
+        [TestMethod]
         public void TestGenerateFunctionsHelp()
         {
             // Prepare our functions
@@ -185,7 +185,7 @@ namespace GeneratorTests
                 .ToList();
 
             // Prepare Help.md
-            List<string> help = new List<string>
+            var help = new List<string>
             {
                 "",
                 EddiSpeechResponder.Properties.CustomFunctions_Untranslated.HelpHeader,
@@ -201,7 +201,7 @@ namespace GeneratorTests
             }
 
             // Prepare Functions.md
-            List<string> functions = new List<string>
+            var functions = new List<string>
             {
                 "",
                 EddiSpeechResponder.Properties.CustomFunctions_Untranslated.FunctionsHeader,

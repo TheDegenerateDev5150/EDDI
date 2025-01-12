@@ -5,11 +5,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Text;
 using Tests.Properties;
-using UnitTests;
 
-namespace IntegrationTests
+namespace Tests
 {
-    [TestClass]
+    [TestClass, TestCategory( "UnitTests" )]
     public class NavigationServiceTests : TestBase
     {
         private NavigationService navigationService;

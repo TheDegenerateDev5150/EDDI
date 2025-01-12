@@ -7,16 +7,16 @@ using System.Collections.Generic;
 using System.Linq;
 using Tests.Properties;
 
-namespace UnitTests
+namespace Tests
 {
-    [TestClass]
+    [TestClass, TestCategory("UnitTests")]
     // this class is pure and doesn't need TestBase.MakeSafe()
     public class CommodityTests
     {
         [TestMethod]
         public void TestMalformedCommodityName()
         {
-            string malformedCommodityName = "I gotta quote\" and a backslash\\, I'm really bad.";
+            var malformedCommodityName = "I gotta quote\" and a backslash\\, I'm really bad.";
             var badCommoditity = CommodityDefinition.FromNameOrEDName(malformedCommodityName);
             Assert.AreEqual(malformedCommodityName.ToLowerInvariant(), badCommoditity.localizedName);
         }
@@ -24,7 +24,7 @@ namespace UnitTests
         [TestMethod]
         public void TestCommodityDefinitionCommodity()
         {
-            string commodityDefCommodity = @"
+            var commodityDefCommodity = @"
             {
                 ""definition"": {
                     ""edname"": ""ProgenitorCells""
@@ -45,13 +45,13 @@ namespace UnitTests
                 ""rare"": false
             }";
 
-            CommodityMarketQuote commodity = JsonConvert.DeserializeObject<CommodityMarketQuote>(commodityDefCommodity);
+            var commodity = JsonConvert.DeserializeObject<CommodityMarketQuote>(commodityDefCommodity);
             Assert.IsNotNull(commodity);
             Assert.AreEqual("ProgenitorCells", commodity.definition.edname); ;
             Assert.AreEqual("Progenitor Cells", commodity.invariantName);
             Assert.AreEqual(7000, commodity.buyprice);
             Assert.AreEqual(5, commodity.stock);
-            Assert.AreEqual(null, commodity.stockbracket);
+            Assert.IsNull(commodity.stockbracket);
             Assert.AreEqual(7279, commodity.sellprice);
             Assert.AreEqual(56, commodity.demand);
             Assert.AreEqual(CommodityBracket.Low, commodity.demandbracket);
@@ -63,7 +63,7 @@ namespace UnitTests
 
         private static MarketInfoItem CannedCAPIQuote()
         {
-            string json = @"{
+            var json = @"{
                 ""id"": 128049204,
                 ""name"": ""Explosives"",
                 ""legality"": """",
@@ -88,7 +88,7 @@ namespace UnitTests
             Assert.AreEqual(313, edQuote.buyPrice);
             Assert.AreEqual(281, edQuote.sellPrice);
             Assert.AreEqual(294, edQuote.meanPrice);
-            Assert.AreEqual(null, edQuote.demandBracket);
+            Assert.IsNull(edQuote.demandBracket);
             Assert.AreEqual(CommodityBracket.Medium, edQuote.stockBracket);
             Assert.AreEqual(31881, edQuote.stock);
             Assert.AreEqual(1, edQuote.demand);
@@ -106,7 +106,7 @@ namespace UnitTests
             Assert.AreEqual(313, quote.buyprice);
             Assert.AreEqual(281, quote.sellprice);
             Assert.AreEqual(294, quote.avgprice);
-            Assert.AreEqual(null, quote.demandbracket);
+            Assert.IsNull(quote.demandbracket);
             Assert.AreEqual(CommodityBracket.Medium, quote.stockbracket);
             Assert.AreEqual(31881, quote.stock);
             Assert.AreEqual(1, quote.demand);
@@ -137,7 +137,7 @@ namespace UnitTests
             /// Test legacy data that may be stored in user's local sql databases. 
             /// Legacy data includes all data stored in user's sql databases prior to version 3.0.1-b2
             /// Note that data structures were reorganized at this time to support internationalization.
-            string legacyCommodity = @"
+            var legacyCommodity = @"
             {
                 ""name"": ""ProgenitorCells"",
                 ""category"": null,
@@ -157,7 +157,7 @@ namespace UnitTests
             // `Assert.ThrowsException<>(...)` doesn't seem to be available?
             try
             {
-                CommodityMarketQuote commodity = JsonConvert.DeserializeObject<CommodityMarketQuote>(legacyCommodity);
+                var commodity = JsonConvert.DeserializeObject<CommodityMarketQuote>(legacyCommodity);
                 Assert.Fail("Expected invalid commodity JSON to throw");
             }
             catch

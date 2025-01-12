@@ -9,10 +9,10 @@ using System.Text;
 using Tests.Properties;
 using Utilities;
 
-namespace UnitTests
+namespace Tests
 {
     // Tests for the EliteBGS Service
-    [TestClass]
+    [TestClass, TestCategory( "UnitTests" )]
     public class BgsDataTests : TestBase
     {
         [TestInitialize]
@@ -36,24 +36,30 @@ namespace UnitTests
             Assert.AreEqual("2019-04-13T03:37:17Z", Dates.FromDateTimeToString(faction.updatedAt));
 
             var factionPresence = faction.presences.FirstOrDefault( p => p.systemName == "Shinrarta Dezhra" );
-            Assert.AreEqual(28.9M, factionPresence?.influence);
-            Assert.AreEqual("Boom", factionPresence?.FactionState?.invariantName);
-            Assert.AreEqual("Happy", factionPresence?.Happiness.invariantName);
-            Assert.AreEqual(1, factionPresence?.ActiveStates.Count());
-            Assert.AreEqual("Boom", factionPresence?.ActiveStates[0]?.invariantName);
-            Assert.AreEqual(0, factionPresence?.PendingStates.Count());
-            Assert.AreEqual(0, factionPresence?.RecoveringStates.Count());
-            Assert.AreEqual("2019-04-13T03:37:17Z", Dates.FromDateTimeToString(factionPresence?.updatedAt));
+            Assert.IsNotNull(factionPresence);
+            Assert.AreEqual(28.9M, factionPresence.influence);
+            Assert.IsNotNull( factionPresence.FactionState );
+            Assert.AreEqual("Boom", factionPresence.FactionState.invariantName);
+            Assert.AreEqual("Happy", factionPresence.Happiness.invariantName);
+            Assert.AreEqual(1, factionPresence.ActiveStates.Count);
+            Assert.IsNotNull( factionPresence.ActiveStates[ 0 ] );
+            Assert.AreEqual("Boom", factionPresence.ActiveStates[0].invariantName);
+            Assert.AreEqual(0, factionPresence.PendingStates.Count);
+            Assert.AreEqual(0, factionPresence.RecoveringStates.Count);
+            Assert.AreEqual("2019-04-13T03:37:17Z", Dates.FromDateTimeToString(factionPresence.updatedAt));
 
             factionPresence = faction.presences.FirstOrDefault( p => p.systemName == "LFT 926" );
-            Assert.AreEqual(11.2983M, factionPresence?.influence);
-            Assert.AreEqual("Boom", factionPresence?.FactionState?.invariantName);
-            Assert.AreEqual("Happy", factionPresence?.Happiness.invariantName);
-            Assert.AreEqual(0, factionPresence?.ActiveStates.Count());
-            Assert.AreEqual(0, factionPresence?.PendingStates.Count());
-            Assert.AreEqual(1, factionPresence?.RecoveringStates.Count());
-            Assert.AreEqual("War", factionPresence?.RecoveringStates[0]?.factionState.invariantName);
-            Assert.AreEqual(0, factionPresence?.RecoveringStates[0]?.trend);
+            Assert.IsNotNull( factionPresence );
+            Assert.AreEqual(11.2983M, factionPresence.influence);
+            Assert.IsNotNull( factionPresence.FactionState );
+            Assert.AreEqual("Boom", factionPresence.FactionState.invariantName);
+            Assert.AreEqual("Happy", factionPresence.Happiness.invariantName);
+            Assert.AreEqual(0, factionPresence.ActiveStates.Count);
+            Assert.AreEqual(0, factionPresence.PendingStates.Count);
+            Assert.AreEqual(1, factionPresence.RecoveringStates.Count);
+            Assert.IsNotNull( factionPresence.RecoveringStates[ 0 ] );
+            Assert.AreEqual("War", factionPresence.RecoveringStates[0].factionState.invariantName);
+            Assert.AreEqual(0, factionPresence.RecoveringStates[0].trend);
             Assert.AreEqual("2019-04-13T03:27:28Z", Dates.FromDateTimeToString(factionPresence?.updatedAt));
         }
 

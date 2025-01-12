@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using Tests.Properties;
 
-namespace UnitTests
+namespace Tests
 {
-    [TestClass]
+    [TestClass, TestCategory("UnitTests")]
     public class InaraTests : TestBase
     {
         private IInaraService inaraService;
@@ -22,7 +22,7 @@ namespace UnitTests
         [TestMethod]
         public void TestIndexAndFilterAPIEvents()
         {
-            List<InaraAPIEvent> inaraAPIEvents = new List<InaraAPIEvent>
+            var inaraAPIEvents = new List<InaraAPIEvent>
             {
                 new InaraAPIEvent(DateTime.UtcNow, "getCommanderProfile", new Dictionary<string, object> { { "searchName", "No such name" } }),
                 new InaraAPIEvent(DateTime.UtcNow, "getCommanderProfile", new Dictionary<string, object> { { "searchName", "Artie" } }),

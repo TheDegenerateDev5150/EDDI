@@ -1,11 +1,10 @@
-﻿using EddiDataDefinitions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 using Tests.Properties;
 
-namespace UnitTests
+namespace Tests
 {
-    [TestClass]
+    [TestClass, TestCategory("UnitTests")]
     public class EdsmDataTests : TestBase
     {
         [TestInitialize]
@@ -18,9 +17,9 @@ namespace UnitTests
         public void TestTraffic()
         {
             // Test pilot traffic data
-            JObject response = DeserializeJsonResource<JObject>(Resources.edsmTraffic);
+            var response = DeserializeJsonResource<JObject>(Resources.edsmTraffic);
 
-            Traffic traffic = fakeEdsmService.ParseStarMapTraffic(response);
+            var traffic = fakeEdsmService.ParseStarMapTraffic(response);
 
             Assert.IsNotNull(traffic);
             Assert.AreEqual(9631, traffic.total);
@@ -32,9 +31,9 @@ namespace UnitTests
         public void TestDeaths()
         {
             // Test pilot mortality data
-            JObject response = DeserializeJsonResource<JObject>(Resources.edsmDeaths);
+            var response = DeserializeJsonResource<JObject>(Resources.edsmDeaths);
 
-            Traffic deaths = fakeEdsmService.ParseStarMapDeaths(response);
+            var deaths = fakeEdsmService.ParseStarMapDeaths(response);
 
             Assert.IsNotNull(deaths);
             Assert.AreEqual(1068, deaths.total);
@@ -46,10 +45,10 @@ namespace UnitTests
         public void TestTrafficUnknown()
         {
             // Setup
-            JObject response = new JObject();
+            var response = new JObject();
 
             // Act
-            Traffic traffic = fakeEdsmService.ParseStarMapTraffic(response);
+            var traffic = fakeEdsmService.ParseStarMapTraffic(response);
 
             // Assert
             Assert.IsNotNull(traffic);

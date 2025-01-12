@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Utilities;
 
-namespace UnitTests
+namespace Tests
 {
-    [TestClass]
+    [TestClass, TestCategory( "UnitTests" )]
     public class TelemetryTests : TestBase
     {
         private Dictionary<string, object> PrepTelemetryData(object data)
@@ -23,7 +23,7 @@ namespace UnitTests
         {
             var data = "This is a string data package";
             var result = PrepTelemetryData(data);
-            result.TryGetValue("message", out object message);
+            result.TryGetValue("message", out var message);
             Assert.AreEqual(data, (string)message);
         }
 
@@ -42,11 +42,17 @@ namespace UnitTests
             var exception = new InvalidCastException();
             var result = PrepTelemetryData(exception);
 
-            result.TryGetValue("Message", out object message);
-            Assert.AreEqual(exception.Message, message?.ToString());
+            if ( result.TryGetValue( "Message", out var message ) )
+            {
+                Assert.AreEqual( exception.Message, message.ToString() );
+            }
+            else { Assert.Fail(); }
 
-            result.TryGetValue("StackTraceString", out object stacktrace);
-            Assert.AreEqual(exception.StackTrace, stacktrace?.ToString());
+            if ( result.TryGetValue( "StackTraceString", out var stacktrace ) )
+            {
+                Assert.AreEqual( exception.StackTrace ?? string.Empty, stacktrace?.ToString() ?? string.Empty );
+            }
+            else { Assert.Fail(); }
         }
 
         [TestMethod]
@@ -66,21 +72,30 @@ namespace UnitTests
 
             var result = PrepTelemetryData(data);
 
-            result.TryGetValue("message", out object message);
-            Assert.AreEqual(str, message?.ToString());
+            if ( result.TryGetValue( "message", out var message ) )
+            {
+                Assert.AreEqual( str, message.ToString() );
+            }
+            else { Assert.Fail(); }
 
-            result.TryGetValue("event", out object theEvent);
-            Assert.IsNotNull(theEvent);
-            ((JObject)theEvent).TryGetValue("frontierID", out JToken frontierID);
-            Assert.IsNull(frontierID?.ToString());
-            ((JObject)theEvent).TryGetValue("type", out JToken type);
-            Assert.IsNotNull(type);
-            Assert.AreEqual(@event.type, type?.ToString());
+            if ( result.TryGetValue( "event", out var theEvent ) )
+            {
+                ( (JObject)theEvent ).TryGetValue( "frontierID", out var frontierID );
+                Assert.IsNull( frontierID?.ToString() );
+                ( (JObject)theEvent ).TryGetValue( "type", out var type );
+                Assert.IsNotNull( type );
+                Assert.AreEqual( @event.type, type.ToString() );
+            }
+            else { Assert.Fail(); }
 
-            result.TryGetValue("exception", out object theException);
-            Assert.IsNotNull(theException);
-            ((JObject)theException).TryGetValue("Message", out JToken theExceptionMessage);
-            Assert.AreEqual(exception.Message, theExceptionMessage?.ToString());
+            if ( result.TryGetValue( "exception", out var theException ) )
+            {
+                ( (JObject)theException ).TryGetValue( "Message", out var theExceptionMessage );
+                Assert.IsNotNull( theExceptionMessage );
+                Assert.AreEqual( exception.Message, theExceptionMessage.ToString() );
+            }
+            else
+            { Assert.Fail(); }
         }
 
         [TestMethod]
@@ -88,8 +103,8 @@ namespace UnitTests
         {
             string[] data = { "a", "b", "c" };
             var result = PrepTelemetryData(data);
-            Assert.IsTrue(result.TryGetValue("data", out object package));
-            for (int i = 0; i < data.Length; i++)
+            Assert.IsTrue(result.TryGetValue("data", out var package));
+            for (var i = 0; i < data.Length; i++)
             {
                 Assert.AreEqual(data[i], ((JArray)package)[i]);
             }

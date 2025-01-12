@@ -4,9 +4,9 @@ using System;
 using System.Globalization;
 using Utilities;
 
-namespace UnitTests
+namespace Tests
 {
-    [TestClass]
+    [TestClass, TestCategory("UnitTests")]
     public class UtilityTests : TestBase
     {
         const decimal latitudeNewYork = 40.7128M;
@@ -90,7 +90,7 @@ namespace UnitTests
             var currentLatitude = 51.999325M;
             var currentLongitude = -65.398773M;
 
-            Functions.SurfaceCoordinates(altitudeMeters, planetRadiusMeters, slopeDegrees, headingDegrees, currentLatitude, currentLongitude, out decimal? outputLatitude, out decimal? outputLongitude);
+            Functions.SurfaceCoordinates(altitudeMeters, planetRadiusMeters, slopeDegrees, headingDegrees, currentLatitude, currentLongitude, out var outputLatitude, out var outputLongitude);
             Assert.AreEqual(52.421M, outputLatitude);
             Assert.AreEqual(-67.354M, outputLongitude);
         }

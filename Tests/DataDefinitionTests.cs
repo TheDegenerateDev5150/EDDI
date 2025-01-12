@@ -9,30 +9,30 @@ using System.Collections.Generic;
 using System.Linq;
 using Tests.Properties;
 
-namespace UnitTests
+namespace Tests
 {
-    [TestClass]
+    [TestClass, TestCategory( "UnitTests" )]
     // this class is pure and doesn't need TestBase.MakeSafe()
     public class DataDefinitionTests : TestBase
     {
         [TestMethod]
         public void TestDataDefinitionReactiveArmour()
         {
-            CommodityDefinition commodity = CommodityDefinition.FromEDName("$ReactiveArmour_Name;");
+            var commodity = CommodityDefinition.FromEDName("$ReactiveArmour_Name;");
             Assert.AreEqual("Reactive Armour", commodity.invariantName);
         }
 
         [TestMethod]
         public void TestDataDefinitionUnknownName()
         {
-            CommodityDefinition commodity = CommodityDefinition.FromEDName("$MagicStuff_Name;");
+            var commodity = CommodityDefinition.FromEDName("$MagicStuff_Name;");
             Assert.AreEqual("magicstuff", commodity.invariantName);
         }
 
         [TestMethod]
         public void TestDataDefinitionMaterialName1()
         {
-            Material material = Material.FromName("Cracked Industrial Firmware");
+            var material = Material.FromName("Cracked Industrial Firmware");
             Assert.AreEqual("Cracked Industrial Firmware", material.invariantName);
             Assert.IsNotNull(material.Rarity);
         }
@@ -40,7 +40,7 @@ namespace UnitTests
         [TestMethod]
         public void TestDataDefinitionMaterialName2()
         {
-            Material material = Material.FromName("Niobium");
+            var material = Material.FromName("Niobium");
             Assert.AreEqual("Niobium", material.invariantName);
             Assert.IsNotNull(material.Rarity);
             Assert.AreEqual("Element", material.Category.invariantName);
@@ -49,7 +49,7 @@ namespace UnitTests
         [TestMethod]
         public void TestGovernmentKnownName()
         {
-            Government govt = Government.FromName("Anarchy");
+            var govt = Government.FromName("Anarchy");
             Assert.AreEqual("Anarchy", govt.basename);
             Assert.AreEqual("Anarchy", govt.invariantName);
         }
@@ -57,7 +57,7 @@ namespace UnitTests
         [TestMethod]
         public void TestGovernmentKnownEDName()
         {
-            Government govt = Government.FromEDName("$government_Anarchy");
+            var govt = Government.FromEDName("$government_Anarchy");
             Assert.AreEqual("Anarchy", govt.basename);
             Assert.AreEqual("Anarchy", govt.invariantName);
         }
@@ -65,7 +65,7 @@ namespace UnitTests
         [TestMethod]
         public void TestGovernmentMissingNameFallback()
         {
-            Government govt = Government.FromEDName("$government_NoSuchAnimal");
+            var govt = Government.FromEDName("$government_NoSuchAnimal");
             Assert.AreEqual("NoSuchAnimal", govt.basename);
             Assert.AreEqual("NoSuchAnimal", govt.localizedName);
         }
@@ -73,7 +73,7 @@ namespace UnitTests
         [TestMethod]
         public void TestMaterialsExquisiteFocusCrystals()
         {
-            Material efc = Material.ExquisiteFocusCrystals;
+            var efc = Material.ExquisiteFocusCrystals;
             Assert.AreEqual("exquisitefocuscrystals", efc.basename);
             Assert.AreEqual("Exquisite Focus Crystals", efc.localizedName);
             Assert.AreEqual("very rare", efc.Rarity.invariantName);
@@ -82,7 +82,7 @@ namespace UnitTests
         [TestMethod]
         public void TestCommodityTea()
         {
-            CommodityDefinition trinket = CommodityDefinition.FromEDName("Tea");
+            var trinket = CommodityDefinition.FromEDName("Tea");
             Assert.AreEqual("Tea", trinket.edname);
             Assert.AreEqual("Tea", trinket.invariantName);
         }
@@ -90,7 +90,7 @@ namespace UnitTests
         [TestMethod]
         public void TestCommodityDrones()
         {
-            CommodityDefinition trinket = CommodityDefinition.FromEDName("Drones");
+            var trinket = CommodityDefinition.FromEDName("Drones");
             Assert.AreEqual("Drones", trinket.edname);
             Assert.AreEqual("Limpet", trinket.invariantName);
             Assert.AreEqual("Non-marketable", trinket.Category.invariantName);
@@ -99,7 +99,7 @@ namespace UnitTests
         [TestMethod]
         public void TestCommodityTrinketsOfFortune()
         {
-            CommodityDefinition trinket = CommodityDefinition.FromEDName("TrinketsOfFortune");
+            var trinket = CommodityDefinition.FromEDName("TrinketsOfFortune");
             Assert.AreEqual("TrinketsOfFortune", trinket.edname);
             Assert.AreEqual("Trinkets Of Hidden Fortune", trinket.invariantName);
         }
@@ -109,11 +109,11 @@ namespace UnitTests
         {
             // The same station may use the model "Ocellus" for one event and "Bernal" for another. 
 
-            StationModel model = StationModel.Ocellus;
+            var model = StationModel.Ocellus;
             Assert.AreEqual("Ocellus", model.basename);
             Assert.AreEqual("Ocellus", model.edname);
 
-            StationModel model2 = StationModel.Bernal;
+            var model2 = StationModel.Bernal;
             Assert.AreEqual("Bernal", model2.basename);
             Assert.AreEqual("Bernal", model2.edname);
 
@@ -124,7 +124,7 @@ namespace UnitTests
         [TestMethod]
         public void TestEmptySystemGreenGold()
         {
-            StarSystem starSystem = new StarSystem() { systemname = "testSystem" };
+            var starSystem = new StarSystem() { systemname = "testSystem" };
             Assert.IsFalse(starSystem.isgreen, "empty system should not be green");
             Assert.IsFalse(starSystem.isgold, "empty system should not be gold");
         }
@@ -152,19 +152,19 @@ namespace UnitTests
         public void TestGreenSystemGreenGold()
         {
             // Set up a body which would trigger the green system condition
-            List<MaterialPresence> materials = new List<MaterialPresence>();
-            foreach (Material material in Material.jumponiumElements)
+            var materials = new List<MaterialPresence>();
+            foreach (var material in Material.jumponiumElements)
             {
                 materials.Add(new MaterialPresence(material, 0.01M));
             }
-            Body jumponiumBody = new Body()
+            var jumponiumBody = new Body()
             {
                 bodyname = "Jumponium Haven",
                 materials = materials
             };
 
             // Add a body with green materials and re-test
-            StarSystem starSystem = new StarSystem() { systemname = "testSystem" };
+            var starSystem = new StarSystem() { systemname = "testSystem" };
             starSystem.AddOrUpdateBody(jumponiumBody);
             Assert.IsTrue(starSystem.isgreen, "green system should be green");
             Assert.IsFalse(starSystem.isgold, "green system should not be gold");
@@ -174,19 +174,19 @@ namespace UnitTests
         public void TestGoldSystemGreenGold()
         {
             // Set up a body which would trigger the gold system condition
-            List<MaterialPresence> materials = new List<MaterialPresence>();
-            foreach (Material material in Material.surfaceElements)
+            var materials = new List<MaterialPresence>();
+            foreach (var material in Material.surfaceElements)
             {
                 materials.Add(new MaterialPresence(material, 0.01M));
             }
-            Body goldBody = new Body()
+            var goldBody = new Body()
             {
                 bodyname = "Golden",
                 materials = materials
             };
 
             // Add a body with gold materials and re-test
-            StarSystem starSystem = new StarSystem() { systemname = "testSystem" };
+            var starSystem = new StarSystem() { systemname = "testSystem" };
             starSystem.AddOrUpdateBody(goldBody);
             Assert.IsTrue(starSystem.isgreen, "gold system should be green");
             Assert.IsTrue(starSystem.isgold, "gold system should be gold");
@@ -195,8 +195,8 @@ namespace UnitTests
         [TestMethod]
         public void TestAddOrUpdateBodyAdd()
         {
-            StarSystem starSystem = new StarSystem() { systemname = "testSystem" };
-            Body body = new Body() { bodyname = "testSystem 1" };
+            var starSystem = new StarSystem() { systemname = "testSystem" };
+            var body = new Body() { bodyname = "testSystem 1" };
 
             starSystem.AddOrUpdateBody(body);
 
@@ -206,15 +206,15 @@ namespace UnitTests
         [TestMethod]
         public void TestAddOrUpdateBodyUpdate()
         {
-            StarSystem starSystem = new StarSystem() { systemname = "testSystem" };
-            Body body = new Body() { bodyname = "testSystem 1" };
+            var starSystem = new StarSystem() { systemname = "testSystem" };
+            var body = new Body() { bodyname = "testSystem 1" };
             starSystem.AddOrUpdateBody(body);
-            Body updatedBody = new Body() { bodyname = "testSystem 1", bodyType = BodyType.Moon };
+            var updatedBody = new Body() { bodyname = "testSystem 1", bodyType = BodyType.Moon };
 
             starSystem.AddOrUpdateBody(updatedBody);
 
             Assert.AreEqual(1, starSystem.bodies.Count);
-            Body actualBody = starSystem.bodies[0];
+            var actualBody = starSystem.bodies[0];
             Assert.AreEqual("testSystem 1", actualBody.bodyname);
             Assert.AreEqual(BodyType.Moon, actualBody.bodyType);
         }
@@ -222,12 +222,13 @@ namespace UnitTests
         [TestMethod]
         public void TestBlueprintFromEdNameAndGrade()
         {
-            string blueprintName = "WakeScanner_Fast Scan_3";
-            int grade = 3;
-            Blueprint blueprint = Blueprint.FromEDNameAndGrade(blueprintName, grade);
+            var blueprintName = "WakeScanner_Fast Scan_3";
+            var grade = 3;
+            var blueprint = Blueprint.FromEDNameAndGrade(blueprintName, grade);
             Assert.IsNotNull(blueprint);
             Assert.AreEqual(grade, blueprint.grade);
-            Assert.AreEqual("SensorFastScan", blueprint.blueprintTemplate?.edname);
+            Assert.IsNotNull( blueprint.blueprintTemplate );
+            Assert.AreEqual("SensorFastScan", blueprint.blueprintTemplate.edname);
             Assert.AreEqual(3, blueprint.materials.Count);
             Assert.IsTrue(blueprint.materials.Select(m => m.edname).Contains("phosphorus"));
             Assert.IsTrue(blueprint.materials.Select(m => m.edname).Contains("uncutfocuscrystals"));
@@ -238,14 +239,14 @@ namespace UnitTests
         public void TestBlueprintFromTemplateEdNameAndGrade()
         {
             // We should also be able to handle receiving a template name rather than a blueprint name while still providing essential info.
-            string blueprintTemplate = "Sensor_FastScan";
-            int grade = 3;
-            Blueprint blueprintFromTemplate = Blueprint.FromEDNameAndGrade(blueprintTemplate, grade);
+            var blueprintTemplate = "Sensor_FastScan";
+            var grade = 3;
+            var blueprintFromTemplate = Blueprint.FromEDNameAndGrade(blueprintTemplate, grade);
             Assert.IsNotNull(blueprintFromTemplate);
             Assert.AreEqual(grade, blueprintFromTemplate.grade);
             Assert.AreEqual("SensorFastScan", blueprintFromTemplate.blueprintTemplate.edname);
             Assert.AreEqual(3, blueprintFromTemplate.materials.Count);
-            string[] materials = blueprintFromTemplate.materials.Select(m => m.edname).ToArray();
+            var materials = blueprintFromTemplate.materials.Select(m => m.edname).ToArray();
             Assert.IsTrue(materials.Contains("phosphorus"));
             Assert.IsTrue(materials.Contains("uncutfocuscrystals"));
             Assert.IsTrue(materials.Contains("symmetrickeys"));
@@ -254,13 +255,14 @@ namespace UnitTests
         [TestMethod]
         public void TestBlueprintNameAndGrade()
         {
-            string blueprintName = "Dirty Drive Tuning";
-            int grade = 5;
-            Blueprint blueprint = Blueprint.FromNameAndGrade(blueprintName, grade);
+            var blueprintName = "Dirty Drive Tuning";
+            var grade = 5;
+            var blueprint = Blueprint.FromNameAndGrade(blueprintName, grade);
             Assert.IsNotNull(blueprint);
             Assert.AreEqual(128673659, blueprint.blueprintId);
             Assert.AreEqual(grade, blueprint.grade);
-            Assert.AreEqual("EngineDirty", blueprint.blueprintTemplate?.edname);
+            Assert.IsNotNull( blueprint.blueprintTemplate );
+            Assert.AreEqual("EngineDirty", blueprint.blueprintTemplate.edname);
             Assert.AreEqual(3, blueprint.materials.Count);
             Assert.IsTrue(blueprint.materials.Select(m => m.edname).Contains("industrialfirmware"));
             Assert.IsTrue(blueprint.materials.Select(m => m.edname).Contains("cadmium"));
@@ -270,9 +272,9 @@ namespace UnitTests
         [TestMethod]
         public void TestBlueprintBadNameAndGrade()
         {
-            string blueprintName = "No such blueprint";
-            int grade = 5;
-            Blueprint blueprint = Blueprint.FromNameAndGrade(blueprintName, grade);
+            var blueprintName = "No such blueprint";
+            var grade = 5;
+            var blueprint = Blueprint.FromNameAndGrade(blueprintName, grade);
             Assert.IsNull(blueprint);
         }
 
@@ -280,7 +282,7 @@ namespace UnitTests
         public void TestBlueprintFromBlueprintID()
         {
             long blueprintId = 128740124;
-            Blueprint blueprint = Blueprint.FromEliteID(blueprintId);
+            var blueprint = Blueprint.FromEliteID(blueprintId);
             Assert.IsNotNull(blueprint);
             Assert.AreEqual(3, blueprint.grade);
             Assert.IsNotNull(blueprint.blueprintTemplate);
@@ -294,20 +296,20 @@ namespace UnitTests
         public void TestBlueprintFromBadBlueprintID()
         {
             long blueprintId = -1;
-            Blueprint blueprint = Blueprint.FromEliteID(blueprintId);
+            var blueprint = Blueprint.FromEliteID(blueprintId);
             Assert.IsNull(blueprint);
         }
 
         [TestMethod]
         public void TestVehicleProperties()
         {
-            JObject json = DeserializeJsonResource<JObject>(Resources.vehicle);
-            Vehicle v0 = Vehicle.FromJson(0, json);
+            var json = DeserializeJsonResource<JObject>(Resources.vehicle);
+            var v0 = Vehicle.FromJson(0, json);
             Assert.AreEqual(0, v0.subslot, "testing v0 subslot from JSON");
-            Assert.AreEqual(v0.localizedName, "Scarab SRV");
-            Assert.AreEqual(v0.localizedDescription, "dual plasma repeaters");
+            Assert.AreEqual( "Scarab SRV", v0.localizedName );
+            Assert.AreEqual( "dual plasma repeaters", v0.localizedDescription );
 
-            Vehicle v1 = Vehicle.FromJson(1, json);
+            var v1 = Vehicle.FromJson(1, json);
             Assert.AreEqual(1, v1.subslot, "testing v1 subslot from JSON");
             Assert.AreEqual(0, v0.subslot, "testing v0 subslot after setting v1 subslot");
         }
@@ -315,8 +317,8 @@ namespace UnitTests
         [TestMethod]
         public void StationServiceISFTest()
         {
-            StationService journal = StationService.FromEDName("Facilitator");
-            StationService edsm = StationService.FromName("Interstellar Factors Contact");
+            var journal = StationService.FromEDName("Facilitator");
+            var edsm = StationService.FromName("Interstellar Factors Contact");
 
             Assert.AreEqual("Facilitator", edsm.edname);
             Assert.AreEqual("Interstellar Factors Contact", journal.invariantName);
@@ -329,11 +331,11 @@ namespace UnitTests
         {
             // In Elite Dangerous v3.7, the edName "Workshop" is replaced by "Engineer" and the edName "SearchAndRescue" is replaced by "SearchRescue".
             // Test for backwards and forwards compatibility.
-            StationService workshop = StationService.FromEDName("Workshop");
-            StationService engineer = StationService.FromEDName("Engineer");
+            var workshop = StationService.FromEDName("Workshop");
+            var engineer = StationService.FromEDName("Engineer");
 
-            StationService searchAndRescue = StationService.FromEDName("SearchAndRescue");
-            StationService searchRescue = StationService.FromEDName("SearchRescue");
+            var searchAndRescue = StationService.FromEDName("SearchAndRescue");
+            var searchRescue = StationService.FromEDName("SearchRescue");
 
             Assert.IsTrue(workshop.DeepEquals(engineer));
             Assert.IsTrue(searchAndRescue.DeepEquals(searchRescue));
@@ -342,7 +344,7 @@ namespace UnitTests
         [TestMethod]
         public void FrontierApiCmdrTest()
         {
-            Commander commander = new Commander()
+            var commander = new Commander()
             {
                 name = "Marty McFly",
                 title = "Serf",
@@ -360,7 +362,7 @@ namespace UnitTests
                 credits = 0,
                 debt = 0
             };
-            FrontierApiCommander frontierApiCommander = new FrontierApiCommander()
+            var frontierApiCommander = new FrontierApiCommander()
             {
                 name = "Marty McFly",
                 combatrating = CombatRating.FromRank(3),
@@ -377,7 +379,7 @@ namespace UnitTests
                 credits = 246486105,
                 debt = 24684
             };
-            FrontierApiCommander frontierApiCommander2 = new FrontierApiCommander()
+            var frontierApiCommander2 = new FrontierApiCommander()
             {
                 name = "Doc Brown",
                 combatrating = CombatRating.FromRank(0),
@@ -395,10 +397,10 @@ namespace UnitTests
                 debt = 0
             };
 
-            DateTime apiDateTime = DateTime.UtcNow;
-            DateTime journalDateTime = DateTime.UtcNow.AddHours(1);
+            var apiDateTime = DateTime.UtcNow;
+            var journalDateTime = DateTime.UtcNow.AddHours(1);
 
-            Commander test1 = Commander.FromFrontierApiCmdr(commander, frontierApiCommander, apiDateTime, journalDateTime, out bool cmdr1Matches);
+            var test1 = Commander.FromFrontierApiCmdr(commander, frontierApiCommander, apiDateTime, journalDateTime, out var cmdr1Matches);
 
             Assert.IsTrue(cmdr1Matches);
             Assert.AreEqual("Marty McFly", test1.name);
@@ -421,14 +423,14 @@ namespace UnitTests
 
             // Make the api timestamp fresher than the journal timestamp and re-check the power rating and credits
             apiDateTime = DateTime.UtcNow.AddHours(2);
-            Commander test2 = Commander.FromFrontierApiCmdr(commander, frontierApiCommander, apiDateTime, journalDateTime, out bool cmdr2Matches);
+            var test2 = Commander.FromFrontierApiCmdr(commander, frontierApiCommander, apiDateTime, journalDateTime, out var cmdr2Matches);
             Assert.IsTrue(cmdr2Matches);
             Assert.AreEqual(3, test2.powerrating);
             Assert.AreEqual((ulong?)246486105, test2.credits);
 
             // Test Frontier API commander details that do not match our base commander name
             // The base commander properties should remain unchanged
-            Commander test3 = Commander.FromFrontierApiCmdr(commander, frontierApiCommander2, apiDateTime, journalDateTime, out bool cmdr3Matches);
+            var test3 = Commander.FromFrontierApiCmdr(commander, frontierApiCommander2, apiDateTime, journalDateTime, out var cmdr3Matches);
             Assert.IsFalse(cmdr3Matches);
             Assert.AreEqual("Marty McFly", test3.name);
             Assert.AreEqual("Serf", test3.title);
@@ -448,45 +450,45 @@ namespace UnitTests
             Assert.AreEqual(2, test3.powerrating);
         }
 
-        [TestMethod]
-        public void TestExtensionMethods()
+        [ TestMethod ]
+        public void TestExtensionMethods ()
         {
-            StarSystem system1 = DeserializeJsonResource<StarSystem>(Resources.sqlStarSystem1);
-            StarSystem system2 = system1.Copy();
-            StarSystem system3 = system1;
+            var system1 = DeserializeJsonResource<StarSystem>( Resources.sqlStarSystem1 );
+            var system2 = system1.Copy();
+            var system3 = system1;
 
-            Assert.AreEqual(127.0M, system1.x);
+            Assert.AreEqual( 127.0M, system1.x );
 
             // system 1 and system2 are copies of one another. They do not share a reference to the same object.
-            Assert.IsFalse(system1.Equals(system2));
-            Assert.IsTrue(system1.DeepEquals(system2));
+            Assert.IsFalse( system1.Equals( system2 ) );
+            Assert.IsTrue( system1.DeepEquals( system2 ) );
 
             // system1 and system3 are both references to the same object.
-            Assert.IsTrue(system1.Equals(system3));
+            Assert.IsTrue( system1.Equals( system3 ) );
 
             // sqlStarSystem1 and system2 are copies of one another, except one property has been altered.
             // They do not share a reference to the same object and properties altered on system2 are not also altered on system1.
             // Re-constituting the system from the source confirms the difference.
             system2.x = null;
-            Assert.AreEqual(127.0M, system1.x);
-            Assert.IsFalse(system1.Equals(system2));
-            Assert.IsFalse(system1.DeepEquals(system2));
-            Assert.IsFalse(DeserializeJsonResource<StarSystem>(Resources.sqlStarSystem1).Equals(system2));
+            Assert.AreEqual( 127.0M, system1.x );
+            Assert.IsFalse( system1.Equals( system2 ) );
+            Assert.IsFalse( system1.DeepEquals( system2 ) );
+            Assert.IsFalse( DeserializeJsonResource<StarSystem>( Resources.sqlStarSystem1 ).Equals( system2 ) );
 
             // system1 and system3 are still both references to the same object, so they are still equal.
             // The property altered on system3 is also altered on system1.
             // We have to re-constitute the system from the source to identify the difference.
             system3.x = null;
-            Assert.AreEqual(null, system1.x);
-            Assert.IsTrue(system1.Equals(system3));
-            Assert.IsTrue(system1.DeepEquals(system3));
-            Assert.IsFalse(DeserializeJsonResource<StarSystem>(Resources.sqlStarSystem1).Equals(system3));
+            Assert.IsNull( system1.x );
+            Assert.IsTrue( system1.Equals( system3 ) );
+            Assert.IsTrue( system1.DeepEquals( system3 ) );
+            Assert.IsFalse( DeserializeJsonResource<StarSystem>( Resources.sqlStarSystem1 ).Equals( system3 ) );
         }
 
         [TestMethod]
         public void TestCommodityMarketQuoteFromCAPIjson()
         {
-            string line = @" {""id"":128066403,""categoryname"":""NonMarketable"",""name"":""Drones"",""stock"":9999999,""buyPrice"":101,""sellPrice"":101,""demand"":9999999,""legality"":"""",""meanPrice"":101,""demandBracket"":2,""stockBracket"":2,""locName"":""Limpet""} ";
+            var line = @" {""id"":128066403,""categoryname"":""NonMarketable"",""name"":""Drones"",""stock"":9999999,""buyPrice"":101,""sellPrice"":101,""demand"":9999999,""legality"":"""",""meanPrice"":101,""demandBracket"":2,""stockBracket"":2,""locName"":""Limpet""} ";
             var eddnQuote = JsonConvert.DeserializeObject<MarketInfoItem>(line);
 
             // Test that the MarketInfoItem can be sucessfully converted to a definition based CommodityMarketQuote
@@ -538,7 +540,9 @@ namespace UnitTests
             Assert.AreEqual("Minerals", quote.definition.Category.invariantName);
             Assert.AreEqual(0, quote.buyprice);
             Assert.AreEqual(500096, quote.sellprice);
-            Assert.AreEqual(CommodityDefinition.FromEDName("painite")?.avgprice, quote.avgprice); // Carriers always return an average price of zero. Verify this marches our commodity definition instead. 
+            var def = CommodityDefinition.FromEDName( "painite" );
+            Assert.IsNotNull(def);
+            Assert.AreEqual(def.avgprice, quote.avgprice); // Carriers always return an average price of zero. Verify this marches our commodity definition instead. 
             Assert.AreEqual(CommodityBracket.None, quote.stockbracket);
             Assert.AreEqual(CommodityBracket.Medium, quote.demandbracket);
             Assert.AreEqual(0, quote.stock);
@@ -551,14 +555,14 @@ namespace UnitTests
         [DataRow("$Datascan_Unknown_Uplink;", "Thargoid Uplink")]
         public void TestDataScanFromEDName(string edName, string invariantName)
         {
-            DataScan dataScan = DataScan.FromEDName(edName);
+            var dataScan = DataScan.FromEDName(edName);
             Assert.AreEqual(invariantName, dataScan.invariantName);
         }
 
         [TestMethod]
         public void TestSystemFactionParsing()
         {
-            string line = @"{ ""timestamp"":""2020-05-05T06:02:31Z"", ""event"":""FSDJump"", ""StarSystem"":""HIP 19072"", ""SystemAddress"":525873416523, ""StarPos"":[-54.28125,-121.03125,-323.06250], ""SystemAllegiance"":""Alliance"", ""SystemEconomy"":""$economy_Service;"", ""SystemEconomy_Localised"":""Service"", ""SystemSecondEconomy"":""$economy_Undefined;"", ""SystemSecondEconomy_Localised"":""Unknown"", ""SystemGovernment"":""$government_Democracy;"", ""SystemGovernment_Localised"":""Democracy"", ""SystemSecurity"":""$SYSTEM_SECURITY_medium;"", ""SystemSecurity_Localised"":""Medium Security"", ""Population"":25000, ""Body"":""HIP 19072"", ""BodyID"":0, ""BodyType"":""Star"", ""JumpDist"":20.477, ""FuelUsed"":10.372852, ""FuelLevel"":19.971060, ""Factions"":[ { ""Name"":""The Ant Hill Mob"", ""FactionState"":""None"", ""Government"":""Anarchy"", ""Influence"":0.294000, ""Allegiance"":""Independent"", ""Happiness"":""$Faction_HappinessBand2;"", ""Happiness_Localised"":""Happy"", ""MyReputation"":100.000000 }, { ""Name"":""Cooper Research Associates"", ""FactionState"":""Boom"", ""Government"":""Democracy"", ""Influence"":0.706000, ""Allegiance"":""Alliance"", ""Happiness"":""$Faction_HappinessBand2;"", ""Happiness_Localised"":""Happy"", ""MyReputation"":100.000000, ""ActiveStates"":[ { ""State"":""Boom"" } ] }, { ""Name"":""Pilots' Federation Local Branch"", ""FactionState"":""None"", ""Government"":""Democracy"", ""Influence"":0.000000, ""Allegiance"":""PilotsFederation"", ""Happiness"":"""", ""MyReputation"":100.000000 } ], ""SystemFaction"":{ ""Name"":""Cooper Research Associates"", ""FactionState"":""Boom"" } }";
+            var line = @"{ ""timestamp"":""2020-05-05T06:02:31Z"", ""event"":""FSDJump"", ""StarSystem"":""HIP 19072"", ""SystemAddress"":525873416523, ""StarPos"":[-54.28125,-121.03125,-323.06250], ""SystemAllegiance"":""Alliance"", ""SystemEconomy"":""$economy_Service;"", ""SystemEconomy_Localised"":""Service"", ""SystemSecondEconomy"":""$economy_Undefined;"", ""SystemSecondEconomy_Localised"":""Unknown"", ""SystemGovernment"":""$government_Democracy;"", ""SystemGovernment_Localised"":""Democracy"", ""SystemSecurity"":""$SYSTEM_SECURITY_medium;"", ""SystemSecurity_Localised"":""Medium Security"", ""Population"":25000, ""Body"":""HIP 19072"", ""BodyID"":0, ""BodyType"":""Star"", ""JumpDist"":20.477, ""FuelUsed"":10.372852, ""FuelLevel"":19.971060, ""Factions"":[ { ""Name"":""The Ant Hill Mob"", ""FactionState"":""None"", ""Government"":""Anarchy"", ""Influence"":0.294000, ""Allegiance"":""Independent"", ""Happiness"":""$Faction_HappinessBand2;"", ""Happiness_Localised"":""Happy"", ""MyReputation"":100.000000 }, { ""Name"":""Cooper Research Associates"", ""FactionState"":""Boom"", ""Government"":""Democracy"", ""Influence"":0.706000, ""Allegiance"":""Alliance"", ""Happiness"":""$Faction_HappinessBand2;"", ""Happiness_Localised"":""Happy"", ""MyReputation"":100.000000, ""ActiveStates"":[ { ""State"":""Boom"" } ] }, { ""Name"":""Pilots' Federation Local Branch"", ""FactionState"":""None"", ""Government"":""Democracy"", ""Influence"":0.000000, ""Allegiance"":""PilotsFederation"", ""Happiness"":"""", ""MyReputation"":100.000000 } ], ""SystemFaction"":{ ""Name"":""Cooper Research Associates"", ""FactionState"":""Boom"" } }";
 
             var expectedSystemFaction = new Faction()
             {
@@ -637,43 +641,43 @@ namespace UnitTests
             }
         }
 
-        [TestMethod]
-        public void TestMicroResourceInfo()
+        [ TestMethod ]
+        public void TestMicroResourceInfo ()
         {
-            var json = TestBase.DeserializeJsonResource<string>(Resources.shipLocker);
-            var info = JsonConvert.DeserializeObject<MicroResourceInfo>(json);
+            var json = TestBase.DeserializeJsonResource<string>( Resources.shipLocker );
+            var info = JsonConvert.DeserializeObject<MicroResourceInfo>( json );
 
-            Assert.AreEqual(38, info.Items.Count);
-            Assert.AreEqual("WeaponSchematic", info.Items[0].edname);
-            Assert.AreEqual(1, info.Items[0].amount);
-            Assert.AreEqual("Item", info.Items[0].microResource.Category.edname);
-            Assert.AreEqual(770652507, info.Items[0].missionId);
-            Assert.AreEqual(0, info.Items[0].ownerId);
-            Assert.AreEqual(null, info.Items[0].price);
+            Assert.AreEqual( 38, info.Items.Count );
+            Assert.AreEqual( "WeaponSchematic", info.Items[ 0 ].edname );
+            Assert.AreEqual( 1, info.Items[ 0 ].amount );
+            Assert.AreEqual( "Item", info.Items[ 0 ].microResource.Category.edname );
+            Assert.AreEqual( 770652507, info.Items[ 0 ].missionId );
+            Assert.AreEqual( 0, info.Items[ 0 ].ownerId );
+            Assert.IsNull( info.Items[ 0 ].price );
 
-            Assert.AreEqual(33, info.Components.Count);
-            Assert.AreEqual("Graphene", info.Components[1].edname);
-            Assert.AreEqual(55, info.Components[1].amount);
-            Assert.AreEqual("Component", info.Components[1].microResource.Category.edname);
-            Assert.AreEqual(null, info.Components[1].missionId);
-            Assert.AreEqual(0, info.Components[1].ownerId);
-            Assert.AreEqual(null, info.Components[1].price);
+            Assert.AreEqual( 33, info.Components.Count );
+            Assert.AreEqual( "Graphene", info.Components[ 1 ].edname );
+            Assert.AreEqual( 55, info.Components[ 1 ].amount );
+            Assert.AreEqual( "Component", info.Components[ 1 ].microResource.Category.edname );
+            Assert.IsNull( info.Components[ 1 ].missionId );
+            Assert.AreEqual( 0, info.Components[ 1 ].ownerId );
+            Assert.IsNull( info.Components[ 1 ].price );
 
-            Assert.AreEqual(6, info.Consumables.Count);
-            Assert.AreEqual("HealthPack", info.Consumables[0].edname);
-            Assert.AreEqual(56, info.Consumables[0].amount);
-            Assert.AreEqual("Consumable", info.Consumables[0].microResource.Category.edname);
-            Assert.AreEqual(null, info.Consumables[0].missionId);
-            Assert.AreEqual(0, info.Consumables[0].ownerId);
-            Assert.AreEqual(null, info.Consumables[0].price);
+            Assert.AreEqual( 6, info.Consumables.Count );
+            Assert.AreEqual( "HealthPack", info.Consumables[ 0 ].edname );
+            Assert.AreEqual( 56, info.Consumables[ 0 ].amount );
+            Assert.AreEqual( "Consumable", info.Consumables[ 0 ].microResource.Category.edname );
+            Assert.IsNull( info.Consumables[ 0 ].missionId );
+            Assert.AreEqual( 0, info.Consumables[ 0 ].ownerId );
+            Assert.IsNull( info.Consumables[ 0 ].price );
 
-            Assert.AreEqual(70, info.Data.Count);
-            Assert.AreEqual("InternalCorrespondence", info.Data[0].edname);
-            Assert.AreEqual(5, info.Data[0].amount);
-            Assert.AreEqual("Data", info.Data[0].microResource.Category.edname);
-            Assert.AreEqual(null, info.Data[0].missionId);
-            Assert.AreEqual(0, info.Data[0].ownerId);
-            Assert.AreEqual(null, info.Data[0].price);
+            Assert.AreEqual( 70, info.Data.Count );
+            Assert.AreEqual( "InternalCorrespondence", info.Data[ 0 ].edname );
+            Assert.AreEqual( 5, info.Data[ 0 ].amount );
+            Assert.AreEqual( "Data", info.Data[ 0 ].microResource.Category.edname );
+            Assert.IsNull( info.Data[ 0 ].missionId );
+            Assert.AreEqual( 0, info.Data[ 0 ].ownerId );
+            Assert.IsNull( info.Data[ 0 ].price );
         }
 
         [DataTestMethod]
@@ -698,7 +702,9 @@ namespace UnitTests
         [DataRow("Helium gas giant", "Helium gas giant")]
         public void EDSMPlanetClassAliases(string edsmName, string expectedInvariantName)
         {
-            Assert.AreEqual(expectedInvariantName, PlanetClass.FromName(edsmName)?.invariantName);
+            var planetClass = PlanetClass.FromName( edsmName );
+            Assert.IsNotNull( planetClass );
+            Assert.AreEqual(expectedInvariantName, planetClass.invariantName);
         }
 
         [DataTestMethod]
@@ -800,9 +806,10 @@ namespace UnitTests
         public void SignalSourceParsingTest(string edName, string expectedInvariantName, int? expectedIndex, int? expectedThreatLevel)
         {
             var source = SignalSource.FromEDName(edName);
-            Assert.AreEqual(expectedInvariantName, source?.invariantName);
-            Assert.AreEqual(expectedIndex, source?.index ?? 0);
-            Assert.AreEqual(expectedThreatLevel, source?.threatLevel ?? 0);
+            Assert.IsNotNull(source);
+            Assert.AreEqual(expectedInvariantName, source.invariantName);
+            Assert.AreEqual(expectedIndex, source.index );
+            Assert.AreEqual(expectedThreatLevel, source.threatLevel ?? 0);
         }
 
         [TestMethod]

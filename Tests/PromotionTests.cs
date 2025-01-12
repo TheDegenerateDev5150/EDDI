@@ -1,11 +1,10 @@
 ﻿using EddiEvents;
 using EddiJournalMonitor;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
 
-namespace UnitTests
+namespace Tests
 {
-    [TestClass]
+    [TestClass, TestCategory( "UnitTests" )]
     public class PromotionTests : TestBase
     {
         [TestInitialize]
@@ -16,9 +15,9 @@ namespace UnitTests
 
         private void ParseSampleByName(string sampleName)
         {
-            string sample = Events.SampleByName(sampleName) as string;
-            List<Event> sampleEvents = JournalMonitor.ParseJournalEntry(sample);
-            Assert.IsTrue(sampleEvents.Count == 1, $"Expected one event, got {sampleEvents.Count}");
+            var sample = Events.SampleByName(sampleName) as string;
+            var sampleEvents = JournalMonitor.ParseJournalEntry(sample);
+            Assert.AreEqual(1, sampleEvents.Count, $"Expected one event, got {sampleEvents.Count}");
         }
 
         [TestMethod]

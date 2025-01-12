@@ -8,9 +8,9 @@ using System.Linq;
 using Tests.Properties;
 using Utilities;
 
-namespace UnitTests
+namespace Tests
 {
-    [TestClass]
+    [TestClass, TestCategory("UnitTests")]
     public class DataProviderTests : TestBase
     {
         [TestInitialize]
@@ -63,7 +63,7 @@ namespace UnitTests
         public void TestVolcanismObject()
         {
             // Hand-crafted body
-            string data = @"{""allegiance"":""Federation"",
+            var data = @"{""allegiance"":""Federation"",
                 ""faction"":""Mother Gaia"",
                 ""government"":""Democracy"",
                 ""id"":17072,""is_populated"":true,
@@ -71,9 +71,9 @@ namespace UnitTests
                 ""power"":""Zachary Hudson"",""power_state"":""Control"",""primary_economy"":""Refinery"",""reserve_type"":""Common"",""security"":""High"",""state"":""Boom"",""updated_at"":1487552337,""x"":0,""y"":0,""z"":0,""bodies"":[{""arg_of_periapsis"":55.19,""atmosphere_composition"":[{""atmosphere_component_id"":3,""atmosphere_component_name"":""Carbon dioxide"",""share"":96.5},{""atmosphere_component_id"":9,""atmosphere_component_name"":""Nitrogen"",""share"":3.5}],""atmosphere_type_id"":6,""atmosphere_type_name"":""Carbon dioxide"",""axis_tilt"":177.3,""created_at"":1466612896,""distance_to_arrival"":361,""earth_masses"":0.815,""gravity"":0.91,""group_id"":6,""group_name"":""Planet"",""id"":4,""is_landable"":0,""is_rotational_period_tidally_locked"":true,""materials"":[{""material_id"":22,""material_name"":""Ruthenium"",""share"":null}],""name"":""Venus"",""orbital_eccentricity"":0.0067,""orbital_inclination"":3.39,""orbital_period"":224.7,""radius"":6052,""rotational_period"":243,""semi_major_axis"":0.72,""solid_composition"":[{""share"":70,""solid_component_id"":3,""solid_component_name"":""Rock""},{""share"":30,""solid_component_id"":2,""solid_component_name"":""Metal""}],""surface_pressure"":93.19,""surface_temperature"":735,""system_id"":17072,""terraforming_state_id"":1,""terraforming_state_name"":""Not terraformable"",""type_id"":30,""type_name"":""High metal content world"",""updated_at"":1477503587,
                 ""volcanism"":{""type"":""Geysers"",""composition"":""Iron"",""amount"":""Major""}}]}";
 
-            StarSystem system = JsonConvert.DeserializeObject<StarSystem>(data);
+            var system = JsonConvert.DeserializeObject<StarSystem>(data);
             Assert.IsNotNull(system);
-            Body body = system.bodies[0];
+            var body = system.bodies[0];
             Assert.IsNotNull(body);
             Assert.IsNotNull(body.volcanism);
             Assert.AreEqual("Major", body.volcanism.invariantAmount);
@@ -87,7 +87,7 @@ namespace UnitTests
             // Test legacy data that may be stored in user's local sql databases.
             // Legacy data includes all data stored in user's sql databases prior to version 3.0.1-b2
             // Note that data structures were reorganized at this time to support internationalization.
-            StarSystem system = DeserializeJsonResource<StarSystem>(Resources.sqlStarSystem1);
+            var system = DeserializeJsonResource<StarSystem>(Resources.sqlStarSystem1);
 
             Assert.IsNotNull(system);
             Assert.AreEqual("Macay", system.systemname);
@@ -99,7 +99,7 @@ namespace UnitTests
         [TestMethod]
         public void TestLegacySystem2()
         {
-            StarSystem system = DeserializeJsonResource<StarSystem>(Resources.sqlStarSystem2);
+            var system = DeserializeJsonResource<StarSystem>(Resources.sqlStarSystem2);
 
             Assert.IsNotNull(system);
             Assert.AreEqual("Lazdongand", system.systemname);
@@ -111,7 +111,7 @@ namespace UnitTests
         [TestMethod]
         public void TestLegacySystem3()
         {
-            StarSystem system = DeserializeJsonResource<StarSystem>(Resources.sqlStarSystem3);
+            var system = DeserializeJsonResource<StarSystem>(Resources.sqlStarSystem3);
 
             Assert.IsNotNull(system);
             Assert.AreEqual("Aphros", system.systemname);
@@ -123,7 +123,7 @@ namespace UnitTests
         [TestMethod]
         public void TestLegacySystem4()
         {
-            StarSystem system = DeserializeJsonResource<StarSystem>(Resources.sqlStarSystem4);
+            var system = DeserializeJsonResource<StarSystem>(Resources.sqlStarSystem4);
 
             Assert.AreEqual("Zhu Baba", system.systemname);
             Assert.AreEqual(159918, system.population);
@@ -135,7 +135,7 @@ namespace UnitTests
         public void TestLegacyData()
         {
             // Test legacy data from api.eddp.co
-            StarSystem system = DeserializeJsonResource<StarSystem>(Resources.sqlStarSystem1);
+            var system = DeserializeJsonResource<StarSystem>(Resources.sqlStarSystem1);
             Assert.AreEqual("Nijland Terminal", system.stations[0].name);
             Assert.AreEqual("Pinzon Hub", system.stations[1].name);
         }
@@ -177,12 +177,12 @@ namespace UnitTests
             var body1 = result.bodies?.FirstOrDefault( b => b.bodyname == "HR 6421 1" );
             Assert.AreEqual( "2017-12-11T06:17:06Z", Dates.FromDateTimeToString( body1?.scannedDateTime ) );
             Assert.AreEqual( "2017-12-11T06:17:06Z", Dates.FromDateTimeToString( body1?.mappedDateTime ) );
-            Assert.AreEqual( true, body1?.mappedEfficiently ?? false);
+            Assert.IsTrue( body1?.mappedEfficiently ?? false);
 
             var body2 = result.bodies?.FirstOrDefault( b => b.bodyname == "HR 6421 2" );
             Assert.AreEqual( "2017-12-11T06:17:06Z", Dates.FromDateTimeToString( body2?.scannedDateTime ) );
             Assert.AreEqual( string.Empty, Dates.FromDateTimeToString( body2?.mappedDateTime ) );
-            Assert.AreEqual( false, body2?.mappedEfficiently ?? false );
+            Assert.IsFalse( body2?.mappedEfficiently ?? false );
         }
     }
 }

@@ -1,12 +1,11 @@
 ﻿using EddiSpeechResponder.AvalonEdit;
-using ICSharpCode.AvalonEdit.Highlighting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Windows.Media;
 
-namespace UnitTests
+namespace Tests
 {
-    [TestClass]
+    [TestClass, TestCategory("UnitTests")]
     public class CottleHighlightingTests : TestBase
     {
         private CottleHighlighting cottleHighlighting;
@@ -27,9 +26,9 @@ namespace UnitTests
         public void TestSetSupportedColorKey()
         {
             cottleHighlighting.SetBackgroundColor("Comment", Colors.BlanchedAlmond);
-            HighlightingColor highlightingColor = cottleHighlighting.Definition.GetNamedColor("Comment");
-            HighlightingBrush brush = highlightingColor.Background;
-            Color? newColor = brush.GetColor(null);
+            var highlightingColor = cottleHighlighting.Definition.GetNamedColor("Comment");
+            var brush = highlightingColor.Background;
+            var newColor = brush.GetColor(null);
             Assert.AreEqual(Colors.BlanchedAlmond, newColor);
         }
 
