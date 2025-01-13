@@ -205,12 +205,12 @@ namespace EddiCrimeMonitor
             if (@event.timestamp > updateDat || (@event.timestamp == updateDat && !@event.fromLoad))
             {
                 updateDat = @event.timestamp;
-                _handleJumpedEvent(@event);
+                _handleJumpedEvent();
                 writeRecord();
             }
         }
 
-        internal void _handleJumpedEvent(JumpedEvent @event)
+        internal void _handleJumpedEvent()
         {
             shipTargets.Clear();
         }
