@@ -130,7 +130,7 @@ namespace Utilities.TelemetryService
             }
         }
 
-        internal static void ReportTelemetryEvent ( string timestamp, ErrorLevel errorLevel, string message, Dictionary<string, object> preppedData = null )
+        internal static void ReportTelemetryEvent ( ErrorLevel errorLevel, string message, Dictionary<string, object> preppedData = null )
         {
             try
             {

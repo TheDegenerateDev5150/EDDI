@@ -187,7 +187,7 @@ namespace Utilities
                             WriteToLog( timestamp, errorlevel,
                                 $"Reporting error to telemetry service, anonymous ID {anonymousTelemetryID}: {message}" );
                         }
-                        ReportTelemetryEvent( timestamp, errorlevel, message, preppedData );
+                        ReportTelemetryEvent( errorlevel, message, preppedData );
                     }
                     else
                     {
