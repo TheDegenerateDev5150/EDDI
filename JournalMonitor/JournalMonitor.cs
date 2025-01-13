@@ -4434,7 +4434,7 @@ namespace EddiJournalMonitor
                                     // There is a bug in the journal output where "Body" can be missing but "BodyID" can be present. Try to Work around that here.
                                     if (string.IsNullOrEmpty(bodyName) && systemAddress > 0)
                                     {
-                                        var starSystem = EDDI.Instance.DataProvider.GetOrFetchStarSystem(systemAddress, systemName, true, true);
+                                        var starSystem = EDDI.Instance.DataProvider.GetOrFetchStarSystem(systemAddress, true, true);
                                         bodyName = starSystem?.bodies?.FirstOrDefault(b => b?.bodyId == bodyId)?.bodyname;
                                     }
 

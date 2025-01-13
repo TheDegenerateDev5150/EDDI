@@ -1208,7 +1208,7 @@ namespace Eddi
             }
             Logging.Info("Commander name: " + (EDDI.Instance.Cmdr != null ? EDDI.Instance.Cmdr.name : "null"));
             Logging.Info("Default UI culture: " + (CultureInfo.DefaultThreadCurrentUICulture?.IetfLanguageTag ?? "automatic"));
-            Logging.Info("Current UI culture: " + (CultureInfo.CurrentUICulture.IetfLanguageTag));
+            Logging.Info("Current UI culture: " + CultureInfo.CurrentUICulture.IetfLanguageTag);
 
             // Prepare a truncated log file for export if verbose logging is enabled
             if (eddiVerboseLogging.IsChecked ?? false)

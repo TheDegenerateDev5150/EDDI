@@ -61,7 +61,7 @@ namespace EddiDataProviderService
             return results;
         }
 
-        public StarSystem GetOrFetchStarSystem ( ulong systemAddress, string systemName = null, bool fetchIfMissing = true, bool refreshIfOutdated = true, bool showMarketDetails = false )
+        public StarSystem GetOrFetchStarSystem ( ulong systemAddress, bool fetchIfMissing = true, bool refreshIfOutdated = true, bool showMarketDetails = false )
         {
             if ( systemAddress <= 0 ) { return null; }
 

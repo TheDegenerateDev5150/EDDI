@@ -116,7 +116,6 @@ namespace EddiNavigationService.QueryResolvers
             var startSystemWaypoint = new NavWaypoint( startSystem ) { visited = true };
             navRouteList.Waypoints.Add( startSystemWaypoint );
 
-
             var farthestList = new SortedList<decimal, NavWaypoint>();
             foreach ( var mission in missions.Where( m => m.statusDef == MissionStatus.Active ).ToList() )
             {
@@ -309,7 +308,7 @@ namespace EddiNavigationService.QueryResolvers
             // Add origin systems for 'return to origin' missions to the 'systems' list
             foreach ( var mission in missions.Where ( m => m.statusDef != MissionStatus.Failed ) )
             {
-                if ( mission.originreturn && !systems.Contains ( mission.originsystem ) )
+                if ( mission.originreturn && !string.IsNullOrEmpty( mission.originsystem ) && !systems.Contains ( mission.originsystem ) )
                 {
                     systems.Add ( mission.originsystem );
                 }

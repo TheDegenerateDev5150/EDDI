@@ -65,7 +65,7 @@ namespace EddiEvents
 
         public Ship shipDefinition => ShipDefinitions.FromEDModel(edModel);
 
-        private Module frameShiftDrive;
+        private Module frameShiftDrive { get; set; }
 
         public string edModel { get; private set; }
 

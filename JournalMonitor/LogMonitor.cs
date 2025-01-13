@@ -13,9 +13,9 @@ namespace EddiJournalMonitor
     public class LogMonitor
     {
         // What we are monitoring and what to do with it
-        private string Directory;
-        private Regex Filter;
-        private Action<IEnumerable<string>, bool> Callback;
+        private readonly string Directory;
+        private readonly Regex Filter;
+        private readonly Action<IEnumerable<string>, bool> Callback;
         protected static string journalFileName;
 
         private const int pollingIntervalActiveMs = 100;

@@ -46,7 +46,7 @@ namespace EddiEvents
 
         public Module Module { get; private set; }
 
-        public ModificationCraftedEvent(DateTime timestamp, string engineer, long engineerId, string blueprint, long blueprintId, int level, decimal? quality, string experimentalEffect, List<MaterialAmount> materials, List<CommodityAmount> commodities, string slot, Module module) : base(timestamp, NAME)
+        public ModificationCraftedEvent(DateTime timestamp, string engineer, long engineerId, string blueprint, long blueprintId, int level, decimal? quality, string experimentalEffect, List<MaterialAmount> materials, List<CommodityAmount> commodities, string slot, Module Module) : base(timestamp, NAME)
         {
             this.engineer = engineer;
             this.engineerId = -engineerId;

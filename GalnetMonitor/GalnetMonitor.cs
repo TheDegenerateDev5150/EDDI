@@ -37,9 +37,6 @@ namespace EddiGalnetMonitor
         private bool running;
         private DateTime journalTimeStamp;
 
-        // This monitor currently requires game version 4.0 or later.
-        private static readonly System.Version minGameVersion = new System.Version(4, 0);
-
         public GalnetMonitor ()
         {
             configuration = ConfigService.Instance.galnetConfiguration;

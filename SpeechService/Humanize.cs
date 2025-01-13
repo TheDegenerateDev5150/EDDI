@@ -19,7 +19,7 @@ namespace EddiSpeechService
             if ( value == 0 )
             {
                 var result = Properties.Phrases.zero;
-                Logging.Debug( $"Converted raw value '{rawValue.ToString()}' to '{result}'" );
+                Logging.Debug( $"Converted raw value '{rawValue}' to '{result}'" );
                 return result;
             }
 
@@ -44,7 +44,7 @@ namespace EddiSpeechService
                 // Now round it to 2sf
                 var result = ( isNegative ? Properties.Phrases.minus + " " : "" ) +
                              ( Math.Round( value * 10 ) / (decimal)Math.Pow( 10, numzeros + 2 ) );
-                Logging.Debug($"Converted raw value '{rawValue.ToString()}' to '{result}'");
+                Logging.Debug($"Converted raw value '{rawValue}' to '{result}'");
                 return result;
             }
 
@@ -58,20 +58,20 @@ namespace EddiSpeechService
                 // Some languages render these differently than others. "1000" in English is "one thousand" but in Italian is simply "mille".
                 // Consequently, we leave the interpretation to the culture-specific voice.
                 var result = FormatVerbatim(number, isNegative, orderMultiplier);
-                Logging.Debug( $"Converted raw value '{rawValue.ToString()}' to '{result}'" );
+                Logging.Debug( $"Converted raw value '{rawValue}' to '{result}'" );
                 return result;
             }
 
             if (number < 100)
             {
                 var result = FormatWith2SignificantDigits(number, isNegative, orderMultiplier, nextDigit, value, wantIntegerMantissa);
-                Logging.Debug( $"Converted raw value '{rawValue.ToString()}' to '{result}'" );
+                Logging.Debug( $"Converted raw value '{rawValue}' to '{result}'" );
                 return result;
             }
             else // Describe (less precisely) values for numbers where the largest order number exceeds one hundred
             {
                 var result = FormatWith3SignificantDigits(number, isNegative, orderMultiplier, nextDigit, value);
-                Logging.Debug( $"Converted raw value '{rawValue.ToString()}' to '{result}'" );
+                Logging.Debug( $"Converted raw value '{rawValue}' to '{result}'" );
                 return result;
             }
         }

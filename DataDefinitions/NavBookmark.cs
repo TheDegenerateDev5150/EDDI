@@ -148,12 +148,7 @@ namespace EddiDataDefinitions
 
         public bool nearby = false;
 
-        public bool useStraightPath
-        {
-            get => _useStraightPath;
-            set => _useStraightPath = value;
-        }
-        [JsonIgnore] private bool _useStraightPath;
+        public bool useStraightPath { get; set; }
 
         public SortedSet<DateTime> visitLog
         {

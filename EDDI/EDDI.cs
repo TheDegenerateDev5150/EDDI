@@ -1517,7 +1517,7 @@ namespace EddiCore
                 Vehicle = Constants.VEHICLE_SHIP;
 
                 // Make sure we have at least basic information about the destination star system
-                NextStarSystem = DataProvider.GetOrFetchStarSystem( @event.systemAddress, @event.systemname ) ?? 
+                NextStarSystem = DataProvider.GetOrFetchStarSystem( @event.systemAddress ) ?? 
                                  new StarSystem()
                 {
                     systemname = @event.systemname,
@@ -1542,7 +1542,7 @@ namespace EddiCore
             else if (!string.IsNullOrEmpty(@event.originSystemName))
             {
                 // Remove the carrier from its prior location in the origin system so that we can re-save it with a new location
-                var starSystem = DataProvider.GetOrFetchStarSystem(@event.originSystemAddress, @event.originSystemName);
+                var starSystem = DataProvider.GetOrFetchStarSystem(@event.originSystemAddress);
                 var carrier = starSystem?.stations.FirstOrDefault(s => s.marketId == @event.carrierId);
                 starSystem?.stations.RemoveAll(s => s.marketId == @event.carrierId);
                 // Save the carrier to the updated star system
@@ -1557,7 +1557,7 @@ namespace EddiCore
                     }
                     else
                     {
-                        var updatedStarSystem = DataProvider.GetOrFetchStarSystem(@event.systemAddress, @event.systemname);
+                        var updatedStarSystem = DataProvider.GetOrFetchStarSystem(@event.systemAddress);
                         if (updatedStarSystem != null)
                         {
                             updatedStarSystem.stations.Add(carrier);
@@ -2453,7 +2453,7 @@ namespace EddiCore
             }
             else
             {
-                CurrentStarSystem = DataProvider.GetOrFetchStarSystem( systemAddress, systemName ) ?? 
+                CurrentStarSystem = DataProvider.GetOrFetchStarSystem( systemAddress ) ?? 
                                     new StarSystem { systemname = systemName, systemAddress = systemAddress};
             }
 
@@ -2515,7 +2515,7 @@ namespace EddiCore
         private bool eventFSDTarget(FSDTargetEvent @event)
         {
             // Set and prepare data about the next star system
-            NextStarSystem = DataProvider.GetOrFetchStarSystem(@event.systemAddress, @event.system );
+            NextStarSystem = DataProvider.GetOrFetchStarSystem(@event.systemAddress );
             if (NextStarSystem != null && !NextStarSystem.bodies.Any(b => b.mainstar ?? false))
             {
                 // This system is unknown to us, might not be recorded, or we might not have connectivity.  Use a placeholder main star
@@ -3509,7 +3509,7 @@ namespace EddiCore
             var configuration = ConfigService.Instance.eddiConfiguration;
             if ( destinationSystemAddress > 0 )
             {
-                var system = DataProvider.GetOrFetchStarSystem((ulong)destinationSystemAddress, destinationSystem );
+                var system = DataProvider.GetOrFetchStarSystem((ulong)destinationSystemAddress );
 
                 //Ignore null & empty systems
                 if (system != null)
@@ -3536,7 +3536,7 @@ namespace EddiCore
             StarSystem newSystem = null;
             if ( newSystemAddress != null )
             {
-                newSystem = DataProvider.GetOrFetchStarSystem( (ulong)newSystemAddress, newSystemName );
+                newSystem = DataProvider.GetOrFetchStarSystem( (ulong)newSystemAddress );
             }
             if ( newSystem is null && !string.IsNullOrEmpty( newSystemName ) )
             {
@@ -3591,7 +3591,7 @@ namespace EddiCore
             StarSystem newSystem = null;
             if ( newSystemAddress != null )
             {
-                newSystem = DataProvider.GetOrFetchStarSystem( (ulong)newSystemAddress, newSystemName );
+                newSystem = DataProvider.GetOrFetchStarSystem( (ulong)newSystemAddress );
             }
             if ( newSystem is null && !string.IsNullOrEmpty(newSystemName) )
             {

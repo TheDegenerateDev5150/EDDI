@@ -36,7 +36,7 @@ namespace EddiSpanshService
         // TODO: Handle multi-page responses (see BgsService for example)
         private static IRestRequest GetRestRequest ( QueryGroup queryGroup, [NotNull] Dictionary<string, object> filter, int? maxResults, int? pageId )
         {
-            var request = new RestRequest($@"{queryGroup.ToString()}/search") { Method = Method.POST };
+            var request = new RestRequest($@"{queryGroup}/search") { Method = Method.POST };
             var jsonObject = new
             {
                 filters = filter,
@@ -49,7 +49,7 @@ namespace EddiSpanshService
 
         private static IRestRequest GetDistanceOrderedRestRequest ( QueryGroup queryGroup, decimal fromX, decimal fromY, decimal fromZ, [NotNull] Dictionary<string, object> filter )
         {
-            var request = new RestRequest($@"{queryGroup.ToString()}/search") { Method = Method.POST };
+            var request = new RestRequest($@"{queryGroup}/search") { Method = Method.POST };
             var jsonObject = new
             {
                 filters = filter,
