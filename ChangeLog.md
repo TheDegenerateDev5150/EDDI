@@ -18,6 +18,7 @@ Full details of the variables available for each noted event, and VoiceAttack in
     * Removed the `permitname` property from the `system` object (permit data is now calculated and permit names are not stored / not always known).
   * Events
     * `Carrier jumped` event updated to expose new Powerplay properties.
+    * `Fuel scoop` event added.
     * `Holoscreen hacked` event added. 
     * `Jumped` event updated to expose new Powerplay properties.
     * `Location` event updated to expose new Powerplay properties.
@@ -28,6 +29,7 @@ Full details of the variables available for each noted event, and VoiceAttack in
     * `Power micro resources collected` event added.
     * `Power micro resources delivered` event added.
     * `Powerplay` event updated to remove the obsolete `votes` property (Powerplay 2.0 does not use a voting system).
+    * `Ship refueled` events are no longer broken up into 5T increments.
     * `Signal detected` event updated to include new Powerplay properties.
     * `Star scanned` event updated to add missing `systemname` property.
   * Ship Monitor
@@ -44,6 +46,7 @@ Full details of the variables available for each noted event, and VoiceAttack in
       * `Power preparation vote cast` obsolete script removed.
       * `Power micro resources collected` script added.
       * `Power micro resources delivered` script added.
+      * `Ship refuelled` script updated to no longer suppress 5T refueling increments.
       * `Signal detected` script updated to incorporate additional signal types and Powerplay details. 
       
 ## 4.1.0-b3

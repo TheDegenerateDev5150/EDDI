@@ -124,8 +124,8 @@ namespace EddiDataDefinitions
         [PublicAPI]
         public bool srv_high_beams => (flags & Flags.SrvHighBeam) != 0 && (flags & Flags.InSRV) != 0;
 
-        [PublicAPI]
-        public bool scooping_fuel => (flags & Flags.ScoopingFuel) != 0;
+        [PublicAPI] // This flag is set when scooping fuel conventionally. It is not set when supercharging the FSD (at a white dwarf or neutron star).
+        public bool scooping_fuel => (flags & Flags.ScoopingFuel) != 0; 
 
         [PublicAPI]
         public bool silent_running => (flags & Flags.SilentRunning) != 0;

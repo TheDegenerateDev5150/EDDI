@@ -19,6 +19,7 @@ namespace EddiStatusMonitor
     public class StatusMonitor : IEddiMonitor
     {
         // Miscellaneous tracking
+        private decimal preScoopFuelInTanks;
         private bool jumping;
         private string lastDestinationPOI;
         private string lastMusicTrack;
@@ -169,8 +170,27 @@ namespace EddiStatusMonitor
                         EDDI.Instance.enqueueEvent( new LowFuelEvent( currentStatus.timestamp ) );
                     }
                 }
+                if ( currentStatus.scooping_fuel && !lastStatus.scooping_fuel )
+                {
+                    EDDI.Instance.enqueueEvent( new ShipFuelScoopEvent( currentStatus.timestamp, true ) );
+                    preScoopFuelInTanks = currentStatus.fuelInTanks ?? 0;
+                }
+                if ( preScoopFuelInTanks > 0 && ( ( !currentStatus.scooping_fuel && lastStatus.scooping_fuel ) ||
+                     ( currentStatus.scooping_fuel && lastStatus.scooping_fuel &&
+                       StatusService.Instance.CurrentShip?.fueltanktotalcapacity == currentStatus.fuelInTanks &&
+                       StatusService.Instance.CurrentShip?.fueltanktotalcapacity > lastStatus.fuelInTanks ) ) )
+                {
+                    EDDI.Instance.enqueueEvent( new ShipRefuelledEvent( currentStatus.timestamp, "Scoop", 0,
+                        ( currentStatus.fuelInTanks ?? 0 ) - preScoopFuelInTanks,
+                        currentStatus.fuelInTanks )
+                    {
+                        full = StatusService.Instance.CurrentShip?.fueltanktotalcapacity == currentStatus.fuelInTanks
+                    } );
+                    preScoopFuelInTanks = 0;
+                    EDDI.Instance.enqueueEvent( new ShipFuelScoopEvent( currentStatus.timestamp, false ) );
+                }
                 if ( currentStatus.landing_gear_down != lastStatus.landing_gear_down
-                    && currentStatus.vehicle == Constants.VEHICLE_SHIP && lastStatus.vehicle == Constants.VEHICLE_SHIP )
+                     && currentStatus.vehicle == Constants.VEHICLE_SHIP && lastStatus.vehicle == Constants.VEHICLE_SHIP )
                 {
                     EDDI.Instance.enqueueEvent( new ShipLandingGearEvent( currentStatus.timestamp, currentStatus.landing_gear_down ) );
                 }

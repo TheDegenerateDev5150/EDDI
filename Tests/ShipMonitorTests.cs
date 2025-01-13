@@ -496,38 +496,6 @@ namespace Tests
             }
         }
 
-        [TestMethod]
-        public void TestShipRefuelledEvent_Scooping()
-        {
-            var line1 = "{ \"timestamp\":\"2019 - 07 - 21T16: 28:35Z\", \"event\":\"FuelScoop\", \"Scooped\":5.001066, \"Total\":31.552881 }";
-            var line2 = "{ \"timestamp\":\"2019 - 07 - 21T16: 28:35Z\", \"event\":\"FuelScoop\", \"Scooped\":0.447121, \"Total\":32.000000 }";
-
-            var event1 = JournalMonitor.ParseJournalEntry(line1)[0] as ShipRefuelledEvent;
-            var event2 = JournalMonitor.ParseJournalEntry(line2)[0] as ShipRefuelledEvent;
-
-            var shipMonitor = new ShipMonitor { updatedAt = DateTime.MinValue };
-
-            // Set up our ship
-            var ship = new Ship { LocalId = 9999, fueltank = new Module() {@class = 5} };
-            shipMonitor.RemoveShip( 9999 );
-            shipMonitor.AddShip( ship );
-            shipMonitor.currentShipId = 9999;
-
-            // Evaluate the results of our events
-            Assert.IsNotNull(event1);
-            shipMonitor.PreHandle(event1);
-            Assert.AreEqual(5.001066M, event1.amount);
-            Assert.AreEqual(31.552881M, event1.total);
-            Assert.IsFalse(event1.full);
-            Assert.AreEqual("Ship refuelled", event1.type);
-
-            Assert.IsNotNull(event2);
-            shipMonitor.PreHandle(event2);
-            Assert.AreEqual(0.447121M, event2.amount);
-            Assert.AreEqual(32.000000M, event2.total);
-            Assert.IsTrue(event2.full);
-        }
-
         [TestMethod, DoNotParallelize]
         public void TestShipJumpedEvent()
         {

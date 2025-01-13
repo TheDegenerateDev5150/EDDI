@@ -3029,9 +3029,7 @@ namespace EddiJournalMonitor
                                 break;
                             case "FuelScoop":
                                 {
-                                    decimal amount = JsonParsing.getDecimal(data, "Scooped");
-                                    decimal total = JsonParsing.getDecimal(data, "Total");
-                                    events.Add(new ShipRefuelledEvent(timestamp, "Scoop", null, amount, total) { raw = line, fromLoad = fromLogLoad });
+                                    // We're handling this via the Status Monitor
                                 }
                                 handled = true;
                                 break;

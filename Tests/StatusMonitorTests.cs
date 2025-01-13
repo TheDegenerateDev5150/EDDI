@@ -1,4 +1,6 @@
-﻿using EddiDataDefinitions;
+﻿using EddiCore;
+using EddiDataDefinitions;
+using EddiEvents;
 using EddiStatusMonitor;
 using EddiStatusService;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -779,5 +781,48 @@ namespace Tests
             lastStatus = currentStatus;
         }
         private Status lastStatus = null;
+
+        [TestMethod]
+        public void TestFuelScooping ()
+        {
+            var line1 = @"{ ""timestamp"":""2025-01-12T21:06:34Z"", ""event"":""Status"", ""Flags"":150995032, ""Flags2"":0, ""Pips"":[5,2,5], ""FireGroup"":1, ""GuiFocus"":0, ""Fuel"":{ ""FuelMain"":10.709746, ""FuelReservoir"":0.294903 }, ""Cargo"":31.000000, ""LegalState"":""Clean"", ""Balance"":4815532182, ""Destination"":{ ""System"":13864557094337, ""Body"":0, ""Name"":""Kremainn"" } }";
+            var line2 = @"{ ""timestamp"":""2025-01-12T21:07:29Z"", ""event"":""Status"", ""Flags"":150997080, ""Flags2"":0, ""Pips"":[5,2,5], ""FireGroup"":1, ""GuiFocus"":0, ""Fuel"":{ ""FuelMain"":10.747368, ""FuelReservoir"":0.266136 }, ""Cargo"":31.000000, ""LegalState"":""Clean"", ""Balance"":4815532182, ""Destination"":{ ""System"":13864557094337, ""Body"":0, ""Name"":""Kremainn"" } }";
+            var line3 = @"{ ""timestamp"":""2025-01-12T21:08:09Z"", ""event"":""Status"", ""Flags"":150995032, ""Flags2"":0, ""Pips"":[5,2,5], ""FireGroup"":1, ""GuiFocus"":0, ""Fuel"":{ ""FuelMain"":14.140745, ""FuelReservoir"":0.244791 }, ""Cargo"":31.000000, ""LegalState"":""Clean"", ""Balance"":4815532182, ""Destination"":{ ""System"":13864557094337, ""Body"":0, ""Name"":""Kremainn"" } }";
+            var line4 = @"{ ""timestamp"":""2025-01-12T21:06:34Z"", ""event"":""Status"", ""Flags"":150995032, ""Flags2"":0, ""Pips"":[5,2,5], ""FireGroup"":1, ""GuiFocus"":0, ""Fuel"":{ ""FuelMain"":14.140745, ""FuelReservoir"":0.244791 }, ""Cargo"":31.000000, ""LegalState"":""Clean"", ""Balance"":4815532182, ""Destination"":{ ""System"":13864557094337, ""Body"":0, ""Name"":""Kremainn"" } }";
+
+            EDDI.Instance.CurrentShip = ShipDefinitions.FromEDModel( "CobraMkV" );
+            Assert.IsNotNull(EDDI.Instance.CurrentShip);
+            EDDI.Instance.CurrentShip.fueltank = Module.Int_FuelTank_Size4_Class3;
+            Assert.AreEqual(16M, EDDI.Instance.CurrentShip.fueltankcapacity);
+
+            var beforeRefuelStatus = statusService.ParseStatusEntry( line1 );
+            var duringRefuelStatus = statusService.ParseStatusEntry( line2 );
+            var afterRefuelStatus = statusService.ParseStatusEntry( line3 );
+            var afterScoopDeactivated = statusService.ParseStatusEntry( line4 );
+
+            statusMonitor.HandleStatus( beforeRefuelStatus );
+            statusMonitor.HandleStatus( duringRefuelStatus );
+            EDDI.Instance.eventQueue.TryTake( out var @event1 );
+            statusMonitor.HandleStatus( afterRefuelStatus );
+            EDDI.Instance.eventQueue.TryTake( out var @event2 );
+            EDDI.Instance.eventQueue.TryTake( out var @event3 );
+            statusMonitor.HandleStatus( afterScoopDeactivated );
+            EDDI.Instance.eventQueue.TryTake( out var @event4 );
+
+            if ( @event1 is ShipFuelScoopEvent ShipFuelScoopEvent1 && @event2 is ShipRefuelledEvent shipRefuelledEvent && @event3 is ShipFuelScoopEvent ShipFuelScoopEvent2 )
+            {
+                Assert.IsTrue( ShipFuelScoopEvent1.active );
+                Assert.AreEqual( "Scoop", shipRefuelledEvent.source );
+                Assert.AreEqual( 3.393377M, shipRefuelledEvent.amount );
+                Assert.AreEqual( 14.140745M, shipRefuelledEvent.total );
+                Assert.AreEqual( 0, shipRefuelledEvent.price );
+                Assert.IsFalse( ShipFuelScoopEvent2.active );
+            }
+            else
+            {
+                Assert.Fail();
+            }
+            Assert.IsNull(@event4);
+        }
     }
 }

@@ -450,7 +450,7 @@ namespace EddiCore
         public ObservableConcurrentDictionary<string, object> State = new ObservableConcurrentDictionary<string, object>();
 
         // The event queue
-        private BlockingCollection<Event> eventQueue { get; } = new BlockingCollection<Event>();
+        internal BlockingCollection<Event> eventQueue { get; } = new BlockingCollection<Event>();
         private readonly CancellationTokenSource eventHandlerTS = new CancellationTokenSource();
         private Task eventConsumerThread = null;
 
@@ -929,9 +929,9 @@ namespace EddiCore
                 eventQueue.Add(@event);
             }
 
-            // Start (or restart) our event handler thread
+            // Start (or restart) our event handler thread (as long as we are not unit testing)
             if ( !eventHandlerTS.Token.IsCancellationRequested && 
-                 eventConsumerThread?.Status != TaskStatus.Running )
+                 eventConsumerThread?.Status != TaskStatus.Running && !DataProviderService.unitTesting )
             {
                 eventConsumerThread = Task.Run(dequeueEvents, eventHandlerTS.Token);
             }

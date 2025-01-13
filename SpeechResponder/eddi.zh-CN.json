@@ -1059,6 +1059,15 @@
       "name": "Fuel check",
       "description": "Report on fuel levels"
     },
+    "Fuel scoop": {
+      "enabled": true,
+      "priority": 3,
+      "responder": false,
+      "script": null,
+      "default": true,
+      "name": "Fuel scoop",
+      "description": "Triggered when you activate or deactivate your fuel scoop"
+    },
     "Galnet latest news": {
       "enabled": true,
       "priority": 3,
