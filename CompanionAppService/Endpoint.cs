@@ -60,7 +60,7 @@ namespace EddiCompanionAppService
 
         public readonly JObject fleetCarrierJson;
 
-        public CompanionApiEndpointEventArgs(string serverUrl, JObject profileJson, JObject marketJson, JObject shipyardJson, JObject fleetCarrierJson)
+        public CompanionApiEndpointEventArgs(JObject profileJson, JObject marketJson, JObject shipyardJson, JObject fleetCarrierJson)
         {
             this.profileJson = profileJson;
             this.marketJson = marketJson;

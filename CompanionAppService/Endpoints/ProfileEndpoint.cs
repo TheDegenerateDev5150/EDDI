@@ -45,7 +45,7 @@ namespace EddiCompanionAppService.Endpoints
                     cachedProfileJson = result;
                     cachedProfileTimeStamp = result["timestamp"]?.ToObject<DateTime?>() ?? DateTime.MinValue;
                     Logging.Debug($"{PROFILE_URL} returned: ", cachedProfileJson);
-                    ProfileUpdatedEvent?.Invoke(this, new CompanionApiEndpointEventArgs(CompanionAppService.Instance.ServerURL(), cachedProfileJson, null, null, null));
+                    ProfileUpdatedEvent?.Invoke(this, new CompanionApiEndpointEventArgs( cachedProfileJson, null, null, null));
                 }
                 else
                 {
