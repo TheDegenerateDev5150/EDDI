@@ -66,7 +66,6 @@ namespace EddiDataDefinitions
             "Orna",
             "Otegine",
             "Peregrina",
-            "Phekda",
             "Pi Mensae",
             "Plaa Ain HA-Z d46",
             "PLX 695",
