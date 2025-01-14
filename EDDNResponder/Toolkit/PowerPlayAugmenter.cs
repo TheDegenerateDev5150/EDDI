@@ -25,7 +25,7 @@ namespace EddiEddnResponder.Toolkit
 
                 case "PowerplayLeave":
                     {
-                        IsPledged = false;
+                        IsPledged = null;
                         break;
                     }
             }
