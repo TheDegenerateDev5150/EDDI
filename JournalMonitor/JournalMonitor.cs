@@ -68,12 +68,25 @@ namespace EddiJournalMonitor
             if ( fromLogLoad ) { return events; }
 
             // Reorder DiscoveryScanEvent to occur after other events in the batch including body and star scans
-            var discoveryScanEvents = events.OfType<DiscoveryScanEvent>().ToList();
-            events = events.Except( discoveryScanEvents ).Concat( discoveryScanEvents ).ToList();
+            if ( events.Any( e => e is DiscoveryScanEvent ) )
+            {
+                var discoveryScanEvents = events.OfType<DiscoveryScanEvent>().ToList();
+                events = events.Except( discoveryScanEvents ).Concat( discoveryScanEvents ).ToList();
+            }
+
+            // Reorder FSSSignalDiscovered to occur after other events in the batch including FSDJump events
+            if ( events.Any( e => e is JumpedEvent ) )
+            {
+                var SignalDetectedEvents = events.OfType<SignalDetectedEvent>().ToList();
+                events = events.Except( SignalDetectedEvents ).Concat( SignalDetectedEvents ).ToList();
+            }
 
             // Reorder SystemScanComplete to occur after other events in the batch including body and star scans
-            var SystemScanCompleteEvents = events.OfType<SystemScanComplete>().ToList();
-            events = events.Except( SystemScanCompleteEvents ).Concat( SystemScanCompleteEvents ).ToList();
+            if ( events.Any( e => e is SystemScanComplete ) )
+            {
+                var SystemScanCompleteEvents = events.OfType<SystemScanComplete>().ToList();
+                events = events.Except( SystemScanCompleteEvents ).Concat( SystemScanCompleteEvents ).ToList();
+            }
 
             // We will ignore `USSDrop` journal events since they are redundant with `SupercruiseDestinationDrop` but we shall 
             // supplement our response to `SupercruiseDestinationDrop` with a signal source identifier.
