@@ -376,7 +376,12 @@ namespace EddiCompanionAppService
             }
             catch ( WebException webException )
             {
-                Logging.Warn(webException.Message, webException);
+                if ( webException.Status == WebExceptionStatus.TrustFailure  )
+                {
+                    throw new EliteDangerousCompanionAppAuthenticationException( "Refresh token not valid, need full login" );
+                }
+
+                Logging.Warn( webException.Message, webException );
             }
 
             using ( var response = GetResponse(request) )
