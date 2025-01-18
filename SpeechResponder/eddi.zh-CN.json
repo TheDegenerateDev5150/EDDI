@@ -1877,15 +1877,6 @@
       "name": "Power micro resources delivered",
       "description": "Triggered when delivering micro resources to a Powerplay contact"
     },
-    "Power salary claimed": {
-      "enabled": true,
-      "priority": 3,
-      "responder": true,
-      "script": "已领取{Occasionally(2, \" {P(event.power, 'power')发的}\")}政治势力周薪, 共计 {event.amount} 信用点 .",
-      "default": true,
-      "name": "Power salary claimed",
-      "description": "Triggered when a commander claims salary from a power"
-    },
     "Power voucher received": {
       "enabled": true,
       "priority": 3,

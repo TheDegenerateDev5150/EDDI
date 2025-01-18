@@ -2378,16 +2378,6 @@
       "name": "Power micro resources delivered",
       "description": "Triggered when delivering micro resources to a Powerplay contact"
     },
-    "Power salary claimed": {
-      "name": "Power salary claimed",
-      "description": "Se activa cuando un Comandante reclama su salario de una potencia",
-      "enabled": true,
-      "priority": 5,
-      "responder": true,
-      "script": "{if event.amount > 1300000: {set esde to \"es de\"}}\r\n{if event.amount <= 1300000: {set esde to \" de\"}}\r\n{if event.amount < 1000000: {set esde to \"\"}}\r\n\r\n\r\nReclamado salario por importe de \r\n\r\n{if event.amount = 1000: mil créditos\r\n|else:\r\n{Humanise(event.amount)}{esde} créditos\r\n}\r\n\r\n{Occasionally(2, \"de {P(event.power)}\")}.",
-      "default": true,
-      "includes": null
-    },
     "Power voucher received": {
       "name": "Power voucher received",
       "description": "Se activa cuando se entrega un bono de combate en contra de una potencia opositora",

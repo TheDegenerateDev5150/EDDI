@@ -1117,10 +1117,6 @@ namespace EddiCore
                     {
                         passEvent = eventPowerLeft();
                     }
-                    else if (@event is PowerSalaryClaimedEvent powerSalaryClaimedEvent)
-                    {
-                        passEvent = eventPowerSalaryClaimed(powerSalaryClaimedEvent);
-                    }
                     else if (@event is PowerVoucherReceivedEvent powerVoucherReceivedEvent)
                     {
                         passEvent = eventPowerVoucherReceived(powerVoucherReceivedEvent);
@@ -1737,15 +1733,6 @@ namespace EddiCore
         }
 
         private bool eventPowerVoucherReceived(PowerVoucherReceivedEvent @event)
-        {
-            if ( Cmdr != null )
-            {
-                Cmdr.Power = @event.Power;
-            }
-            return true;
-        }
-
-        private bool eventPowerSalaryClaimed(PowerSalaryClaimedEvent @event)
         {
             if ( Cmdr != null )
             {

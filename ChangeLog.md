@@ -28,6 +28,7 @@ Full details of the variables available for each noted event, and VoiceAttack in
     * `Power preparation vote cast` obsolete event removed.
     * `Power micro resources collected` event added.
     * `Power micro resources delivered` event added.
+    * `Power salary claimed` obsolete event removed.
     * `Powerplay` event updated to remove the obsolete `votes` property (Powerplay 2.0 does not use a voting system).
     * `Ship refueled` events are no longer broken up into 5T increments.
     * `Signal detected` event updated to include new Powerplay properties.

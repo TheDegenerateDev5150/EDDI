@@ -3869,15 +3869,6 @@ namespace EddiJournalMonitor
                                 }
                                 handled = true;
                                 break;
-                            case "PowerplaySalary":
-                                {
-                                    var power = Power.FromEDName(JsonParsing.getString(data, "Power"));
-                                    data.TryGetValue("Amount", out object val);
-                                    int amount = (int)(long)val;
-                                    events.Add(new PowerSalaryClaimedEvent(timestamp, power, amount) { raw = line, fromLoad = fromLogLoad });
-                                }
-                                handled = true;
-                                break;
                             case "PowerplayCollect":
                                 {
                                     var power = Power.FromEDName(JsonParsing.getString(data, "Power"));
