@@ -23,8 +23,15 @@ namespace EddiStatusMonitor
         private bool jumping;
         private string lastDestinationPOI;
         private string lastMusicTrack;
-        internal Status currentStatus;
-        internal Status lastStatus;
+
+        internal Status currentStatus
+        {
+            get => _currentStatus ?? new Status(); 
+            set => _currentStatus = value;
+        }
+        private Status _currentStatus;
+        private Status lastStatus;
+
         private static readonly object statusLock = new object();
 
         [ExcludeFromCodeCoverage]
@@ -67,244 +74,253 @@ namespace EddiStatusMonitor
             StatusService.Instance.Start();
         }
 
-        public void HandleStatus(Status status)
+        public void HandleStatus ( Status status )
         {
-            if ( status != null )
+            _handleStatus( status, out var events );
+            foreach ( var @event in events )
             {
-                lock ( statusLock )
-                {
-                    lastStatus = currentStatus;
-                    currentStatus = status;
-                }
+                EDDI.Instance.enqueueEvent( @event );
+            }
+        }
 
-                // Update the commander's credit balance
-                if ( currentStatus.credit_balance != null && EDDI.Instance.Cmdr != null )
-                {
-                    EDDI.Instance.Cmdr.credits = Convert.ToUInt64( currentStatus.credit_balance );
-                }
+        internal void _handleStatus ( Status status, out List<Event> events )
+        {
+            events = new List<Event>();
+            if ( status is null ) { return; }
 
-                // Update vehicle information
-                if ( !string.IsNullOrEmpty( currentStatus.vehicle ) && currentStatus.vehicle != lastStatus?.vehicle )
-                {
-                    if ( EDDI.Instance.Vehicle != currentStatus.vehicle )
-                    {
-                        var statusSummary = new Dictionary<string, Status> { { "isStatus", currentStatus }, { "wasStatus", lastStatus } };
-                        Logging.Debug( $"Status changed vehicle from {lastStatus?.vehicle ?? "<NULL>"} to {currentStatus.vehicle}", statusSummary );
-                        EDDI.Instance.Vehicle = currentStatus.vehicle;
-                    }
-                }
-                if ( currentStatus.vehicle == Constants.VEHICLE_SHIP && EDDI.Instance.CurrentShip != null )
-                {
-                    EDDI.Instance.CurrentShip.cargoCarried = currentStatus.cargo_carried ?? 0;
-                    EDDI.Instance.CurrentShip.fuelInTanks = currentStatus.fuelInTanks ?? 0;
-                    EDDI.Instance.CurrentShip.fuelInReservoir = currentStatus.fuelInReservoir ?? 0;
-                }
+            lock ( statusLock )
+            {
+                lastStatus = currentStatus;
+                currentStatus = status;
+            }
 
-                if ( lastStatus is null ) { return; }
+            // Update the commander's credit balance
+            if ( status.credit_balance != null && EDDI.Instance.Cmdr != null )
+            {
+                EDDI.Instance.Cmdr.credits = Convert.ToUInt64( status.credit_balance );
+            }
 
-                // Trigger events for changed status, as applicable
-                if ( currentStatus.shields_up != lastStatus.shields_up && currentStatus.vehicle == lastStatus.vehicle )
+            // Update vehicle information
+            if ( !string.IsNullOrEmpty( status.vehicle ) && status.vehicle != lastStatus?.vehicle )
+            {
+                if ( EDDI.Instance.Vehicle != status.vehicle )
                 {
-                    // React to changes in shield state.
-                    // We check the vehicle to make sure that events aren't generated when we switch vehicles, start the game, or stop the game.
-                    if ( currentStatus.shields_up )
-                    {
-                        EDDI.Instance.enqueueEvent( new ShieldsUpEvent( currentStatus.timestamp ) );
-                    }
-                    else
-                    {
-                        EDDI.Instance.enqueueEvent( new ShieldsDownEvent( currentStatus.timestamp ) );
-                    }
+                    var statusSummary = new Dictionary<string, Status> { { "isStatus", status }, { "wasStatus", lastStatus } };
+                    Logging.Debug( $"Status changed vehicle from {lastStatus?.vehicle ?? "<NULL>"} to {status.vehicle}", statusSummary );
+                    EDDI.Instance.Vehicle = status.vehicle;
                 }
-                if ( currentStatus.srv_turret_deployed != lastStatus.srv_turret_deployed )
-                {
-                    EDDI.Instance.enqueueEvent( new SRVTurretEvent( currentStatus.timestamp, currentStatus.srv_turret_deployed ) );
-                }
-                if ( currentStatus.silent_running != lastStatus.silent_running )
-                {
-                    EDDI.Instance.enqueueEvent( new SilentRunningEvent( currentStatus.timestamp, currentStatus.silent_running ) );
-                }
-                if ( currentStatus.srv_under_ship != lastStatus.srv_under_ship && lastStatus.vehicle == Constants.VEHICLE_SRV )
-                {
-                    // If the turret is deployable then we are not under our ship. And vice versa. 
-                    bool deployable = !currentStatus.srv_under_ship;
-                    EDDI.Instance.enqueueEvent( new SRVTurretDeployableEvent( currentStatus.timestamp, deployable ) );
-                }
-                if ( currentStatus.fsd_status != lastStatus.fsd_status
-                    && currentStatus.vehicle == Constants.VEHICLE_SHIP
-                    && !currentStatus.docked )
-                {
-                    if ( currentStatus.fsd_status == "ready" )
-                    {
-                        switch ( lastStatus.fsd_status )
-                        {
-                            case "charging":
-                                if ( !jumping && currentStatus.supercruise == lastStatus.supercruise )
-                                {
-                                    EDDI.Instance.enqueueEvent( new ShipFsdEvent( currentStatus.timestamp, "charging cancelled" ) );
-                                }
-                                jumping = false;
-                                break;
-                            case "cooldown":
-                                EDDI.Instance.enqueueEvent( new ShipFsdEvent( currentStatus.timestamp, "cooldown complete" ) );
-                                break;
-                            case "masslock":
-                                EDDI.Instance.enqueueEvent( new ShipFsdEvent( currentStatus.timestamp, "masslock cleared" ) );
-                                break;
-                        }
-                    }
-                    else
-                    {
-                        EDDI.Instance.enqueueEvent( new ShipFsdEvent( currentStatus.timestamp, currentStatus.fsd_status, currentStatus.fsd_hyperdrive_charging ) );
-                    }
-                }
-                if ( currentStatus.vehicle == lastStatus.vehicle ) // 'low fuel' is 25% or less
-                {
-                    // Trigger `Low fuel` events for each 5% fuel increment at 25% fuel or less (where our vehicle remains constant)
-                    if ( ( currentStatus.low_fuel && !lastStatus.low_fuel ) || // 25%
-                        ( currentStatus.fuel_percentile != null && // less than 20%, 15%, 10%, or 5%
-                         lastStatus.fuel_percentile != null &&
-                         currentStatus.fuel_percentile <= 4 &&
-                         currentStatus.fuel_percentile < lastStatus.fuel_percentile ) )
-                    {
-                        EDDI.Instance.enqueueEvent( new LowFuelEvent( currentStatus.timestamp ) );
-                    }
-                }
-                if ( currentStatus.scooping_fuel && !lastStatus.scooping_fuel )
-                {
-                    EDDI.Instance.enqueueEvent( new ShipFuelScoopEvent( currentStatus.timestamp, true ) );
-                    preScoopFuelInTanks = currentStatus.fuelInTanks ?? 0;
-                }
-                if ( preScoopFuelInTanks > 0 && ( ( !currentStatus.scooping_fuel && lastStatus.scooping_fuel ) ||
-                     ( currentStatus.scooping_fuel && lastStatus.scooping_fuel &&
-                       StatusService.Instance.CurrentShip?.fueltanktotalcapacity == currentStatus.fuelInTanks &&
-                       StatusService.Instance.CurrentShip?.fueltanktotalcapacity > lastStatus.fuelInTanks ) ) )
-                {
-                    EDDI.Instance.enqueueEvent( new ShipRefuelledEvent( currentStatus.timestamp, "Scoop", 0,
-                        ( currentStatus.fuelInTanks ?? 0 ) - preScoopFuelInTanks,
-                        currentStatus.fuelInTanks )
-                    {
-                        full = StatusService.Instance.CurrentShip?.fueltanktotalcapacity == currentStatus.fuelInTanks
-                    } );
-                    preScoopFuelInTanks = 0;
-                    EDDI.Instance.enqueueEvent( new ShipFuelScoopEvent( currentStatus.timestamp, false ) );
-                }
-                if ( currentStatus.landing_gear_down != lastStatus.landing_gear_down
-                     && currentStatus.vehicle == Constants.VEHICLE_SHIP && lastStatus.vehicle == Constants.VEHICLE_SHIP )
-                {
-                    EDDI.Instance.enqueueEvent( new ShipLandingGearEvent( currentStatus.timestamp, currentStatus.landing_gear_down ) );
-                }
-                if ( currentStatus.cargo_scoop_deployed != lastStatus.cargo_scoop_deployed )
-                {
-                    EDDI.Instance.enqueueEvent( new ShipCargoScoopEvent( currentStatus.timestamp, currentStatus.cargo_scoop_deployed ) );
-                }
-                if ( currentStatus.lights_on != lastStatus.lights_on )
-                {
-                    EDDI.Instance.enqueueEvent( new ShipLightsEvent( currentStatus.timestamp, currentStatus.lights_on ) );
-                }
-                if ( currentStatus.hardpoints_deployed != lastStatus.hardpoints_deployed )
-                {
-                    EDDI.Instance.enqueueEvent( new ShipHardpointsEvent( currentStatus.timestamp, currentStatus.hardpoints_deployed ) );
-                }
-                if ( currentStatus.flight_assist_off != lastStatus.flight_assist_off )
-                {
-                    EDDI.Instance.enqueueEvent( new FlightAssistEvent( currentStatus.timestamp, currentStatus.flight_assist_off ) );
-                }
-                if ( !string.IsNullOrEmpty( currentStatus.destination_name ) && currentStatus.destination_name != lastStatus.destination_name
-                    && currentStatus.vehicle == lastStatus.vehicle )
-                {
-                    if ( EDDI.Instance.CurrentStarSystem != null && EDDI.Instance.CurrentStarSystem.systemAddress ==
-                        currentStatus.destinationSystemAddress && currentStatus.destination_name != lastDestinationPOI )
-                    {
-                        var body = EDDI.Instance.CurrentStarSystem.bodies.FirstOrDefault(b =>
-                                b.bodyId == currentStatus.destinationBodyId
-                                && b.bodyname == currentStatus.destination_name);
-                        var station = EDDI.Instance.CurrentStarSystem.stations.FirstOrDefault(s =>
-                            s.name == currentStatus.destination_name);
+            }
+            if ( status.vehicle == Constants.VEHICLE_SHIP && EDDI.Instance.CurrentShip != null )
+            {
+                EDDI.Instance.CurrentShip.cargoCarried = status.cargo_carried ?? 0;
+                EDDI.Instance.CurrentShip.fuelInTanks = status.fuelInTanks ?? 0;
+                EDDI.Instance.CurrentShip.fuelInReservoir = status.fuelInReservoir ?? 0;
+            }
 
-                        // There is an FDev bug where both Encoded Emissions and High Grade Emissions use the `USS_HighGradeEmissions` edName.
-                        // When this occurs, we need to fall back to our generic signal source name.
-                        // It's also possible for both the standard name and localized name to be symbolic values. If so, prefer and try to match the value in the localized field. 
-                        var signalSource = currentStatus.destination_name == "$USS_HighGradeEmissions;"
-                            ? SignalSource.GenericSignalSource
-                            : EDDI.Instance.CurrentStarSystem.signalSources.FirstOrDefault( s =>
-                                s.edname == currentStatus.destination_name ) ?? SignalSource.FromEDName(
-                                ( currentStatus.destination_localized_name?.StartsWith( "$" ) ?? false )
-                                    ? currentStatus.destination_localized_name
-                                    : currentStatus.destination_name );
+            if ( lastStatus is null ) { return; }
 
-                        // Might be a body (including the primary star of a different system if selecting a star system)
-                        if ( body != null && currentStatus.destination_name == body.bodyname )
-                        {
-                            EDDI.Instance.enqueueEvent( new NextDestinationEvent(
-                                currentStatus.timestamp,
-                                currentStatus.destinationSystemAddress,
-                                currentStatus.destinationBodyId,
-                                currentStatus.destination_name,
-                                currentStatus.destination_localized_name,
-                                body ) );
-                        }
-                        // Might be a station (including megaship or fleet carrier)
-                        else if ( station != null )
-                        {
-                            EDDI.Instance.enqueueEvent( new NextDestinationEvent(
-                                currentStatus.timestamp,
-                                currentStatus.destinationSystemAddress,
-                                currentStatus.destinationBodyId,
-                                currentStatus.destination_name,
-                                currentStatus.destination_localized_name,
-                                body,
-                                station ) );
-                        }
-                        // Might be a non-station signal source
-                        else if ( signalSource != null )
-                        {
-                            if ( !currentStatus.destination_localized_name?.StartsWith( "$" ) ?? false )
+            // Trigger events for changed status, as applicable
+            if ( status.shields_up != lastStatus.shields_up && status.vehicle == lastStatus.vehicle )
+            {
+                // React to changes in shield state.
+                // We check the vehicle to make sure that events aren't generated when we switch vehicles, start the game, or stop the game.
+                if ( status.shields_up )
+                {
+                    events.Add( new ShieldsUpEvent( status.timestamp ) );
+                }
+                else
+                {
+                    events.Add( new ShieldsDownEvent( status.timestamp ) );
+                }
+            }
+            if ( status.srv_turret_deployed != lastStatus.srv_turret_deployed )
+            {
+                events.Add( new SRVTurretEvent( status.timestamp, status.srv_turret_deployed ) );
+            }
+            if ( status.silent_running != lastStatus.silent_running )
+            {
+                events.Add( new SilentRunningEvent( status.timestamp, status.silent_running ) );
+            }
+            if ( status.srv_under_ship != lastStatus.srv_under_ship && lastStatus.vehicle == Constants.VEHICLE_SRV )
+            {
+                // If the turret is deployable then we are not under our ship. And vice versa. 
+                var deployable = !status.srv_under_ship;
+                events.Add( new SRVTurretDeployableEvent( status.timestamp, deployable ) );
+            }
+            if ( status.fsd_status != lastStatus.fsd_status
+                 && status.vehicle == Constants.VEHICLE_SHIP
+                 && !status.docked )
+            {
+                if ( status.fsd_status == "ready" )
+                {
+                    switch ( lastStatus.fsd_status )
+                    {
+                        case "charging":
+                            if ( !jumping && status.supercruise == lastStatus.supercruise )
                             {
-                                signalSource.fallbackLocalizedName = currentStatus.destination_localized_name;
+                                events.Add( new ShipFsdEvent( status.timestamp, "charging cancelled" ) );
                             }
-                            EDDI.Instance.enqueueEvent( new NextDestinationEvent(
-                                currentStatus.timestamp,
-                                currentStatus.destinationSystemAddress,
-                                currentStatus.destinationBodyId,
-                                signalSource.invariantName,
-                                signalSource.localizedName,
-                                null,
-                                null,
-                                signalSource ) );
-                        }
-                        else if ( currentStatus.destination_name != lastDestinationPOI )
-                        {
-                            EDDI.Instance.enqueueEvent( new NextDestinationEvent(
-                                currentStatus.timestamp,
-                                currentStatus.destinationSystemAddress,
-                                currentStatus.destinationBodyId,
-                                currentStatus.destination_name,
-                                currentStatus.destination_localized_name ?? currentStatus.destination_name,
-                                body ) );
-                        }
-                        lastDestinationPOI = currentStatus.destination_name;
+                            jumping = false;
+                            break;
+                        case "cooldown":
+                            events.Add( new ShipFsdEvent( status.timestamp, "cooldown complete" ) );
+                            break;
+                        case "masslock":
+                            events.Add( new ShipFsdEvent( status.timestamp, "masslock cleared" ) );
+                            break;
                     }
                 }
-                if ( !currentStatus.gliding && lastStatus.gliding )
+                else
                 {
-                    EDDI.Instance.enqueueEvent( new GlideEvent( currentStatus.timestamp, currentStatus.gliding, EDDI.Instance.CurrentStellarBody?.systemname, EDDI.Instance.CurrentStellarBody?.systemAddress, EDDI.Instance.CurrentStellarBody?.bodyname, EDDI.Instance.CurrentStellarBody?.bodyType ) );
+                    events.Add( new ShipFsdEvent( status.timestamp, status.fsd_status, status.fsd_hyperdrive_charging ) );
                 }
-                else if ( currentStatus.gliding && !lastStatus.gliding && StatusService.Instance.lastEnteredNormalSpaceEvent != null )
+            }
+            if ( status.vehicle == lastStatus.vehicle ) // 'low fuel' is 25% or less
+            {
+                // Trigger `Low fuel` events for each 5% fuel increment at 25% fuel or less (where our vehicle remains constant)
+                if ( ( status.low_fuel && !lastStatus.low_fuel ) || // 25%
+                     ( status.fuel_percentile != null && // less than 20%, 15%, 10%, or 5%
+                       lastStatus.fuel_percentile != null &&
+                       status.fuel_percentile <= 4 &&
+                       status.fuel_percentile < lastStatus.fuel_percentile ) )
                 {
-                    var theEvent = StatusService.Instance.lastEnteredNormalSpaceEvent;
-                    EDDI.Instance.enqueueEvent( new GlideEvent( DateTime.UtcNow, currentStatus.gliding, theEvent.systemname, theEvent.systemAddress, theEvent.bodyname, theEvent.bodyType ) { fromLoad = theEvent.fromLoad } );
+                    events.Add( new LowFuelEvent( status.timestamp ) );
                 }
-                // Reset our fuel log if we change vehicles or refuel
-                if ( currentStatus.vehicle != lastStatus.vehicle || currentStatus.fuel > lastStatus.fuel )
+            }
+            if ( status.scooping_fuel && !lastStatus.scooping_fuel )
+            {
+                events.Add( new ShipFuelScoopEvent( status.timestamp, true ) );
+                preScoopFuelInTanks = status.fuelInTanks ?? 0;
+            }
+            if ( preScoopFuelInTanks > 0 && ( ( !status.scooping_fuel && lastStatus.scooping_fuel ) ||
+                                              ( status.scooping_fuel && lastStatus.scooping_fuel &&
+                                                StatusService.Instance.CurrentShip?.fueltanktotalcapacity == status.fuelInTanks &&
+                                                StatusService.Instance.CurrentShip?.fueltanktotalcapacity > lastStatus.fuelInTanks ) ) )
+            {
+                events.Add( new ShipRefuelledEvent( status.timestamp, "Scoop", 0,
+                    ( status.fuelInTanks ?? 0 ) - preScoopFuelInTanks,
+                    status.fuelInTanks )
                 {
-                    StatusService.Instance.fuelLog.Clear();
-                }
-                // Detect whether we're in combat
-                if ( lastStatus.in_danger && !currentStatus.in_danger )
+                    full = StatusService.Instance.CurrentShip?.fueltanktotalcapacity == status.fuelInTanks
+                } );
+                preScoopFuelInTanks = 0;
+                events.Add( new ShipFuelScoopEvent( status.timestamp, false ) );
+            }
+            if ( status.landing_gear_down != lastStatus.landing_gear_down
+                 && status.vehicle == Constants.VEHICLE_SHIP && lastStatus.vehicle == Constants.VEHICLE_SHIP )
+            {
+                events.Add( new ShipLandingGearEvent( status.timestamp, status.landing_gear_down ) );
+            }
+            if ( status.cargo_scoop_deployed != lastStatus.cargo_scoop_deployed )
+            {
+                events.Add( new ShipCargoScoopEvent( status.timestamp, status.cargo_scoop_deployed ) );
+            }
+            if ( status.lights_on != lastStatus.lights_on )
+            {
+                events.Add( new ShipLightsEvent( status.timestamp, status.lights_on ) );
+            }
+            if ( status.hardpoints_deployed != lastStatus.hardpoints_deployed )
+            {
+                events.Add( new ShipHardpointsEvent( status.timestamp, status.hardpoints_deployed ) );
+            }
+            if ( status.flight_assist_off != lastStatus.flight_assist_off )
+            {
+                events.Add( new FlightAssistEvent( status.timestamp, status.flight_assist_off ) );
+            }
+            if ( !string.IsNullOrEmpty( status.destination_name ) && status.destination_name != lastStatus.destination_name
+                                                                         && status.vehicle == lastStatus.vehicle )
+            {
+                if ( EDDI.Instance.CurrentStarSystem != null && EDDI.Instance.CurrentStarSystem.systemAddress ==
+                    status.destinationSystemAddress && status.destination_name != lastDestinationPOI )
                 {
-                    EDDI.Instance.enqueueEvent( new SafeEvent( DateTime.UtcNow ) { fromLoad = false } );
+                    var body = EDDI.Instance.CurrentStarSystem.bodies.FirstOrDefault(b =>
+                        b.bodyId == status.destinationBodyId
+                        && b.bodyname == status.destination_name);
+                    var station = EDDI.Instance.CurrentStarSystem.stations.FirstOrDefault(s =>
+                        s.name == status.destination_name);
+
+                    // There is an FDev bug where both Encoded Emissions and High Grade Emissions use the `USS_HighGradeEmissions` edName.
+                    // When this occurs, we need to fall back to our generic signal source name.
+                    // It's also possible for both the standard name and localized name to be symbolic values. If so, prefer and try to match the value in the localized field. 
+                    var signalSource = status.destination_name == "$USS_HighGradeEmissions;"
+                        ? SignalSource.GenericSignalSource
+                        : EDDI.Instance.CurrentStarSystem.signalSources.FirstOrDefault( s =>
+                            s.edname == status.destination_name ) ?? SignalSource.FromEDName(
+                            ( status.destination_localized_name?.StartsWith( "$" ) ?? false )
+                                ? status.destination_localized_name
+                                : status.destination_name );
+
+                    // Might be a body (including the primary star of a different system if selecting a star system)
+                    if ( body != null && status.destination_name == body.bodyname )
+                    {
+                        events.Add( new NextDestinationEvent(
+                            status.timestamp,
+                            status.destinationSystemAddress,
+                            status.destinationBodyId,
+                            status.destination_name,
+                            status.destination_localized_name,
+                            body ) );
+                    }
+                    // Might be a station (including megaship or fleet carrier)
+                    else if ( station != null )
+                    {
+                        events.Add( new NextDestinationEvent(
+                            status.timestamp,
+                            status.destinationSystemAddress,
+                            status.destinationBodyId,
+                            status.destination_name,
+                            status.destination_localized_name,
+                            body,
+                            station ) );
+                    }
+                    // Might be a non-station signal source
+                    else if ( signalSource != null )
+                    {
+                        if ( !status.destination_localized_name?.StartsWith( "$" ) ?? false )
+                        {
+                            signalSource.fallbackLocalizedName = status.destination_localized_name;
+                        }
+                        events.Add( new NextDestinationEvent(
+                            status.timestamp,
+                            status.destinationSystemAddress,
+                            status.destinationBodyId,
+                            signalSource.invariantName,
+                            signalSource.localizedName,
+                            null,
+                            null,
+                            signalSource ) );
+                    }
+                    else if ( status.destination_name != lastDestinationPOI )
+                    {
+                        events.Add( new NextDestinationEvent(
+                            status.timestamp,
+                            status.destinationSystemAddress,
+                            status.destinationBodyId,
+                            status.destination_name,
+                            status.destination_localized_name ?? status.destination_name,
+                            body ) );
+                    }
+                    lastDestinationPOI = status.destination_name;
                 }
+            }
+            if ( !status.gliding && lastStatus.gliding )
+            {
+                events.Add( new GlideEvent( status.timestamp, status.gliding, EDDI.Instance.CurrentStellarBody?.systemname, EDDI.Instance.CurrentStellarBody?.systemAddress, EDDI.Instance.CurrentStellarBody?.bodyname, EDDI.Instance.CurrentStellarBody?.bodyType ) );
+            }
+            else if ( status.gliding && !lastStatus.gliding && StatusService.Instance.lastEnteredNormalSpaceEvent != null )
+            {
+                var theEvent = StatusService.Instance.lastEnteredNormalSpaceEvent;
+                events.Add( new GlideEvent( DateTime.UtcNow, status.gliding, theEvent.systemname, theEvent.systemAddress, theEvent.bodyname, theEvent.bodyType ) { fromLoad = theEvent.fromLoad } );
+            }
+            // Reset our fuel log if we change vehicles or refuel
+            if ( status.vehicle != lastStatus.vehicle || status.fuel > lastStatus.fuel )
+            {
+                StatusService.Instance.fuelLog.Clear();
+            }
+            // Detect whether we're in combat
+            if ( lastStatus.in_danger && !status.in_danger )
+            {
+                events.Add( new SafeEvent( DateTime.UtcNow ) { fromLoad = false } );
             }
         }
 

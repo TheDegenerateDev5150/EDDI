@@ -5,6 +5,7 @@ using EddiStatusMonitor;
 using EddiStatusService;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Linq;
 using Utilities;
 
 namespace Tests
@@ -800,14 +801,16 @@ namespace Tests
             var afterRefuelStatus = statusService.ParseStatusEntry( line3 );
             var afterScoopDeactivated = statusService.ParseStatusEntry( line4 );
 
-            statusMonitor.HandleStatus( beforeRefuelStatus );
-            statusMonitor.HandleStatus( duringRefuelStatus );
-            EDDI.Instance.eventQueue.TryTake( out var @event1 );
-            statusMonitor.HandleStatus( afterRefuelStatus );
-            EDDI.Instance.eventQueue.TryTake( out var @event2 );
-            EDDI.Instance.eventQueue.TryTake( out var @event3 );
-            statusMonitor.HandleStatus( afterScoopDeactivated );
-            EDDI.Instance.eventQueue.TryTake( out var @event4 );
+            statusMonitor._handleStatus( beforeRefuelStatus, out _ );
+            statusMonitor._handleStatus( duringRefuelStatus, out var events );
+            Assert.AreEqual(1, events.Count);
+            var @event1 = events.FirstOrDefault();
+            statusMonitor._handleStatus( afterRefuelStatus, out events );
+            Assert.AreEqual( 2, events.Count );
+            var @event2 = events.FirstOrDefault();
+            var @event3 = events.LastOrDefault();
+            statusMonitor._handleStatus( afterScoopDeactivated, out events );
+            Assert.AreEqual( 0, events.Count );
 
             if ( @event1 is ShipFuelScoopEvent ShipFuelScoopEvent1 && @event2 is ShipRefuelledEvent shipRefuelledEvent && @event3 is ShipFuelScoopEvent ShipFuelScoopEvent2 )
             {
@@ -822,7 +825,6 @@ namespace Tests
             {
                 Assert.Fail();
             }
-            Assert.IsNull(@event4);
         }
     }
 }
