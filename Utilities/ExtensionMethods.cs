@@ -1,9 +1,19 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
+using System.Linq;
 using Utilities;
 
 namespace System
 {
+    public static class IEnumerableExtensions
+    {
+        public static IEnumerable<T> RemoveNulls<T> ( this IEnumerable<T> items )
+        {
+            return items.Where( i => i != null );
+        }
+    }
+
     public static class JTokenExtensions
     {
         public static bool IsNullOrEmpty(this JToken token)
