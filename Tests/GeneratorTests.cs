@@ -9,7 +9,7 @@ using Utilities;
 
 namespace Tests
 {
-    [TestClass, TestCategory(nameof(GeneratorTests))]
+    [TestClass, TestCategory( "DocGen" )]
     public class GeneratorTests
     {
         private string initialCurrentDirectory;

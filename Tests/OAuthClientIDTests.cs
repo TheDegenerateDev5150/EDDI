@@ -2,7 +2,7 @@
 
 namespace Tests
 {
-    [TestClass, TestCategory( "CredentialTests" )]
+    [TestClass, TestCategory( "Credentials" )]
     public class OAuthClientIDTests
     {
         [TestMethod]
