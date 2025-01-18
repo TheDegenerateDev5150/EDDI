@@ -25,9 +25,7 @@ namespace EddiSpanshService
 
         public IList<StarSystem> GetQuickStarSystems ( ulong[] systemAddresses )
         {
-            return systemAddresses.AsParallel()
-                .Select( GetQuickStarSystem )
-                .ToList();
+            return systemAddresses.AsParallel().Select( GetQuickStarSystem ).RemoveNulls().ToList();
         }
 
         private bool TryGetQuickSystem ( IRestRequest request, out StarSystem quickStarSystem )
@@ -56,7 +54,7 @@ namespace EddiSpanshService
             }
             else
             {
-                Logging.Debug( "Spansh responded with: " + clientResponse.ErrorMessage, clientResponse.ErrorException );
+                Logging.Warn( "Spansh responded with: " + clientResponse.ErrorMessage, clientResponse.ErrorException );
             }
 
             return quickStarSystem != null;

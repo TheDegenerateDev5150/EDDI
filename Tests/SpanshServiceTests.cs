@@ -200,6 +200,7 @@ namespace Tests
             fakeSpanshRestClient.Expect( "dump/10477373803", DeserializeJsonResource<string>( Resources.SpanshStarSystemDumpSol ) );
             var result = fakeSpanshService.GetStarSystem(10477373803U, true);
 
+            Assert.IsNotNull( result );
             Assert.AreEqual( 10477373803U, result.systemAddress);
             Assert.AreEqual( 0.0M, result.x );
             Assert.AreEqual( 0.0M, result.y );

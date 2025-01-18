@@ -25,9 +25,7 @@ namespace EddiSpanshService
 
         public IList<NavWaypoint> GetQuickStations ( long[] marketIds )
         {
-            return marketIds.AsParallel()
-                .Select( GetQuickStation )
-                .ToList();
+            return marketIds.AsParallel().Select( GetQuickStation ).RemoveNulls().ToList();
         }
 
         private bool TryGetQuickStation ( IRestRequest request, out NavWaypoint quickStation )
@@ -56,7 +54,7 @@ namespace EddiSpanshService
             }
             else
             {
-                Logging.Debug( "Spansh responded with: " + clientResponse.ErrorMessage, clientResponse.ErrorException );
+                Logging.Warn( "Spansh responded with: " + clientResponse.ErrorMessage, clientResponse.ErrorException );
             }
 
             return quickStation != null;

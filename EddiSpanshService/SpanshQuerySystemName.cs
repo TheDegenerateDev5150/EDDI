@@ -43,7 +43,7 @@ namespace EddiSpanshService
             }
             else
             {
-                Logging.Debug("Spansh responded with " + clientResponse.ErrorMessage, clientResponse.ErrorException);
+                Logging.Warn("Spansh responded with " + clientResponse.ErrorMessage, clientResponse.ErrorException);
             }
             return new List<NavWaypoint>();
         }

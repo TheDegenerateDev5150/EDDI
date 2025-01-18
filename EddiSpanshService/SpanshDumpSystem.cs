@@ -1,4 +1,5 @@
 ﻿using EddiDataDefinitions;
+using JetBrains.Annotations;
 using Newtonsoft.Json.Linq;
 using RestSharp;
 using System;
@@ -11,6 +12,7 @@ namespace EddiSpanshService
     public partial class SpanshService
     {
         // Uses the Spansh star system dump API (full star system data), e.g. https://www.spansh.co.uk/api/dump/10477373803
+        [CanBeNull]
         public StarSystem GetStarSystem ( ulong systemAddress, bool showMarketDetails = false )
         {
             if ( systemAddress == 0 ) { return null; }
@@ -24,6 +26,7 @@ namespace EddiSpanshService
             return null;
         }
 
+        [CanBeNull]
         public StarSystem GetStarSystem ( string systemName, bool showMarketDetails = false )
         {
             if ( systemName == null || string.IsNullOrEmpty( systemName ) ) { return null; }
@@ -36,6 +39,7 @@ namespace EddiSpanshService
         {
             return systemAddresses.AsParallel()
                 .Select( systemAddress => GetStarSystem( systemAddress, showMarketDetails ) )
+                .RemoveNulls()
                 .ToList();
         }
 
@@ -67,7 +71,7 @@ namespace EddiSpanshService
             }
             else
             {
-                Logging.Debug( "Spansh responded with: " + clientResponse.ErrorMessage, clientResponse.ErrorException );
+                Logging.Warn( "Spansh responded with: " + clientResponse.ErrorMessage, clientResponse.ErrorException );
             }
 
             return fullStarSystem != null;
@@ -112,7 +116,7 @@ namespace EddiSpanshService
                     starSystem.securityLevel = SecurityLevel.FromName( (string)data[ "security" ] ) ??
                                                SecurityLevel.None;
 
-                    starSystem.stations.AddRange( data[ "stations" ]?.AsParallel().Select( stationToken => ParseStation( starSystem, stationToken, null, showMarketDetails ) ).ToList() ?? new List<Station>() );
+                    starSystem.stations.AddRange( data[ "stations" ]?.AsParallel().Select( stationToken => ParseStation( starSystem, stationToken, null, showMarketDetails ) ).RemoveNulls().ToList() ?? new List<Station>() );
 
                     starSystem.Power = Power.FromName( data[ "controllingPower" ]?.ToString() );
                     starSystem.powerState = PowerplayState.FromName( data[ "powerState" ]?.ToString() );
@@ -126,7 +130,7 @@ namespace EddiSpanshService
                 // Get bodies
                 starSystem.totalbodies = data[ "bodyCount" ]?.ToObject<int>() ?? 0;
                 starSystem.AddOrUpdateBodies( data[ "bodies" ]?.AsParallel()
-                    .Select( b => ParseBody( starSystem, b, showMarketDetails ) ).ToList() ?? new List<Body>() );
+                    .Select( b => ParseBody( starSystem, b, showMarketDetails ) ).RemoveNulls().ToList() ?? new List<Body>() );
 
                 starSystem.lastupdated = DateTime.UtcNow;
                 return starSystem;
@@ -296,7 +300,7 @@ namespace EddiSpanshService
             } ).OrderByDescending( x => x.percent ).ToList() ?? new List<SolidComposition>();
 
             var surfaceStations = planetData[ "stations" ]?.AsParallel().Select( s =>
-                ParseStation( starSystem, s, planetData, showMarketDetails ) ).ToList() ?? new List<Station>();
+                ParseStation( starSystem, s, planetData, showMarketDetails ) ).RemoveNulls().ToList() ?? new List<Station>();
             starSystem.stations.AddRange( surfaceStations );
 
             var terraformState = TerraformState.FromName( planetData[ "terraformingState" ]?.ToString() ) ??
